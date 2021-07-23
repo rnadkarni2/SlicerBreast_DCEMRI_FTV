@@ -36,7 +36,7 @@ preferences for early and late phase timing, and method of DCE series identifica
 and late post-contrast phases to the Slicer window. <strong>This extension is only compatible with MR exams that use bilateral
 images with axial slices.</strong> </p>
 
-![Screenshot from Module 1](https://github.com/rnadkarni2/SlicerBreast_DCEMRI_TumorSegment/blob/master/Module1Screenshot.png)
+![Screenshot from Module 1](https://github.com/rnadkarni2/SlicerBreast_DCEMRI_FTV/blob/master/Module1Screenshot.png)
 
 <p>The second module is called <strong>Module 2: Compute FTV in ROI</strong>. In this module, the user first selects the tumor region of interest
 (ROI) and also has the option to select regions within the ROI to exclude from the segmentation (omit regions).
@@ -54,7 +54,7 @@ In addition, the user may generate a report that includes several axial and sagi
 as well as relevant information such as FTV value, ROI boundaries, segmentation thresholds used,
 and details about the exam selected.</p>
 
-![Screenshot from Module 2](https://github.com/rnadkarni2/SlicerBreast_DCEMRI_TumorSegment/blob/master/Module2Screenshot.png)
+![Screenshot from Module 2](https://github.com/rnadkarni2/SlicerBreast_DCEMRI_FTV/blob/master/Module2Screenshot.png)
 
 
 <h2>Additional Resources</h2>
