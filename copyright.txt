@@ -1,0 +1,17 @@
+#---------------------------------------------------------------------------------
+#Copyright (c) 2021
+#By Rohan Nadkarni and the Regents of the University of California.
+#All rights reserved.
+
+#This code was developed by the UCSF Breast Imaging Research Group,
+#and it is part of the extension Breast_DCEMRI_TumorSegment,
+#which can be installed from the Extension Manager in the 3D Slicer application.
+
+#If you intend to make derivative works of any code from the
+#Breast_DCEMRI_TumorSegment extension, please inform the
+#UCSF Breast Imaging Research Group
+#(https://radiology.ucsf.edu/research/labs/breast-imaging-research).
+
+#This notice must be attached to all copies, partial copies,
+#revisions, or derivations of this code.
+#---------------------------------------------------------------------------------

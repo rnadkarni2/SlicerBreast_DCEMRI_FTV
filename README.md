@@ -1,5 +1,9 @@
 <h1>Breast DCE-MRI FTV extension</h1>
 
+<p>Users of this extension must abide by the Slicer license. A copy of this license is included
+in this repository in the file <strong>license.txt</strong>. The <strong>copyright.txt</strong> 
+file in this repository includes the copyright statement written on all Python code files in this extension.</p>
+
 <h2>Purpose of Extension</h2>
 
 <p>This 3D Slicer extension allows the user to compute functional tumor volume (FTV) from a 
