@@ -21,12 +21,18 @@
 #Script that contains all functions related to gunzip
 #of compressed DICOM images.
 
-
+import slicer
 import os
 import shutil
 from distutils.dir_util import copy_tree
 
 def extractGZ(exampath):
+    
+    sevenzipdir = r'C:\Program Fileszz\7-Zip'
+    if(os.path.isdir(sevenzipdir) == 0):
+        slicer.util.confirmOkCancelDisplay("Error. Please decompress all files in exam directory, then try running module again.","Compressed DICOMs Error")
+        return
+    
     #return list of folders in exampath
     folders = [directory for directory in os.listdir(exampath) if os.path.isdir(exampath + "\\" + directory)]
 

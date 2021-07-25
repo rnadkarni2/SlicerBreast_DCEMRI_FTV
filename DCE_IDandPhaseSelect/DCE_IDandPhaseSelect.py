@@ -553,9 +553,50 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
       #position of v in visit string
       vpos = self.visitstr.find('v')
       #2/17/2021: Add exam details retrieved from exampath to DCE folder ID method selection menu.
-      self.examlbl = "Choose Preferred Method of DCE Series ID for " + self.sitestr[5:] + " " + self.idstr + " " + self.visitstr[vpos:vpos+3]
+      visnum = self.visitstr[vpos:vpos+3]
+      visforlbl = 'Visit unknown'
+      if(visnum == 'v10'):
+        visforlbl = 'MR1'
+        
+      if(visnum == 'v20'):
+        visforlbl = 'MR2'
+        
+      if(visnum == 'v25'):
+        visforlbl = 'MR2.5'
+        
+      if(visnum == 'v30'):
+        visforlbl = 'MR3'
+        
+      if(visnum == 'v40'):
+        visforlbl = 'MR4'
+        
+      if(visnum == 'v50'):
+        visforlbl = 'MR5'
+
+      self.examlbl = "Choose Preferred Method of DCE Series ID for " + self.sitestr[5:] + " " + self.idstr + " " + visforlbl
     else:
-      self.examlbl = "Choose Preferred Method of DCE Series ID for " + self.sitestr + " " + self.idstr + " " + self.visitstr 
+      visnum = self.visitstr
+      visforlbl = 'Visit unknown'
+
+      if(visnum == 'v10'):
+        visforlbl = 'MR1'
+        
+      if(visnum == 'v20'):
+        visforlbl = 'MR2'
+        
+      if(visnum == 'v25'):
+        visforlbl = 'MR2.5'
+        
+      if(visnum == 'v30'):
+        visforlbl = 'MR3'
+        
+      if(visnum == 'v40'):
+        visforlbl = 'MR4'
+        
+      if(visnum == 'v50'):
+        visforlbl = 'MR5'
+
+      self.examlbl = "Choose Preferred Method of DCE Series ID for " + self.sitestr + " " + self.idstr + " " + visforlbl 
 
     #2/11/2021: Adding interface to allow user to choose between manual and automatic folder ID
     self.DCE_ID_choose = qt.QLabel()
@@ -622,11 +663,8 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
 
       #if exam is gzipped, gunzip it and set new exampath to gunzip folder inside of exam folder
       if(gzipped == 1):
-        try:
-          gzip_gunzip_pyfuncs.extractGZ(self.exampath) #create folders with unzipped DICOMs
-          self.exampath = self.exampath + "\\" + "gunzipped" #set new exampath to gunzip folder inside of exam folder
-        except:
-          slicer.util.confirmOkCancelDisplay("Error. Please decompress all files in exam directory, then try running module again.","Compressed DICOMs Error")
+        gzip_gunzip_pyfuncs.extractGZ(self.exampath) #create folders with unzipped DICOMs
+        self.exampath = self.exampath + "\\" + "gunzipped" #set new exampath to gunzip folder inside of exam folder
 
       
       #First, fill header info structures for all DICOM folders in exam
@@ -761,11 +799,8 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
 
       #if exam is gzipped, gunzip it and set new exampath to gunzip folder inside of exam folder
       if(gzipped == 1):
-        try:
-          gzip_gunzip_pyfuncs.extractGZ(exampath) #create folders with unzipped DICOMs
-          exampath = exampath + "\\" + "gunzipped" #set new exampath to gunzip folder inside of exam folder
-        except:
-          slicer.util.confirmOkCancelDisplay("Error. Please decompress all files in exam directory, then try running module again.","Compressed DICOMs Error")
+        gzip_gunzip_pyfuncs.extractGZ(exampath) #create folders with unzipped DICOMs
+        exampath = exampath + "\\" + "gunzipped" #set new exampath to gunzip folder inside of exam folder
 
           
     #find out which visit # is the one you're processing
