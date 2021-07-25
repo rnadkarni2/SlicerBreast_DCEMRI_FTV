@@ -4,18 +4,17 @@
 #All rights reserved.
 
 #This code was developed by the UCSF Breast Imaging Research Group,
-#and it is part of the extension Breast_DCEMRI_TumorSegment,
+#and it is part of the extension Breast_DCEMRI_FTV,
 #which can be installed from the Extension Manager in the 3D Slicer application.
 
 #If you intend to make derivative works of any code from the
-#Breast_DCEMRI_TumorSegment extension, please inform the
+#Breast_DCEMRI_FTV extension, please inform the
 #UCSF Breast Imaging Research Group
 #(https://radiology.ucsf.edu/research/labs/breast-imaging-research).
 
 #This notice must be attached to all copies, partial copies,
 #revisions, or derivations of this code.
 #---------------------------------------------------------------------------------
-
 
 
 #Created by Rohan Nadkarni
