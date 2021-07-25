@@ -23,7 +23,7 @@ to guide adaptive randomization of therapy for patients.</p>
 <p>Despite the predictive power of the FTV segmentation method, access to it has been limited.
 The most recent implementation of this method prior to this 3D Slicer extension, a module on the
 Sentinelle AEGIS platform, can only be used by sites participating in the I-SPY 2 TRIAL due to
-restrictions of the FDA IDE approval. Therefore, the Breast DCE-MRI Tumor Segment extension
+restrictions of the FDA IDE approval. Therefore, the Breast DCE-MRI FTV extension
 has been developed and published so that the larger breast MR imaging community can use the
 FTV segmentation method by simply downloading 3D Slicer and installing this extension
 through the Extension Manager.</p>
