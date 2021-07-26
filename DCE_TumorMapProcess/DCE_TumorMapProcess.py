@@ -2204,7 +2204,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     print(pethresh)
     minconnpix = self.minconnthresh.value
     print(minconnpix)
-        
 
     #Edit 6/30/2020: no more imgReversed
     #Start the "run" section processing, using the final ROI selections
@@ -2230,7 +2229,12 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     #7/19/2021: Initial omit radius should be 75% of initial roiradius
     omitradius_RAS = 0.75*roiradius_RAS
     #7/16/2021:Add yes/no dialog to this to avoid accidental omit region additions.
-    yesnotxt = "Do you want to add omit region #" + str(self.omitCount) + "? If yes, omit region will be placed at center of image."
+    if(self.omitCount <= 5):
+      yesnotxt = "Do you want to add omit region #" + str(self.omitCount) + "? If yes, omit region will be placed at center of image."
+    else:
+      slicer.util.confirmOkCancelDisplay("You have already added the maximum allowable number of omit regions.","Cannot add another omit region.")
+
+      
     #Choose which omit object to add to scene based on omit count
     if self.omitCount == 1:
       if(slicer.util.confirmYesNoDisplay(yesnotxt)):
@@ -2856,12 +2860,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
           #DICOM header path for pre-contrast image
           pre_path = self.exampath + "\\" + str(pre_folder)
 
-        #Create copies of maps that can be reused for report creation
-        self.sega = a
-        self.segb = b
-        self.segser = self.ser
-        self.segtumormask = tumor_mask
-        self.segvoimask = voi_mask
 
         #Update progress bar to say that SER map has been generated
         progressBar.value = 60
@@ -3020,6 +3018,14 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
           progressBar.value = 100
           progressBar.labelText = "SER colorized image loaded to Slicer"
           slicer.app.processEvents()
+
+          #Create copies of maps that can be reused for report creation
+          self.sega = a
+          self.segb = b
+          self.segser = self.ser
+          self.segtumormask = tumor_mask
+          self.segvoimask = voi_mask
+
         except:
           slicer.util.confirmOkCancelDisplay("Only showing FTV value. Unable to display SER colorized map because input image is too large.","Error Displaying SER Colorization")
 
@@ -3230,7 +3236,7 @@ class DCE_TumorMapProcessLogic(ScriptedLoadableModuleLogic):
 
     #generate FTV processing outputs
     a,b,c,pe,ser,tumor_mask,voi_mask,zs,zf,ys,yf,xs,xf,pct,pre_thresh,pethresh,minconnpix = ftv_map_gen.makeFTVMaps(imagespath, manufacturer, dce_folders,roicenter,roiradius,omitcenters,omitradii, earlyPostContrastNum, latePostContrastNum,pct,pethresh,minconnpix)
-
+      
     progressBar.value = 50
     progressBar.labelText = 'Computed PE, SER, and Tumor Mask'
     slicer.app.processEvents()

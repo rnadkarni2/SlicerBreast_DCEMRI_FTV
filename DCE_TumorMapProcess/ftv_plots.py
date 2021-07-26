@@ -43,7 +43,6 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     #import parse_xml
 
 
-
     #Edit 8/12/2020: Use window and level to set display min and max
     dispmin = int(level)
     dispmax = int(level+window/2)

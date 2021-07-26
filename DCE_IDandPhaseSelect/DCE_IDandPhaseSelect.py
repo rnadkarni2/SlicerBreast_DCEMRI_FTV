@@ -484,13 +484,16 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
               self.visitstr = 'MR4'
               
                 
-        
+    #7/26/2021: If this step fails, DICOMs in exam directory are compressed.    
+    try:
+      print(self.exampath)
+      print(self.studystr)
+      print(self.sitestr)
+      print(self.idstr)
+      print(self.visitstr)
+    except:
+      slicer.util.confirmOkCancelDisplay("Error. Please decompress all files in exam directory, then try running module again.","Compressed DICOMs Error")
 
-    print(self.exampath)
-    print(self.studystr)
-    print(self.sitestr)
-    print(self.idstr)
-    print(self.visitstr)
 
     #7/16/2021: Force side-by-side axial-sagittal layout immediately after
     #processing user's MR study selection.

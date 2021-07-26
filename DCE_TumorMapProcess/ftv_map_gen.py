@@ -92,6 +92,8 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
       zs = int( round( float(center[2]) - float(radius[2]) ) )
       zf = int( round( float(center[2]) + float(radius[2]) ) )
 
+      
+
       #because it's a numpy array, it must have dimension order z,y,x in order to match orientations with input image
       #4/27/21: Add the +1 to each dimension to compensate for
       #Python array indexing rules
