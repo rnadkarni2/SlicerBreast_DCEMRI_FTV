@@ -77,16 +77,9 @@ except:
 from scipy import signal
 
 import math
-
-try:
-  import SimpleITK as sitk
-except:
-  slicer.util.pip_install('SimpleITK')
-  import SimpleITK as sitk
   
 import time
 import datetime
-import keyboard
 import pickle
 import pathlib
 
