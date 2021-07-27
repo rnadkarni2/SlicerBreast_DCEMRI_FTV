@@ -21,7 +21,6 @@
 #DICOM series from a path.
 
 import numpy as np
-import SimpleITK as sitk
 import pydicom
 import dicom
 import re
@@ -119,13 +118,13 @@ def readPhilipsImageToNumpy(exampath,dce_folders,fsort,postContrastNum):
     #7/20/2021: If image dimensions > 700 x 700 x 200, cut off
     #20 slices from each side. Hopefully this prevents numpy
     #memory errors when computing FTV.
-##    try:
-##        hdr0 = pydicom.dcmread(str(dicom_names[0]),stop_before_pixels = True)
-##        nrow = hdr0[0x28,0x10].value
-##        if(nrow > 700 and len(dicom_names) > 200):
-##            dicom_names = dicom_names[20:-20]
-##    except:
-##        print("Not checking image size, therefore will not remove slices.")
+    try:
+        hdr0 = pydicom.dcmread(str(dicom_names[0]),stop_before_pixels = True)
+        nrow = hdr0[0x28,0x10].value
+        if(nrow > 700 and len(dicom_names) > 200):
+            dicom_names = dicom_names[30:-30]
+    except:
+        print("Not checking image size, therefore will not remove slices.")
 
     plugin = slicer.modules.dicomPlugins['DICOMScalarVolumePlugin']()
     loadables = plugin.examine([dicom_names])

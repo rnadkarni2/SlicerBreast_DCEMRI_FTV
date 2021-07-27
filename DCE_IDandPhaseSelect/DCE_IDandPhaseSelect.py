@@ -91,11 +91,13 @@ import pickle
 import pathlib
 
 #imports of my functions
-import Get_header_info_all_manufacturer
-import read_DCE_images_to_numpy
-import Exam_Ident_and_timing
-import ident_gzipped_exam
-import gzip_gunzip_pyfuncs
+#7/27/2021: Start with Plugin folder import
+import Breast_DCEMRI_FTV_plugins1
+from Breast_DCEMRI_FTV_plugins1 import Get_header_info_all_manufacturer
+from Breast_DCEMRI_FTV_plugins1 import read_DCE_images_to_numpy
+from Breast_DCEMRI_FTV_plugins1 import Exam_Ident_and_timing
+from Breast_DCEMRI_FTV_plugins1 import ident_gzipped_exam
+from Breast_DCEMRI_FTV_plugins1 import gzip_gunzip_pyfuncs
 
 #
 # DCE_IDandPhaseSelect

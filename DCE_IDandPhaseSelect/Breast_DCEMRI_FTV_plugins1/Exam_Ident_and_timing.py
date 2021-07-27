@@ -20,11 +20,12 @@
 #Created by Rohan Nadkarni
 #Code that runs functions for DCE folder and early & late
 #post-contrast identification.
+#7/27/2021: Start with Plugins folder import
 
-
-import Get_header_info_all_manufacturer
-import chooseEarly_LateByManufacturer
-import gzip_gunzip_pyfuncs
+import Breast_DCEMRI_FTV_plugins1
+from Breast_DCEMRI_FTV_plugins1 import Get_header_info_all_manufacturer
+from Breast_DCEMRI_FTV_plugins1 import chooseEarly_LateByManufacturer
+from Breast_DCEMRI_FTV_plugins1 import gzip_gunzip_pyfuncs
 import os
 import pydicom
 import dicom

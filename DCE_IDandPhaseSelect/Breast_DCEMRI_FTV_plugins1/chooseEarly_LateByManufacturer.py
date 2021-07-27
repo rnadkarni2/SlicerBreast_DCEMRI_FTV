@@ -28,9 +28,11 @@ import pydicom
 import dicom
 import os
 import numpy as np
-import timing_info_class_all_manufacturer #function for populating structures of timing info from DICOM headers
-import multivolume_folder_sort #function for sorting slices in correct order for a multivolume folder
-import gzip_gunzip_pyfuncs
+
+import Breast_DCEMRI_FTV_plugins1
+from Breast_DCEMRI_FTV_plugins1 import timing_info_class_all_manufacturer #function for populating structures of timing info from DICOM headers
+from Breast_DCEMRI_FTV_plugins1 import multivolume_folder_sort #function for sorting slices in correct order for a multivolume folder
+from Breast_DCEMRI_FTV_plugins1 import gzip_gunzip_pyfuncs
 
 #Function that tells you which post-contrast image # is early or late
 def findClosestTime(imgtimes,time):

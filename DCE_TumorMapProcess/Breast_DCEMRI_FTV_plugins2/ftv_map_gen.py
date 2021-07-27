@@ -20,12 +20,12 @@
 #Code that generates PE map, SER map,
 #and tumor mask that is used to compute
 #functional tumor volume (FTV).
+import Breast_DCEMRI_FTV_plugins2
+from Breast_DCEMRI_FTV_plugins2 import read_DCE_images_to_numpy
+from Breast_DCEMRI_FTV_plugins2 import multivolume_folder_sort
 
-import read_DCE_images_to_numpy
-import chooseEarly_LateByManufacturer
 import numpy as np
 from scipy import signal
-import multivolume_folder_sort
 import nibabel as nib
 import vtk
 

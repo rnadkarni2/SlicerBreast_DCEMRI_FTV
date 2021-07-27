@@ -39,7 +39,9 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     import pydicom
     import dicom
     import os
-    import create2DimgAllFunctions
+
+    import Breast_DCEMRI_FTV_plugins2 
+    from Breast_DCEMRI_FTV_plugins2 import create2DimgAllFunctions
     #import parse_xml
 
 
@@ -448,7 +450,17 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         mip_sagittal_wroi = np.flipud(mip_sagittal_wroi)
         img_sag_slc_wroi = np.flipud(img_sag_slc_wroi)
         img_sag_clr_crop = np.flipud(img_sag_clr_crop)
-        
+
+
+    #Edit 7/26/2021: Flip sagittal images again if Philips cropped images
+    #Like ispy_2019, UChic, 10747, v10
+    if(len(dce_folders) == 1 and preimg3d.shape[2] < len(fsort[earlyPostContrastNum][:])):
+        flip3str = "Flipping because nslice image = " + str(preimg3d.shape[2]) + " and nslice per phase = " + str(len(fsort[earlyPostContrastNum][:]))
+        print(flip3str)
+        mip_sagittal_wroi = np.flipud(mip_sagittal_wroi)
+        img_sag_slc_wroi = np.flipud(img_sag_slc_wroi)
+        img_sag_clr_crop = np.flipud(img_sag_clr_crop)
+
 
     sagtoplbl = 'H'
     sagbtmlbl = 'F'

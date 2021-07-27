@@ -102,14 +102,17 @@ except:
   import skimage
 
 #imports of my functions
-import compute_lps_to_rcs
-import Write_to_xml
-import ftv_map_gen
-import ftv_map_gen_p2
-import ftv_plots
-import create2DimgAllFunctions
-import ident_gzipped_exam
-import gzip_gunzip_pyfuncs
+#7/27/2021: Replace individual imports with Plugin folder import
+import Breast_DCEMRI_FTV_plugins2
+from Breast_DCEMRI_FTV_plugins2 import compute_lps_to_rcs
+from Breast_DCEMRI_FTV_plugins2 import Write_to_xml
+from Breast_DCEMRI_FTV_plugins2 import ftv_map_gen
+from Breast_DCEMRI_FTV_plugins2 import ftv_map_gen_p2
+from Breast_DCEMRI_FTV_plugins2 import ftv_plots
+from Breast_DCEMRI_FTV_plugins2 import create2DimgAllFunctions
+from Breast_DCEMRI_FTV_plugins2 import ident_gzipped_exam
+from Breast_DCEMRI_FTV_plugins2 import gzip_gunzip_pyfuncs
+
 
 
 #Function that outputs the numpy image stored in a vtkMRMLScalarVolumeNode
