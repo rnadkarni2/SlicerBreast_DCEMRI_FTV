@@ -66,8 +66,8 @@ and details about the exam selected.</p>
 For complete, step-by-step user instructions on how to use this extension, please read the document <br>
 **UserInstructionsFor_Breast_DCEMRI_FTV.pdf**.
 
-For more information about the FTV segmentation method, please read the publication <br>
-***Vascularity assessment of breast lesions with gadolinium-enhanced MR imaging***.
+<p>If you have any questions, you can contact David Newitt of the UCSF Breast Imaging Research Group (david.newitt@ucsf.edu)</p>
 
 <h2>References</h2>
 <p>1. Hylton NM, Blume JD, Bernreuter WK, Pisano ED, Rosen MA, Morris EA, Weatherall PT, Lehman CD, Newstead GM, Polin S. Locally advanced breast cancer: MR imaging for prediction of response to neoadjuvant chemotherapy—results from ACRIN 6657/I-SPY TRIAL. Radiology. 2012;263:663–672.</p>
+<p>2. Hylton NM. Vascularity assessment of breast lesions with gadolinium-enhanced MR imaging. Magn Reson Imaging Clin N Am. 1999;7:411–420. x. </p>
