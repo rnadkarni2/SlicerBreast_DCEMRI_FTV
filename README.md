@@ -31,14 +31,17 @@ through the Extension Manager.</p>
 
 <h2>Summary of Modules</h2>
 
+<p><strong>This extension is only compatible with MR exams that use bilateral
+images with axial slices. The extension has been used extensively to process MR exams on
+a Windows machine, and has been shown to work on a Mac as well.</strong> </p>
+
 <p>This extension contains 2 modules. After you install the extension, both of these modules
 can be found under the <strong>FTV Segmentation</strong> category in the modules list.</p>
 
 <p>The first module is called <strong>Module 1: Load DCE Images</strong>. In this module, the user selects the MR exam to process,
 preferences for early and late phase timing, and method of DCE series identification
 (automatic or manual). The module will then load the pre-contrast, early post-contrast,
-and late post-contrast phases to the Slicer window. <strong>This extension is only compatible with MR exams that use bilateral
-images with axial slices.</strong> </p>
+and late post-contrast phases to the Slicer window. </p>
 
 ![Screenshot from Module 1](https://github.com/rnadkarni2/SlicerBreast_DCEMRI_FTV/blob/master/Module1Screenshot.png)
 
@@ -60,6 +63,10 @@ and details about the exam selected.</p>
 
 ![Screenshot from Module 2](https://github.com/rnadkarni2/SlicerBreast_DCEMRI_FTV/blob/master/Module2Screenshot.png)
 
+<h2>Publication</h2>
+
+<p>A publication about this 3D Slicer extension called <strong>Validation of the Open-Source 3D Slicer Extension Breast DCE-MRI Functional Tumor Volume as a Tool to Assess Treatment Response</strong> 
+will be submitted to the journal <strong>Tomography</strong> before the end of 2021.</p>
 
 <h2>Additional Resources</h2>
 
