@@ -28,6 +28,7 @@ import numpy as np
 from scipy import signal
 import nibabel as nib
 import vtk
+import os
 
 def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcenters,omitradii, earlyPostContrastNum, latePostContrastNum,pct,pethresh,minconnpix):
     #Edit 10/6/2020: Make background threshold % (pct), pethresh, and minconnpix inputs to the function, rather than fixed values.
@@ -46,16 +47,16 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
     if ('PHILIPS' in manufacturer or 'Philips' in manufacturer or len(dce_folders) <= 2):
         #For UKCC, which has 2 DCE folders
         if(len(dce_folders) == 2):
-            dcepath = exampath + "\\" + str(dce_folders[1])
+            dcepath = os.path.join(exampath,str(dce_folders[1]))
         else:
-            dcepath = exampath + "\\" + str(dce_folders[0])
+            dcepath = os.path.join(exampath,str(dce_folders[0]))
         print("dce path is")
         print(dcepath)
         fsort, numtemp, nslice, ctime_forphases, ttime_forphases, atime_forphases = multivolume_folder_sort.sortDicoms(dcepath)
 
         #For UKCC, which has 2 DCE folders
         if(len(dce_folders) == 2):
-            apath = exampath + "\\" + str(dce_folders[0])
+            apath = os.path.join(exampath,str(dce_folders[0]))
             print("pre-contrast path is")
             print(apath)
             m,a = read_DCE_images_to_numpy.readInputToNumpy(apath)
@@ -63,7 +64,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
             m,a = read_DCE_images_to_numpy.readPhilipsImageToNumpy(exampath,dce_folders,fsort,0)
             
     else:
-        apath = exampath + "\\" + str(dce_folders[0]) #5/8/2020: Edited to go with identify_dce_folders
+        apath = os.path.join(exampath,str(dce_folders[0])) #5/8/2020: Edited to go with identify_dce_folders
         m,a = read_DCE_images_to_numpy.readInputToNumpy(apath)
 
 

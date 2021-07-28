@@ -54,18 +54,18 @@ class FolderInfo:
 
             if len(files)>0:
                 dcm_files = sorted(files)
-                img1path = folderpath + "\\" + dcm_files[0]
-                imgendpath = folderpath + "\\" + dcm_files[len(dcm_files)-1]
+                img1path = os.path.join(folderpath,dcm_files[0])
+                imgendpath = os.path.join(folderpath,dcm_files[len(dcm_files)-1])
 
             if len(FILES)>0:
                 dcm_files = sorted(FILES)
-                img1path = folderpath + "\\" + dcm_files[0]
-                imgendpath = folderpath + "\\" + dcm_files[len(dcm_files)-1]
+                img1path = os.path.join(folderpath,dcm_files[0])
+                imgendpath = os.path.join(folderpath,dcm_files[len(dcm_files)-1])
 
             if len(files_noext)>0:
                 dcm_files = sorted(files_noext)
-                img1path = folderpath + "\\" + dcm_files[0]
-                imgendpath = folderpath + "\\" + dcm_files[len(dcm_files)-1]
+                img1path = os.path.join(folderpath,dcm_files[0])
+                imgendpath = os.path.join(folderpath,dcm_files[len(dcm_files)-1])
 
             print("Reading header from file:")
             print(img1path)
@@ -331,13 +331,13 @@ class FolderInfo:
 
 def fillExamFolderInfoStructures(exampath):
     #return list of folders in exampath
-    folders = [directory for directory in os.listdir(exampath) if os.path.isdir(exampath + "\\" + directory)]
+    folders = [directory for directory in os.listdir(exampath) if os.path.isdir(os.path.join(exampath,directory))]
 
     #Edit 5/29/2020: Instead of using folder name as criterion, check if the folder actually has
     #DICOMs in and add to img_folders only if it does have DICOMs.
     img_folders = []
     for i in range(len(folders)):
-        curr_path = exampath + "\\" + folders[i]
+        curr_path = os.path.join(exampath,folders[i])
         curr_files = [f for f in os.listdir(curr_path) if f.endswith('.dcm')]
         curr_FILES = [f for f in os.listdir(curr_path) if f.endswith('.DCM')]
         curr_files_noext = [f for f in os.listdir(curr_path) if f.isdigit()] #edit 1/26/2021: In some folders, there is a series of DICOM images
@@ -362,7 +362,7 @@ def fillExamFolderInfoStructures(exampath):
     #using list of DICOM image folders, make list of structures with DICOM header info from each folder
     all_folders_info = []
     for j in range(len(img_folders)):
-        curr_path = exampath + "\\" + str(img_folders[j])
+        curr_path = os.path.join(exampath,str(img_folders[j]))
         curr_folder_info = FolderInfo(curr_path)
         all_folders_info.append(curr_folder_info)
 

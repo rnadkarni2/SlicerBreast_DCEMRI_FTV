@@ -96,7 +96,7 @@ def earlyOrLateImgSelect(postContrastNum,dce_folders,exampath):
         foldernum = str(dce_folders[postContrastNum])
         
     print("Reading post-contrast image # " + str(postContrastNum) + " from folder " + str(foldernum))
-    path = exampath + "\\" + str(foldernum)
+    path = os.path.join(exampath,str(foldernum))
     a = readInputToNumpy(path)
     return a
 
@@ -106,11 +106,11 @@ def readPhilipsImageToNumpy(exampath,dce_folders,fsort,postContrastNum):
     #If 2 dce folders, need to subtract 1 to obtain correct row of fsort because it doesn't have a row for precontrast
     if len(dce_folders) == 2:
         postContrastNum = postContrastNum - 1
-        dcepath = exampath + "\\" + str(dce_folders[1])
+        dcepath = os.path.join(exampath,str(dce_folders[1]))
         print("post-contrast dce path is")
         print(dcepath)
     else:
-        dcepath = exampath + "\\" + str(dce_folders[0])
+        dcepath = os.path.join(exampath,str(dce_folders[0]))
     
     dicom_names = fsort[postContrastNum][:]
     dicom_names = addFullPathToFileList(dcepath,dicom_names) #call function for converting list of DCM filenames to list of DCM file names with path included
@@ -176,7 +176,7 @@ def readPhilipsImageToNumpy(exampath,dce_folders,fsort,postContrastNum):
 def addFullPathToFileList(path,files):
     for i in range(len(files)):
         filei = files[i]
-        fullfilei = path + "\\" + filei
+        fullfilei = os.path.join(path,filei)
         files[i] = fullfilei
     return files
 

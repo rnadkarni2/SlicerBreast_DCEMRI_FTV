@@ -270,17 +270,17 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #Edit 7/21/2020: Use gunzipped as source path for images if necessary
     if(gzipped == 1):
-        imagepath = path + "\\" + "gunzipped"
+        imagepath = os.path.join(path,"gunzipped")
     else:
         imagepath = path
 
     #5/21/2021: Using pre slice for voxels to cm^3 conversion factor to match other code
 
-    pre_path = imagepath + "\\" + str(dce_folders[0])
+    pre_path = os.path.join(imagepath,str(dce_folders[0]))
     #Then, use DICOM header to compute voxel volume in cubic centimeters (cc)
     pre_imgs = os.listdir(pre_path)
     pre_imgs = sorted(pre_imgs)
-    pre_img1path = pre_path + "\\" + pre_imgs[0]
+    pre_img1path = os.path.join(pre_path,pre_imgs[0])
 
     try:
       pre_hdr1 = pydicom.dcmread(pre_img1path,stop_before_pixels = True)
@@ -290,24 +290,26 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         
     #edit 6/11/2020: Split by single vs multi folder DCE instead of non-Philips vs Philips
     if (len(dce_folders) == 1):
-        earlyslice1path = imagepath + "\\" + str(dce_folders[0]) + "\\" + fsort[earlyPostContrastNum][0]
+        earlyslice1folderpath = os.path.join(imagepath,str(dce_folders[0]))
+        earlyslice1path = os.path.join(earlyslice1folderpath,fsort[earlyPostContrastNum][0])
 
     if(len(dce_folders) == 2):
         #Edit 1/29/2021: For 2 DCE folders, use earlyPostContrastNum-1 because there is no pre-contrast image in multivolume folder
-        earlyslice1path = imagepath + "\\" + str(dce_folders[1]) + "\\" + fsort[earlyPostContrastNum-1][0]
+        earlyslice1folderpath = os.path.join(imagepath,str(dce_folders[1]))
+        earlyslice1path = os.path.join(earlyslice1folderpath,fsort[earlyPostContrastNum-1][0])
         
         
     if(len(dce_folders) > 2):
         #7/6/2021: Add exception for exams where DCE series folders have number
         #and letters in name, like Duke TCIA.
         try:
-            earlypath = imagepath + "\\" + str(int(dce_folders[earlyPostContrastNum]))
+            earlypath = os.path.join(imagepath,str(int(dce_folders[earlyPostContrastNum])))
         except:
-            earlypath = imagepath + "\\" + str(dce_folders[earlyPostContrastNum])
+            earlypath = os.path.join(imagepath,str(dce_folders[earlyPostContrastNum]))
             
         files = os.listdir(earlypath)
         files = sorted(files)
-        earlyslice1path = earlypath + "\\" + files[0]
+        earlyslice1path = os.path.join(earlypath,files[0])
 
     try:
         earlyslice1hdr = pydicom.dcmread(earlyslice1path,stop_before_pixels = True)
@@ -470,22 +472,24 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     #read header of slice in late post-contrast image
     #edit 6/11/2020: Split by single vs multi folder DCE instead of non-Philips vs Philips
     if (len(dce_folders) == 1):
-        lateslice1path = imagepath + "\\" + str(dce_folders[0]) + "\\" + fsort[latePostContrastNum][0]
+        lateslice1folderpath = os.path.join(imagepath,str(dce_folders[0]))
+        lateslice1path = os.path.join(lateslice1folderpath,fsort[latePostContrastNum][0])
 
     if(len(dce_folders) == 2):
         #Edit 1/29/2021: For 2 DCE folders, use latePostContrastNum-1 because there is no pre-contrast image in multivolume folder
-        lateslice1path = imagepath + "\\" + str(dce_folders[1]) + "\\" + fsort[latePostContrastNum-1][0]
+        lateslice1folderpath = os.path.join(imagepath,str(dce_folders[1]))
+        lateslice1path = os.path.join(lateslice1folderpath,fsort[latePostContrastNum-1][0])
         
     if(len(dce_folders) > 2):
         #7/6/2021: Add exception for exams where DCE series folders have number
         #and letters in name, like Duke TCIA.
         try:
-            latepath = imagepath + "\\" + str(int(dce_folders[latePostContrastNum]))
+            latepath = os.path.join(imagepath,str(int(dce_folders[latePostContrastNum])))
         except:
-            latepath = imagepath + "\\" + str(dce_folders[latePostContrastNum])
+            latepath = os.path.join(imagepath,str(dce_folders[latePostContrastNum]))
         files = os.listdir(latepath)
         files = sorted(files)
-        lateslice1path = latepath + "\\" + files[0]
+        lateslice1path = os.path.join(latepath,files[0])
 
     try:
         lateslice1hdr = pydicom.dcmread(lateslice1path,stop_before_pixels = True)

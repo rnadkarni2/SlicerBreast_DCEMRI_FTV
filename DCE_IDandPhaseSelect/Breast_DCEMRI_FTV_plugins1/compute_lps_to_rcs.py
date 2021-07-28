@@ -27,7 +27,7 @@ import numpy as np
 import re
 
 def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
-    imgpath = exampath+"\\"+str(prefoldernum)
+    imgpath = os.path.join(exampath,str(prefoldernum))
     print(imgpath)
     files = os.listdir(imgpath)
 
@@ -44,16 +44,16 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
         file1search4 = [i for i in files if 'I1.DCM' in i]
 
         if len(file1search1) > 0:
-            file1 = imgpath + "\\" + file1search1[0]
+            file1 = os.path.join(imgpath,file1search1[0])
 
         if len(file1search2) > 0:
-            file1 = imgpath + "\\" + file1search2[0]
+            file1 = os.path.join(imgpath,file1search2[0])
 
         if len(file1search3) > 0:
-            file1 = imgpath + "\\" + file1search3[0]
+            file1 = os.path.join(imgpath,file1search3[0])
             
         if len(file1search4) > 0:
-            file1 = imgpath + "\\" + file1search4[0]
+            file1 = os.path.join(imgpath,file1search4[0])
 
         file1search5 = []
         #Edit 1/26/2021: file1search that incorporates DICOMs
@@ -63,11 +63,11 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
 
             if len(file1search5) > 0:
                 file1search5 = sorted(file1search5)
-                file1 = imgpath + "\\" + file1search5[0]
+                file1 = os.path.join(imgpath,file1search5[0])
             
     else:
         N = nslice
-        file1 = imgpath + "\\" + fsort[0][0]
+        file1 = os.path.join(imgpath,fsort[0][0])
 
 
  
@@ -101,12 +101,12 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
             searchstr = str(N) + '.DCM'
 
         if( len(file1search5) > 0):
-            fileN = imgpath + "\\" + file1search5[len(file1search5) - 1]
+            fileN = os.path.join(imgpath,file1search5[len(file1search5) - 1])
         else:
             fileNsearch = [i for i in files if searchstr in i]
-            fileN = imgpath + "\\" + fileNsearch[0]
+            fileN = os.path.join(imgpath,fileNsearch[0])
     else:
-        fileN = imgpath + "\\" + fsort[0][N-1]
+        fileN = os.path.join(imgpath,fsort[0][N-1])
     
     try:
         imgN = pydicom.dcmread(fileN)
@@ -239,12 +239,12 @@ def getVOIVoxelsFromInverseAffine(exampath,xmlfilepath,prefoldernum,nslice,fsort
     xs, xf, ys, yf, zs, zf = getRCSrange(centercoords,widthcoords,heightcoords,depthcoords,aff_inv_mat)
     print("-----Computed VOI voxel coordinates-----")
 
-    imgpath = exampath+"\\"+str(prefoldernum)
+    imgpath = os.path.join(exampath,str(prefoldernum))
     files = os.listdir(imgpath)
     N = len(files)
 
     #Read DICOM for 1st slice
-    file1 = imgpath+"\\"+files[0]
+    file1 = os.path.join(imgpath,files[0])
     try:
         img1 = pydicom.dcmread(file1)
     except:

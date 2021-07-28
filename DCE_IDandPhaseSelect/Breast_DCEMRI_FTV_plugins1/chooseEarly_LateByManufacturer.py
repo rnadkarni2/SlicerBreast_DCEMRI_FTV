@@ -90,7 +90,7 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
         fsort = 0 #setting this to 0 for multi-folder DCE makes this compatible with other functions used for Slicer
         phaseslc1paths = []
         for fnum in range(len(dce_folders)):
-            curr_path = exampath + "\\" + str(dce_folders[fnum])
+            curr_path = os.path.join(exampath,str(dce_folders[fnum]))
             files = [f for f in os.listdir(curr_path) if f.endswith('.dcm')]
             FILES = [f for f in os.listdir(curr_path) if f.endswith('.DCM')]
             files_noext = [f for f in os.listdir(curr_path) if f.isdigit()] #edit 1/26/2021: In some folders, there is a series of DICOM images
@@ -98,23 +98,23 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
 
             if len(files) > 0:
                 files = sorted(files)
-                curr_img_path = curr_path + "\\" + files[0]
+                curr_img_path = os.path.join(curr_path,files[0])
             if len(FILES) > 0:
                 FILES = sorted(FILES)
-                curr_img_path = curr_path + "\\" + FILES[0]
+                curr_img_path = os.path.join(curr_path,FILES[0])
             if len(files_noext)>0:
-                curr_img_path = curr_path + "\\" + files_noext[0]
+                curr_img_path = os.path.join(curr_path,files_noext[0])
 
                 
             phaseslc1paths.append(curr_img_path)
 
     #use one slice from each phase in same folder if there is only one DCE folder
     if (len(dce_folders) == 1):
-        dcepath = exampath + "\\" + str(dce_folders[0])
+        dcepath = os.path.join(exampath,str(dce_folders[0]))
         fsort, numtemp, nslice, ctime_forphases, ttime_forphases, atime_forphases = multivolume_folder_sort.sortDicoms(dcepath)
         phaseslc1paths = []
         for p in range(len(fsort)):
-            curr_img_path = dcepath + "\\" + fsort[p][0]
+            curr_img_path = os.path.join(dcepath,fsort[p][0])
             phaseslc1paths.append(curr_img_path)
         print("Phases slice 1 paths")
         print(phaseslc1paths)
@@ -125,18 +125,18 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
         if('gunzipped' in exampath):
             gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[1]))
     
-        postpath = exampath + "\\" + str(dce_folders[1])
+        postpath = os.path.join(exampath,str(dce_folders[1]))
         fsort, numtemp, nslice, ctime_forphases, ttime_forphases, atime_forphases = multivolume_folder_sort.sortDicoms(postpath)
 
-        prepath = exampath + "\\" + str(dce_folders[0])
+        prepath = os.path.join(exampath,str(dce_folders[0]))
         prefiles = os.listdir(prepath)
         prefiles = sorted(prefiles)
-        preslc1path = prepath + "\\" + prefiles[0]
+        preslc1path = os.path.join(prepath,prefiles[0])
 
         phaseslc1paths = []
         phaseslc1paths.append(preslc1path)
         for p in range(len(fsort)):
-            curr_img_path = postpath + "\\" + fsort[p][0]
+            curr_img_path = os.path.join(postpath,fsort[p][0])
             phaseslc1paths.append(curr_img_path)
         
         
@@ -352,10 +352,10 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
 
     #Using test_multivolume_folder_sort to automatically sort dicom filenames
     if(len(dce_folders) == 1):
-        dcepath = exampath + "\\" + str(int(dce_folders[0]))
+        dcepath = os.path.join(exampath,str(int(dce_folders[0])))
         
     if(len(dce_folders) == 2):
-        dcepath = exampath + "\\" + str(int(dce_folders[1]))
+        dcepath = os.path.join(exampath,str(int(dce_folders[1])))
 
     print("dce path")
     print(dcepath)
@@ -375,14 +375,14 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
     #to allow processing for these cases.
     phaseslc1paths = []
     if(len(dce_folders) == 2):
-        prepath = exampath + "\\" + str(dce_folders[0])
+        prepath = os.path.join(exampath,str(dce_folders[0]))
         prefiles = os.listdir(prepath)
         prefiles = sorted(prefiles)
-        preslc1path = prepath + "\\" + prefiles[0]
+        preslc1path = os.path.join(prepath,prefiles[0])
         phaseslc1paths.append(preslc1path)
 
     for i in range(len(fsort)):
-        curr_img_path = dcepath + "\\" + fsort[i][0]
+        curr_img_path = os.path.join(dcepath,fsort[i][0])
         phaseslc1paths.append(curr_img_path)
 
     print("1st slice of each phase")

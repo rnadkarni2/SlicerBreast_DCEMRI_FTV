@@ -211,7 +211,7 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
   if (len(dce_folders) == 1):
     m,a = read_DCE_images_to_numpy.readPhilipsImageToNumpy(exampath,dce_folders,fsort,0)
   else:
-    apath = exampath + "\\" + str(dce_folders[0]) 
+    apath = os.path.join(exampath,str(dce_folders[0])) 
     m,a = read_DCE_images_to_numpy.readInputToNumpy(apath)
 
   print("RAS to IJK Matrix")
@@ -399,24 +399,24 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
     else:
       #6/28/2021: Read info from DICOM header instead of
       #directory for 'generic' exams with other directory structures
-      folders = [directory for directory in os.listdir(self.exampath) if os.path.isdir(self.exampath + "\\" + directory)]
+      folders = [directory for directory in os.listdir(self.exampath) if os.path.isdir(os.path.join(self.exampath,directory))]
       dcm_folder_found = 0
       for i in range(len(folders)):
-        curr_path = self.exampath + "\\" + folders[i]
+        curr_path = os.path.join(self.exampath,folders[i])
         curr_files = [f for f in os.listdir(curr_path) if f.endswith('.dcm')]
         curr_FILES = [f for f in os.listdir(curr_path) if f.endswith('.DCM')]
         files_noext = [f for f in os.listdir(curr_path) if f.isdigit()]
 
         if(len(curr_files) > 2):
-          dcm1path = curr_path + "\\" + curr_files[0]
+          dcm1path = os.path.join(curr_path,curr_files[0])
           dcm_folder_found = 1
 
         if(len(curr_FILES) > 2):
-          dcm1path = curr_path + "\\" + curr_FILES[0]
+          dcm1path = os.path.join(curr_path,curr_FILES[0])
           dcm_folder_found = 1
 
         if(len(files_noext) > 2):
-          dcm1path = curr_path + "\\" + files_noext[0]
+          dcm1path = os.path.join(curr_path,files_noext[0])
           dcm_folder_found = 1
 
         if(dcm_folder_found == 1):
@@ -661,7 +661,7 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
       #if exam is gzipped, gunzip it and set new exampath to gunzip folder inside of exam folder
       if(gzipped == 1):
         gzip_gunzip_pyfuncs.extractGZ(self.exampath) #create folders with unzipped DICOMs
-        self.exampath = self.exampath + "\\" + "gunzipped" #set new exampath to gunzip folder inside of exam folder
+        self.exampath = os.path.join(self.exampath,"gunzipped") #set new exampath to gunzip folder inside of exam folder
 
       
       #First, fill header info structures for all DICOM folders in exam
@@ -797,7 +797,7 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
       #if exam is gzipped, gunzip it and set new exampath to gunzip folder inside of exam folder
       if(gzipped == 1):
         gzip_gunzip_pyfuncs.extractGZ(exampath) #create folders with unzipped DICOMs
-        exampath = exampath + "\\" + "gunzipped" #set new exampath to gunzip folder inside of exam folder
+        exampath = os.path.join(exampath,"gunzipped") #set new exampath to gunzip folder inside of exam folder
 
           
     #find out which visit # is the one you're processing

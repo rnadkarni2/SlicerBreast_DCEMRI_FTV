@@ -37,7 +37,7 @@ class DicomFileInfo:
     def __init__(self,dcepath,file):
         self.filename = file
         
-        imgpath = dcepath + "\\" + file
+        imgpath = os.path.join(dcepath,file)
         hdr = pydicom.dcmread(imgpath,stop_before_pixels = True)
         try:
             self.numtemp = int(hdr[0x20,0x105].value)

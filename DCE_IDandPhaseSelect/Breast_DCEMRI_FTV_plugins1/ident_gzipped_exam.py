@@ -26,7 +26,7 @@ import os
 
 def checkForGzippedDicoms(exampath):
     #return list of folders in exampath
-    folders = [directory for directory in os.listdir(exampath) if os.path.isdir(exampath + "\\" + directory)]
+    folders = [directory for directory in os.listdir(exampath) if os.path.isdir(os.path.join(exampath,directory))]
 
     #by default, gzipped binary variable is set to 0
     gzipped = 0
@@ -36,7 +36,7 @@ def checkForGzippedDicoms(exampath):
 
     #Edit 12/16/2020: Change the criterion to be finding > 1 gzipped DICOMs
     for i in range(len(folders)):
-        curr_path = exampath + "\\" + folders[i]
+        curr_path = os.path.join(exampath,folders[i])
 
         gzip_files_lc = [f for f in os.listdir(curr_path) if f.endswith('.dcm.gz')] #lowercase dcm gzipped
         gzip_files_uc = [f for f in os.listdir(curr_path) if f.endswith('.DCM.gz')] #lowercase dcm gzipped

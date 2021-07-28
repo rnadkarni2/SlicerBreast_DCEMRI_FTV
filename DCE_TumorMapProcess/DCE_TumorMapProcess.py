@@ -337,7 +337,7 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     
     #If original DICOMs are gzipped, use gunzipped folder inside exam folder
     if(self.gzipped == 1 and 'gunzipped' not in self.exampath):
-      self.imagespath = self.exampath + "\\" + "gunzipped"
+      self.imagespath = os.path.join(self.exampath,"gunzipped")
       #Edit 6/11/2020: Call function that does DCE folder and early/late timing identification given exampath
     #Otherwise, use exam folder
     else:
@@ -2374,56 +2374,56 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         for sel in range(len(folders)):
           if sel == 0:
             if(choosevisbox.clickedButton() == button1):
-              visitpath = self.idpath + "\\" + folders[sel]
+              visitpath = os.path.join(self.idpath,folders[sel])
               examfolders = os.listdir(visitpath)
-              exampath = visitpath + "\\" + examfolders[0]
-              self.dflt_xml_dir = exampath + "\\" + "voi_lps_files"
+              exampath = os.path.join(visitpath,examfolders[0])
+              self.dflt_xml_dir = os.path.join(exampath,"voi_lps_files")
 
           if sel == 1:
             if(choosevisbox.clickedButton() == button2):
-              visitpath = self.idpath + "\\" + folders[sel]
+              visitpath = os.path.join(self.idpath,folders[sel])
               examfolders = os.listdir(visitpath)
-              exampath = visitpath + "\\" + examfolders[0]
-              self.dflt_xml_dir = exampath + "\\" + "voi_lps_files"
+              exampath = os.path.join(visitpath,examfolders[0])
+              self.dflt_xml_dir = os.path.join(exampath,"voi_lps_files")
 
           if sel == 2:
             if(choosevisbox.clickedButton() == button3):
-              visitpath = self.idpath + "\\" + folders[sel]
+              visitpath = os.path.join(self.idpath,folders[sel])
               examfolders = os.listdir(visitpath)
-              exampath = visitpath + "\\" + examfolders[0]
-              self.dflt_xml_dir = exampath + "\\" + "voi_lps_files"
+              exampath = os.path.join(visitpath,examfolders[0])
+              self.dflt_xml_dir = os.path.join(exampath,"voi_lps_files")
              
           if sel == 3:
             if(choosevisbox.clickedButton() == button4):
-              visitpath = self.idpath + "\\" + folders[sel]
+              visitpath = os.path.join(self.idpath,folders[sel])
               examfolders = os.listdir(visitpath)
-              exampath = visitpath + "\\" + examfolders[0]
-              self.dflt_xml_dir = exampath + "\\" + "voi_lps_files"
+              exampath = os.path.join(visitpath,examfolders[0])
+              self.dflt_xml_dir = os.path.join(exampath,"voi_lps_files")
              
           if sel == 4:
             if(choosevisbox.clickedButton() == button5):
-              visitpath = self.idpath + "\\" + folders[sel]
+              visitpath = os.path.join(self.idpath,folders[sel])
               examfolders = os.listdir(visitpath)
-              exampath = visitpath + "\\" + examfolders[0]
-              self.dflt_xml_dir = exampath + "\\" + "voi_lps_files"
+              exampath = os.path.join(visitpath,examfolders[0])
+              self.dflt_xml_dir = os.path.join(exampath,"voi_lps_files")
              
           if sel == 5:
             if(choosevisbox.clickedButton() == button6):
-              visitpath = self.idpath + "\\" + folders[sel]
+              visitpath = os.path.join(self.idpath,folders[sel])
               examfolders = os.listdir(visitpath)
-              exampath = visitpath + "\\" + examfolders[0]
-              self.dflt_xml_dir = exampath + "\\" + "voi_lps_files"
+              exampath = os.path.join(visitpath,examfolders[0])
+              self.dflt_xml_dir = os.path.join(exampath,"voi_lps_files")
              
           if sel == 6:
             if(choosevisbox.clickedButton() == button7):
-              visitpath = self.idpath + "\\" + folders[sel]
+              visitpath = os.path.join(self.idpath,folders[sel])
               examfolders = os.listdir(visitpath)
-              exampath = visitpath + "\\" + examfolders[0]
-              self.dflt_xml_dir = exampath + "\\" + "voi_lps_files"
+              exampath = os.path.join(visitpath,examfolders[0])
+              self.dflt_xml_dir = os.path.join(exampath,"voi_lps_files")
               
       #If only one visit folder, choose that as your xml default directory
       else:
-        self.dflt_xml_dir = self.exampath + "\\" + "voi_lps_files"
+        self.dflt_xml_dir = os.path.join(self.exampath,"voi_lps_files")
     else:
       #If not \\researchfiles MR exam directory structure
       #Edit 6/29/2021: David wants this to default to the
@@ -2856,12 +2856,12 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         if(self.gzipped == 1):
           a,b,c,pe,self.ser,tumor_mask,voi_mask,zs,zf,ys,yf,xs,xf,pct,pre_thresh,pethresh,minconnpix = ftv_map_gen.makeFTVMaps(self.imagespath, self.manufacturer, self.dce_folders,self.roicenter,self.roiradius,self.omitcenters,self.omitradii, self.earlyPostContrastNum, self.latePostContrastNum,self.segbkgthresh,self.segpethresh,self.segmcthresh)
           #DICOM header path for pre-contrast image
-          pre_path = self.imagespath + "\\" + str(pre_folder)
+          pre_path = os.path.join(self.imagespath,str(pre_folder))
         #Otherwise, use exampath
         else:
           a,b,c,pe,self.ser,tumor_mask,voi_mask,zs,zf,ys,yf,xs,xf,pct,pre_thresh,pethresh,minconnpix = ftv_map_gen.makeFTVMaps(self.exampath, self.manufacturer, self.dce_folders,self.roicenter,self.roiradius,self.omitcenters,self.omitradii, self.earlyPostContrastNum, self.latePostContrastNum,self.segbkgthresh,self.segpethresh,self.segmcthresh)
           #DICOM header path for pre-contrast image
-          pre_path = self.exampath + "\\" + str(pre_folder)
+          pre_path = os.path.join(self.exampath,str(pre_folder))
 
 
         #Update progress bar to say that SER map has been generated
@@ -2899,7 +2899,7 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         #Then, use DICOM header to compute voxel volume in cubic centimeters (cc)
         pre_imgs = os.listdir(pre_path)
         pre_imgs = sorted(pre_imgs)
-        pre_img1path = pre_path + "\\" + pre_imgs[0]
+        pre_img1path = os.path.join(pre_path,pre_imgs[0])
     
         try:
           pre_hdr1 = pydicom.dcmread(pre_img1path,stop_before_pixels = True)
@@ -3066,14 +3066,14 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     #Edit 7/6/2020: changing save file method so that path is automatically set to voi_lps_files and
     #user can specify name of xml file
 
-    self.dflt_xml_svdir = self.exampath + "\\" + "voi_lps_files"
+    self.dflt_xml_svdir = os.path.join(self.exampath,"voi_lps_files")
 
     #Make a new voi_lps_files folder for this exam if there isn't an existing one
     if(os.path.isdir(self.dflt_xml_svdir) == 0):
       os.mkdir(self.dflt_xml_svdir)
 
-    dflt_xml_svnm = self.dflt_xml_svdir + "\\" + self.sitestr + "_" + self.idstr + "_" + self.nodevisstr + "_roiandomits.xml"
-
+    dflt_xml_filename = self.sitestr + "_" + self.idstr + "_" + self.nodevisstr + "_roiandomits.xml"
+    dflt_xml_svnm = os.path.join(self.dflt_xml_svdir,dflt_xml_filename) 
     savename = qt.QFileDialog.getSaveFileName(None, 'Save ROI XML File',
                                        dflt_xml_svnm,
                                        'XML (*.xml)')
@@ -3233,7 +3233,7 @@ class DCE_TumorMapProcessLogic(ScriptedLoadableModuleLogic):
 
     #Edit 7/20/2020: If exam is gzipped, use gunzipped folder in exam folder for these functions
     if(gzipped == 1 and 'gunzipped' not in exampath):
-      imagespath = exampath + "\\" + "gunzipped"
+      imagespath = os.path.join(exampath,"gunzipped")
     else:
       imagespath = exampath
 
@@ -3251,11 +3251,12 @@ class DCE_TumorMapProcessLogic(ScriptedLoadableModuleLogic):
     #user can specify name of xml file
 
     #Define savepath for report and create new folder if necessary
-    reportsavepath = exampath + "\\" + "SlicerReports"
+    reportsavepath = os.path.join(exampath,"SlicerReports")
     if(os.path.isdir(reportsavepath) == 0):
         os.mkdir(reportsavepath)
-    
-    dflt_report_svnm = reportsavepath + "\\" + sitestr + "_" + idstr + "_" + nodevisstr[:-1] + ".pdf"
+
+    dflt_report_pdfname = sitestr + "_" + idstr + "_" + nodevisstr[:-1] + ".pdf" 
+    dflt_report_svnm = os.path.join(reportsavepath,dflt_report_pdfname)
 
     #prompt user to enter savename of report PDF
     savenamepdf = qt.QFileDialog.getSaveFileName(None, 'Save Slicer report',
