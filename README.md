@@ -50,7 +50,7 @@ and late post-contrast phases to the Slicer window. </p>
 The phases loaded by Module 1 as well as subtraction images and MIPs derived from
 them may be used to guide selection of ROI and omit regions. Furthermore, the user has the option
 to either create ROI and omit regions by dragging bounding boxes to the appropriate position and size 
-or import them from an existing .xml file. If the user creates a new
+or import them from an existing xml file. If the user creates a new
 ROI and omit regions, they can be saved to an xml file for future use.</p>
 
 <p>After ROI and omit region selections, the user can begin the segmentation process.
@@ -71,7 +71,7 @@ will be submitted to the journal <strong>Tomography</strong> before the end of 2
 <h2>Additional Resources</h2>
 
 For complete, step-by-step user instructions on how to use this extension, please read the document <br>
-**UserInstructionsFor_Breast_DCEMRI_FTV.pdf**.
+**UserInstructionsFor_Breast_DCEMRI_FTV.pdf**, which has been included in this repository.
 
 <p>If you have any questions, you can contact David Newitt of the UCSF Breast Imaging Research Group (david.newitt@ucsf.edu)</p>
 
