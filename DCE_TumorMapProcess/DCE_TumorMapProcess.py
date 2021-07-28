@@ -2851,7 +2851,13 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         self.segpethresh = self.pethresh.value
         self.segmcthresh = self.minconnthresh.value
 
-        pre_folder = int(self.dce_folders[0])
+        #7/6/2021: Add exception for DCE series with number and letters in name,
+        #like Duke TCIA.
+        try:
+          pre_folder = int(self.dce_folders[0])
+        except:
+          pre_folder = self.dce_folders[0]
+          
         #Edit 7/20/2020: If exam was originally gzipped, use imagespath as input to this function instead of exampath
         if(self.gzipped == 1):
           a,b,c,pe,self.ser,tumor_mask,voi_mask,zs,zf,ys,yf,xs,xf,pct,pre_thresh,pethresh,minconnpix = ftv_map_gen.makeFTVMaps(self.imagespath, self.manufacturer, self.dce_folders,self.roicenter,self.roiradius,self.omitcenters,self.omitradii, self.earlyPostContrastNum, self.latePostContrastNum,self.segbkgthresh,self.segpethresh,self.segmcthresh)

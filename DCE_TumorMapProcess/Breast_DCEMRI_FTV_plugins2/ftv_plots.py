@@ -28,7 +28,15 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
 
     #All of the figures (except ser colormap) are using 2nd post-contrast minus pre-contrast
+    import slicer
     import matplotlib
+    
+    try:
+        import wx
+    except:
+        slicer.util.pip_install('wxPython')
+        import wx
+        
     matplotlib.use('WXAgg')
     import matplotlib.pyplot as plt
     import matplotlib.gridspec as gridspec
