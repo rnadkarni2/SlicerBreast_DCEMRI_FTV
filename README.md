@@ -32,8 +32,8 @@ through the Extension Manager.</p>
 <h2>Summary of Modules</h2>
 
 <p><strong>This extension is only compatible with MR exams that use bilateral
-images with axial slices. The extension has been used extensively to process MR exams on
-a Windows machine, and has been shown to work on a Mac as well.</strong> </p>
+images with axial slices. It has been used to process numerous MR exams on
+a Windows computer and has been shown to work on a Mac computer as well.</strong> </p>
 
 <p>This extension contains 2 modules. After you install the extension, both of these modules
 can be found under the <strong>FTV Segmentation</strong> category in the modules list.</p>
