@@ -4,11 +4,23 @@ set(MODULE_NAME DCE_TumorMapProcess)
 #-----------------------------------------------------------------------------
 set(MODULE_PYTHON_SCRIPTS
   ${MODULE_NAME}.py
+  $Breast_DCEMRI_FTV_plugins2/read_DCE_images_to_numpy.py
+  $Breast_DCEMRI_FTV_plugins2/multivolume_folder_sort.py
+  $Breast_DCEMRI_FTV_plugins2/ident_gzipped_exam.py
+  $Breast_DCEMRI_FTV_plugins2/gzip_gunzip_pyfuncs.py
+  $Breast_DCEMRI_FTV_plugins2/ftv_plots.py
+  $Breast_DCEMRI_FTV_plugins2/ftv_map_gen_p2.py
+  $Breast_DCEMRI_FTV_plugins2/ftv_map_gen.py
+  $Breast_DCEMRI_FTV_plugins2/create2DimgAllFunctions.py
+  $Breast_DCEMRI_FTV_plugins2/compute_lps_to_rcs.py
+  $Breast_DCEMRI_FTV_plugins2/Write_to_xml.py
   )
 
 set(MODULE_PYTHON_RESOURCES
   Resources/Icons/${MODULE_NAME}.png
   Resources/UI/${MODULE_NAME}.ui
+  $ser_colorbar.PNG
+  $Breast_DCEMRI_FTV_plugins2/3DSlicerLogo.PNG
   )
 
 #-----------------------------------------------------------------------------
