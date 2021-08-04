@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
 set(MODULE_NAME DCE_TumorMapProcess)
 
-add_subdirectory(Breast_DCEMRI_FTV_plugins2)
 #-----------------------------------------------------------------------------
 set(MODULE_PYTHON_SCRIPTS
   ${MODULE_NAME}.py
