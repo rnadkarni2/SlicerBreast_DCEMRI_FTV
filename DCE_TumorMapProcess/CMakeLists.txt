@@ -5,6 +5,7 @@ add_subdirectory(Breast_DCEMRI_FTV_plugins2)
 #-----------------------------------------------------------------------------
 set(MODULE_PYTHON_SCRIPTS
   ${MODULE_NAME}.py
+  Breast_DCEMRI_FTV_plugins2/__init__.py
   Breast_DCEMRI_FTV_plugins2/read_DCE_images_to_numpy.py
   Breast_DCEMRI_FTV_plugins2/multivolume_folder_sort.py
   Breast_DCEMRI_FTV_plugins2/ident_gzipped_exam.py
