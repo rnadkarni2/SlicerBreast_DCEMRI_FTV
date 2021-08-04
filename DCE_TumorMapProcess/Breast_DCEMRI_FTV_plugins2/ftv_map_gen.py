@@ -33,7 +33,7 @@ import os
 def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcenters,omitradii, earlyPostContrastNum, latePostContrastNum,pct,pethresh,minconnpix):
     #Edit 10/6/2020: Make background threshold % (pct), pethresh, and minconnpix inputs to the function, rather than fixed values.
     #Doing this allows user to adjust thresholds in Slicer FTV module 2
-    
+
 
     #Call function that tells which images are early and late post-contrast
     #Edit 5/8/2020: Commenting out line below because need to make timing code that uses outputs from identify_dce_folders functions
@@ -62,7 +62,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
             m,a = read_DCE_images_to_numpy.readInputToNumpy(apath)
         else:
             m,a = read_DCE_images_to_numpy.readPhilipsImageToNumpy(exampath,dce_folders,fsort,0)
-            
+
     else:
         apath = os.path.join(exampath,str(dce_folders[0])) #5/8/2020: Edited to go with identify_dce_folders
         m,a = read_DCE_images_to_numpy.readInputToNumpy(apath)
@@ -82,7 +82,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
       #tranpose center and radius to avoid indexing errors
       center = np.transpose(center)
       radius = np.transpose(radius)
-      
+
       #first, get x,y,z range of region from its center and radius
       xs = int( round( float(center[0]) - float(radius[0]) ) )
       xf = int( round( float(center[0]) + float(radius[0]) ) )
@@ -93,7 +93,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
       zs = int( round( float(center[2]) - float(radius[2]) ) )
       zf = int( round( float(center[2]) + float(radius[2]) ) )
 
-      
+
 
       #because it's a numpy array, it must have dimension order z,y,x in order to match orientations with input image
       #4/27/21: Add the +1 to each dimension to compensate for
@@ -135,7 +135,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
 ##        voi_mask2 = voi_mask2[xs:xf+1,ys:yf+1,zs:zf+1]
 ##        amasked = a2*voi_mask
 ##        amasked = amasked.astype('float64')
-        
+
     #4/27/21: Add the +1 to each dimension to compensate for
     #Python array indexing rules
     #amasked = amasked.astype('int16') #4/29/21: seeing if data type affects results
@@ -145,7 +145,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
 
     #use roi cropped omit region zeroed version of pre-contrast image to compute pre-contrast threshold
     #pct = 0.6 #minimum percent of max (or in this case 95%ile) value in VOI used to define pre-contrast threshold
-    
+
     pre_thresh = pct*np.percentile(amasked,95) #0.6 x 95th percentile value in ROI
     #don't use max instead of 95%ile -- max gives extremely high value of pre_thresh and makes tumor volume 0
     print("BKG threshold value")
@@ -186,7 +186,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
 ##        ser = (bcrop-acrop)/(ccrop-acrop)
 ##        ser = np.where(acrop>=pre_thresh,ser,0)
 
-        
+
     #4/30/21: ser has to be float64 (cannot be int) to give normal results for
     #SER color breakdown
     #ser = ser.astype('float64') #4/29/21: seeing if data type affects results
@@ -196,7 +196,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
     #pethresh = 70
     #minimum connected pixels threshold
     #minconnpix = 3
-    
+
     #Creating tumor mask
 ##    try:
     br_mask = (a>=pre_thresh)
@@ -219,11 +219,11 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
 ##        #if SER is cropped but PE isn't, crop PE
 ##        if(pe.shape[0] > ser.shape[0]):
 ##            pe = pe[xs:xf+1,ys:yf+1,zs:zf+1]
-##            
+##
 ##        #if PE is cropped but SER isn't, crop SER
 ##        if(ser.shape[0] > pe.shape[0]):
 ##            ser = ser[xs:xf+1,ys:yf+1,zs:zf+1]
-    
+
     pe_mask = (pe>=pethresh)
 
     #5/8/21: Using this as convolution input because doing so reduced
@@ -238,7 +238,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
 ##    except:
 ##        br_pe_mask = br_pe_mask[xs:xf+1,ys:yf+1,zs:zf+1]
 ##        convbrmask = signal.convolve(br_pe_mask,kernel,mode='same')
-##        voi_mask = voi_mask[xs:xf+1,ys:yf+1,zs:zf+1] 
+##        voi_mask = voi_mask[xs:xf+1,ys:yf+1,zs:zf+1]
 ##        ser = ser[xs:xf+1,ys:yf+1,zs:zf+1]
 
     #Temporary code for saving convbrmask to nii file
@@ -253,7 +253,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
     #convbrmask_img = nib.Nifti1Image(convbrmask, aff_mat_RAS) #add IJKToRAS matrix to the rgb image to save
     #convbrmask_img_savename = r"C:\Users\rnadkarni\convolutions\conv_Slicer.nii"
     #nib.save(convbrmask_img,convbrmask_img_savename)
-    
+
     connpix_mask = (convbrmask>=(100+minconnpix))
     #connpix_mask = connpix_mask.astype('int16') #4/29/21: seeing if data type affects results
     #connpix_mask= connpix_mask.astype('float64') #because bool can't be saved to .nii file
@@ -273,7 +273,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
 ##    else:
     tumor_mask = br_pe_mask*connpix_mask*ser_mask #tumor segment #Edit 4/28/21: multiply by ser_mask too
     tumor_mask = tumor_mask.astype('float64') #Convert from bool to numeric to prevent NIFTI error
-        
+
     print("Done running make FTV maps")
 
 
@@ -282,7 +282,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
 ##    voi_mask_img = nib.Nifti1Image(voi_mask, aff_mat_RAS) #add IJKToRAS matrix to the rgb image to save
 ##    voi_mask_img_savename = r"C:\Users\rnadkarni\SlcExt\FTV_process_complete\DCE_TumorMapProcess\FTV_processing_images\VOImask_Slicer.nii"
 ##    nib.save(voi_mask_img,voi_mask_img_savename)
-##    
+##
 ##    pre_img = nib.Nifti1Image(a, aff_mat_RAS) #add IJKToRAS matrix to the rgb image to save
 ##    pre_img_savename = r"C:\Users\rnadkarni\SlcExt\FTV_process_complete\DCE_TumorMapProcess\FTV_processing_images\precontrast_Slicer.nii"
 ##    nib.save(pre_img,pre_img_savename)

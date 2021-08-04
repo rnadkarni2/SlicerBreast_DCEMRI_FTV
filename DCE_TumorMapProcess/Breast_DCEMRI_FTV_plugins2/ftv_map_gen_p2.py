@@ -53,7 +53,7 @@ def serColorize3D(rgbimg,tumor_mask,voi_mask,ser,zs,zf,ys,yf,xs,xf):
                     if ser[x,y,z] > 1 and ser[x,y,z] <= 1.3:
                         rgbimg[x,y,z,:] = [0,255,0]
                         ngreen = ngreen+1 #update # of green voxels
-                        
+
                     #If SER in range 1.3 to 1.75, make the voxel red
                     if ser[x,y,z] > 1.3 and ser[x,y,z] <= 1.75:
                         rgbimg[x,y,z,:] = [255,0,0]
@@ -74,10 +74,10 @@ def serColorize3D(rgbimg,tumor_mask,voi_mask,ser,zs,zf,ys,yf,xs,xf):
                         rgbimg[x,y,z,:] = [255,255,255]
 
     #Convert # of tumor of voxels of each color into % of total # of tumor voxels
-    pctblue = 100*float(nblue)/(float(nblue+npurple+ngreen+nred+nyellow))  
-    pctpurple = 100*float(npurple)/(float(nblue+npurple+ngreen+nred+nyellow))  
-    pctgreen = 100*float(ngreen)/(float(nblue+npurple+ngreen+nred+nyellow))  
-    pctred = 100*float(nred)/(float(nblue+npurple+ngreen+nred+nyellow))  
-    pctyellow = 100*float(nyellow)/(float(nblue+npurple+ngreen+nred+nyellow))  
+    pctblue = 100*float(nblue)/(float(nblue+npurple+ngreen+nred+nyellow))
+    pctpurple = 100*float(npurple)/(float(nblue+npurple+ngreen+nred+nyellow))
+    pctgreen = 100*float(ngreen)/(float(nblue+npurple+ngreen+nred+nyellow))
+    pctred = 100*float(nred)/(float(nblue+npurple+ngreen+nred+nyellow))
+    pctyellow = 100*float(nyellow)/(float(nblue+npurple+ngreen+nred+nyellow))
 
     return rgbimg, nblue, pctblue, npurple, pctpurple, ngreen, pctgreen, nred, pctred, nyellow, pctyellow

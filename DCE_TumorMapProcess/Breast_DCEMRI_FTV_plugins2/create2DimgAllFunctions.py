@@ -51,7 +51,7 @@ def createImgWithROIRect(img2d,col_s,col_f,row_s,row_f,omitCount, omitradii, omi
         curror = omitradii[i,:]
         currstart = curroc-curror
         currend = curroc+curror
-        
+
         #fill in orange rectangle for ith omit region (thickness -1 = filled)
         if(view == 'ax'): #if axial, use x and y values of omit
             #only add omit to image if it would actually be on the axial slice you're displaying
@@ -61,7 +61,7 @@ def createImgWithROIRect(img2d,col_s,col_f,row_s,row_f,omitCount, omitradii, omi
             #only add omit to image if it would actually be on the sagittal slice you're displaying
             if(int(currstart[0])<=slc_maxA and slc_maxA<=int(currend[0])):
                 img2dcp_rgb = cv2.rectangle(img2dcp_rgb,(int(currstart[1]),int(currstart[2])),(int(currend[1]),int(currend[2])),[255,128,0],-1)
-        
+
     return img2dcp_rgb
 
 #function that finds out which slice shows the greatest tumor area so that you can choose to display this slice

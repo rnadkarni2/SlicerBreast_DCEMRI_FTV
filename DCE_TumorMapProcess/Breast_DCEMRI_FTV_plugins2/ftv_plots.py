@@ -30,13 +30,13 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     #All of the figures (except ser colormap) are using 2nd post-contrast minus pre-contrast
     import slicer
     import matplotlib
-    
+
     try:
         import wx
     except:
         slicer.util.pip_install('wxPython')
         import wx
-        
+
     matplotlib.use('WXAgg')
     import matplotlib.pyplot as plt
     import matplotlib.gridspec as gridspec
@@ -48,7 +48,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     import dicom
     import os
 
-    import Breast_DCEMRI_FTV_plugins2 
+    import Breast_DCEMRI_FTV_plugins2
     from Breast_DCEMRI_FTV_plugins2 import create2DimgAllFunctions
     #import parse_xml
 
@@ -74,7 +74,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     print(np.amax(img3d))
 
 
-    
+
     ser = np.transpose(ser,(1,0,2))
     tumor_mask = np.transpose(tumor_mask,(1,0,2))
     voi_mask = np.transpose(voi_mask,(1,0,2))
@@ -85,7 +85,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     tumor_mask = tumor_mask*voi_mask
 
 
-    
+
     #Method for sagittal image to make width/height match aspect ratio
     #Method should be biased towards cutting off the chest wall behind the breast rather than cutting off nipple
 ##    def cropSagittal(sagimg,ys,yf,aspect):
@@ -110,7 +110,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         #img_wroi = np.where(img_wroi>0,img_wroi,0) #set to 0 in voxels where image is not greater than 0
 
         #img_wroi = img_wroi/np.percentile(img_wroi,90) #normalize by 90th percentile value
-        
+
         #initialize output array by making RGB version of input slice w ROI box
         #img_wroi_sercolor = np.dstack((img_wroi,img_wroi,img_wroi))
         #img_wroi_sercolor.astype('uint8')
@@ -119,7 +119,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         #img_wroi_sercolor = img_wroi_sercolor/(np.percentile(img_wroi_sercolor,pct))
 
         img_wroi_sercolor = np.copy(img_wroi) #need to use np.copy so that input image is not SER colorized
-        
+
         #Only doing colorization within ROI box
         for r in range(row_s+1,row_f):
             for c in range(col_s+1,col_f):
@@ -147,16 +147,16 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
                     #value 3 as seen in Aegis
                     if ser_slc[r,c] > 1.75 and ser_slc[r,c]<=3:
                         img_wroi_sercolor[r,c] = [255,255,0]
-                        
+
         return img_wroi_sercolor
 
-        
+
 
     #Function that creates a square cropped region around ROI rectangle
     #Use this to crop axial slice with SER color values
     def sqCropROIimg(img_wroi,row_s,row_f,col_s,col_f,buf,aspect,view):
         #Edit 6/15/2020: new variable view: 'axial' or 'sagittal'
-        
+
         #buf: buffer around larger dimension of ROI
 
         #row_f, row_s, col_f, col_s are the ROI rectangle bounds
@@ -220,7 +220,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
             img = scale2*img
 
         return img
-            
+
 
 #-------------------AXIAL---------------------------------------------------------------------------------------------------------------------------------
     #Edit 5/21/2020: Don't use subtraction images for 2nd and 3rd columns of report.
@@ -239,7 +239,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #call function to adjust image values using window level settings
     img_ax_slc = adjustImgScaleWithWL(img_ax_slc,ax_slc_scale,window,level)
-    
+
     img_ax_slc_wroi = create2DimgAllFunctions.createImgWithROIRect(img_ax_slc,xs,xf,ys,yf,omitCount,omitradii,omitcenters,'ax',z_maxA) #np.amax(img_ax_slc)) #draw ROI rectangle on axial slice
     print("Drew rectangle on axial slice")
     print(img_ax_slc_wroi.shape)
@@ -249,14 +249,14 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #MIP axial slice
     mip_axial = create2DimgAllFunctions.makeMIP(diffimg3d) #make axial mip
-    
+
     #Edit 8/12/2020: Scale all images to max value of 255
     ax_mip_scale = 255/(np.amax(mip_axial))
     mip_axial = mip_axial*ax_mip_scale
 
     #call function to adjust image values using window level settings
     mip_axial = adjustImgScaleWithWL(mip_axial,ax_mip_scale,window,level)
-    
+
     mip_axial_wroi = create2DimgAllFunctions.createImgWithROIRect(mip_axial,xs,xf,ys,yf,omitCount,omitradii,omitcenters,'ax',z_maxA) #draw ROI rectangle on axial mip
     print("Made axial MIP with ROI and omit boxes")
     print(mip_axial_wroi.shape)
@@ -295,7 +295,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     except:
       pre_hdr1 = dicom.read_file(pre_img1path)
 
-        
+
     #edit 6/11/2020: Split by single vs multi folder DCE instead of non-Philips vs Philips
     if (len(dce_folders) == 1):
         earlyslice1folderpath = os.path.join(imagepath,str(dce_folders[0]))
@@ -305,8 +305,8 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         #Edit 1/29/2021: For 2 DCE folders, use earlyPostContrastNum-1 because there is no pre-contrast image in multivolume folder
         earlyslice1folderpath = os.path.join(imagepath,str(dce_folders[1]))
         earlyslice1path = os.path.join(earlyslice1folderpath,fsort[earlyPostContrastNum-1][0])
-        
-        
+
+
     if(len(dce_folders) > 2):
         #7/6/2021: Add exception for exams where DCE series folders have number
         #and letters in name, like Duke TCIA.
@@ -314,7 +314,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
             earlypath = os.path.join(imagepath,str(int(dce_folders[earlyPostContrastNum])))
         except:
             earlypath = os.path.join(imagepath,str(dce_folders[earlyPostContrastNum]))
-            
+
         files = os.listdir(earlypath)
         files = sorted(files)
         earlyslice1path = os.path.join(earlypath,files[0])
@@ -330,7 +330,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     print("aspect ratio: " + str(asp))
 
     tumor_mask_sagittal = np.transpose(tumor_mask,(2,0,1)) #z,y,x
-    ser_sagittal = np.transpose(ser,(2,0,1)) #z,y,x 
+    ser_sagittal = np.transpose(ser,(2,0,1)) #z,y,x
     x_maxA = create2DimgAllFunctions.chooseMaxTumorSlice(xs,xf,tumor_mask_sagittal) #find x-slice of sagittal tumor mask with max tumor area
 
     print("Found x slice to use, using slice #"+str(x_maxA))
@@ -345,7 +345,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #call function to adjust image values using window level settings
     img_sag_slc = adjustImgScaleWithWL(img_sag_slc,sag_slc_scale,window,level)
-    
+
     img_sag_slc_wroi = create2DimgAllFunctions.createImgWithROIRect(img_sag_slc,ys,yf,zs,zf,omitCount,omitradii,omitcenters,'sag',x_maxA)#np.amax(img_sag_slc)) #draw ROI rectangle on sagittal slice
     print("Drew rectangle on sagittal slice")
     print(img_sag_slc_wroi.shape)
@@ -360,7 +360,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         diffimg3d_sagittal_formip = diffimg3d_sagittal[:,:,0:int(diffimg3d_sagittal.shape[2]/2)]
     else:
         diffimg3d_sagittal_formip = diffimg3d_sagittal[:,:,int(diffimg3d_sagittal.shape[2]/2):int(diffimg3d_sagittal.shape[2])]
-        
+
     mip_sagittal = create2DimgAllFunctions.makeMIP(diffimg3d_sagittal_formip) #make sagittal mip
 
     #Edit 8/12/2020: Scale all images to max value of 255
@@ -400,14 +400,14 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #Edit 5/13/2020: Always want the image orientations seen in the GE reports. So if other exams are not already like that,
     #apply fliplr or flipud so that you can keep the orientation label positions.
-    
+
     #Edit 4/30/2020: Use affine matrix values to determine appropriate orientation labels on images
-    
+
     if (float(aff_mat[0,1])>0):
         mip_axial_wroi = np.fliplr(mip_axial_wroi)
         img_ax_slc_wroi = np.fliplr(img_ax_slc_wroi)
         img_ax_clr_crop = np.fliplr(img_ax_clr_crop)
-       
+
     axleftlbl = 'L'
     axrightlbl = 'R'
 
@@ -422,7 +422,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         mip_sagittal_wroi = np.fliplr(mip_sagittal_wroi)
         img_sag_slc_wroi = np.fliplr(img_sag_slc_wroi)
         img_sag_clr_crop = np.fliplr(img_sag_clr_crop)
-        
+
     axtoplbl = 'P'
     axbtmlbl = 'A'
 
@@ -440,7 +440,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         mip_sagittal_wroi = np.flipud(mip_sagittal_wroi)
         img_sag_slc_wroi = np.flipud(img_sag_slc_wroi)
         img_sag_clr_crop = np.flipud(img_sag_clr_crop)
-        
+
 #Edit 6/30/2020: No more imgReversed
     #If you had to invert axial slices of ROI, img slices are reversed from what aff_mat suggests and you have
     #to compensate for this with a flip
@@ -487,7 +487,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         #Edit 1/29/2021: For 2 DCE folders, use latePostContrastNum-1 because there is no pre-contrast image in multivolume folder
         lateslice1folderpath = os.path.join(imagepath,str(dce_folders[1]))
         lateslice1path = os.path.join(lateslice1folderpath,fsort[latePostContrastNum-1][0])
-        
+
     if(len(dce_folders) > 2):
         #7/6/2021: Add exception for exams where DCE series folders have number
         #and letters in name, like Duke TCIA.
@@ -522,7 +522,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
             institution = "Institution: " + str(earlyslice1hdr[0x8,0x80].value)
         except:
             institution = 'Site Unknown'
-            
+
     #preparing study string using early post-contrast image header
     studytime = str(earlyslice1hdr.StudyTime)
     studydate = str(earlyslice1hdr.StudyDate)
@@ -546,7 +546,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     else:
         breast = "Breast: R"
 
-    
+
 ##    centercoords, widthcoords, heightcoords, depthcoords = parse_xml.returnPrimaryROICoordsFromXML(path)
 ##    if (int(centercoords[0])>0):
 ##        breast = "Breast: L"
@@ -563,13 +563,13 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     voxsize_cm3 = voxsize_mm3/1000
     ftv_cm3 = ftv_voxels*voxsize_cm3
     tumor_volume = "Tumor Volume: {} cc".format(round(ftv_cm3,3))
-    
+
     #auto timing
     #Format:
     # MM:SS from content time of early (early #) / MM:SS from content time of late (late #)
     earlycontenttime = str(earlyslice1hdr.ContentTime)
     latecontenttime = str(lateslice1hdr.ContentTime)
-    
+
     if earlydiffss<10:
         earlydiffss_str = "0"+str(earlydiffss)
     else:
@@ -589,8 +589,8 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #Edit 6/12/2020: Use tempres from chooseEarlyLate code, which is already in seconds
     scanduration = "Scan Duration: " + str(round(float(tempres),1)) + " s"
-    
-    #pre-contrast threshold (voxel value and % of max (or 95%ile value) in ROI 
+
+    #pre-contrast threshold (voxel value and % of max (or 95%ile value) in ROI
     gray_thresh = "Gray Threshold: {}/{}%".format(round(pre_thresh,1),100*pct)
 
     #create strings that show FOV for each image
@@ -610,7 +610,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     sag_crop_fovy = abs(round(aff_mat[2,2]*img_sag_clr_crop.shape[0]/10,2))
     sag_crop_fov = "FOV: " + str(sag_crop_fovx) + " x " + str(sag_crop_fovy) + " cm"
 
-    
+
     #Read UCSF logo into array
     #Edit 7/30/2020: Use 3D Slicer logo instead because Jessica said use of UCSF logo
     #is confusing for report of exam from non-UCSF site
@@ -623,11 +623,11 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     logo = cv2.imread(logo_path)
 
 
-    
+
 #------------------------Plotting starts here----------------------------------#
     fig = plt.figure(constrained_layout=True,figsize=(11,8.5))
     spec = gridspec.GridSpec(ncols=3,nrows=5,height_ratios=[1,3,4,1,0.5],figure=fig) #this height ratio is chosen because axial image is ~3x taller than sagittal, but still want sagittal to look big
-                                                                    #width_ratios=[3,3,1],This width ratio is chosen because VOI width is between 1/5 and 1/3 of regular 512 pixel width, but want VOI zoom to look big 
+                                                                    #width_ratios=[3,3,1],This width ratio is chosen because VOI width is between 1/5 and 1/3 of regular 512 pixel width, but want VOI zoom to look big
     #Top text content
     #top left
     a = fig.add_subplot(spec[0,0])
@@ -646,14 +646,14 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     plt.axis('off')
 
     #Edit 4/29/2020: Finalized orientation label letters on images
-    
+
     #Sagittal subtraction MIP
     a = fig.add_subplot(spec[1,0])
     imgplot = plt.imshow(mip_sagittal_wroi,cmap='gray',aspect=asp)#,vmin=dispmin/sag_mip_normfact,vmax=dispmax/sag_mip_normfact)
     a.set_title('Sagittal - Subtracted MIP')
     txtfov = plt.text( (3*mip_sagittal_wroi.shape[1]/5), (49*mip_sagittal_wroi.shape[0]/50), sag_full_fov, fontdict=fontfov) #FOV in bottom right
     plt.axis('off')
-    
+
     #Sagittal regular MRI center x-slice of ROI
     a = fig.add_subplot(spec[1,1])
     imgplot = plt.imshow(img_sag_slc_wroi,cmap='gray',aspect=asp)#,vmin=dispmin/img_sag_slc_normfact,vmax=dispmax/img_sag_slc_normfact)
@@ -664,7 +664,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     txtfov = plt.text( (3*img_sag_slc_wroi.shape[1]/5), (49*img_sag_slc_wroi.shape[0]/50), sag_full_fov, fontdict=fontfov) #FOV in bottom right
     a.set_title('Sagittal')
     plt.axis('off')
-    
+
     #Sagittal cropped slice with SER colorization
     a = fig.add_subplot(spec[1,2])
     imgplot = plt.imshow(img_sag_clr_crop,aspect=asp)
@@ -675,7 +675,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     txtfov = plt.text( (3*img_sag_clr_crop.shape[1]/5), (49*img_sag_clr_crop.shape[0]/50), sag_crop_fov, fontdict=fontfovcrop) #FOV in bottom right
     a.set_title('Sagittal - Lesion Focus')
     plt.axis('off')
-        
+
     #Axial subtraction MIP
     a = fig.add_subplot(spec[2,0])
     imgplot = plt.imshow(mip_axial_wroi,cmap='gray')#,vmin=dispmin/ax_mip_normfact,vmax=dispmax/ax_mip_normfact)
@@ -702,7 +702,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     txtfov = plt.text( (3*img_ax_clr_crop.shape[1]/5), (49*img_ax_clr_crop.shape[0]/50), ax_crop_fov, fontdict=fontfovcrop) #FOV in bottom right
     a.set_title('Axial - Lesion Focus')
     plt.axis('off')
-    
+
     #Text region 1
     a = fig.add_subplot(spec[3,0])
     a.set_title('Findings')
@@ -745,7 +745,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     a = fig.add_subplot(spec[4,2])
     txtplot = plt.text(0.5,0.7,'Page 1 of 1',fontsize = 11)
     plt.axis('off')
-    
+
     #plt.tight_layout()
     fig.savefig(savenamejpeg,orientation='landscape', dpi = 300, bbox_inches=0) #save as jpeg
     fig.savefig(savenamepdf,orientation='landscape', dpi = 300, bbox_inches=0) #save as pdf

@@ -48,7 +48,7 @@ class FolderInfo:
         files_noext = [f for f in os.listdir(folderpath) if f.isdigit()] #edit 1/26/2021: In some folders, there is a series of DICOM images
                                                                          #with no .dcm or .DCM extension, but all the files have a number as the filename.
 
-    
+
         if(len(files)>0 or len(FILES)>0 or len(files_noext) > 0):
 
 
@@ -104,7 +104,7 @@ class FolderInfo:
                     self.institution = header.ClinicalTrialSiteName
                 except:
                     self.institution = 'Site Unknown'
-            
+
             try:
                 self.manufacturer = header.Manufacturer
             except:
@@ -145,9 +145,9 @@ class FolderInfo:
                     #Edit 1/29/2021: Just set self.acqdur to 0 if neither of these work
                     except:
                         self.acqdur = 0
-        
 
-            
+
+
             try:
                 self.lenimtype = len(header.ImageType) #Edit 7/15/2020: number of elements in image type array
                 self.imtype0 = header.ImageType[0]
@@ -180,7 +180,7 @@ class FolderInfo:
                     #edit 5/29/2020: convert from bytes to string if necessary
                     if isinstance(self.pulseseqname,bytes):
                         self.pulseseqname = self.pulseseqname.decode()
-                        
+
                 except:
                     self.pulseseqname = ''
 
@@ -248,7 +248,7 @@ class FolderInfo:
             except:
                 self.fa = ''
                 self.faend = ''
-                
+
             #GE only
             try:
                 self.fatsat = header[0x19,0x10a4].value
@@ -282,14 +282,14 @@ class FolderInfo:
             except:
                 self.imgpospat = [0,0,0]
 
-            #Edit 5/25/2021: Use private tags to find Manufacturer when 
+            #Edit 5/25/2021: Use private tags to find Manufacturer when
             #this information is not found in the default Manufacturer field.
             if('GE' not in self.manufacturer and 'PHILIPS' not in self.manufacturer and 'Philips' not in self.manufacturer and 'SIEMENS' not in self.manufacturer and 'Siemens' not in self.manufacturer):
                 try:
                     privtag1 = header[0x19,0x10].value
                 except:
                     privtag1 = ''
-                    
+
                 try:
                     privtag2 = header[0x29,0x10].value
                 except:
@@ -299,7 +299,7 @@ class FolderInfo:
                     privtag3 = header[0x2001,0x10].value
                 except:
                     privtag3 = ''
-                    
+
                 try:
                     privtag4 = header[0x2005,0x10].value
                 except:
@@ -307,16 +307,16 @@ class FolderInfo:
 
                 if('GE' in privtag1 or 'GE' in privtag2 or 'GE' in privtag3 or 'GE' in privtag4):
                     self.manufacturer = 'GE'
-                    
+
                 if('SIEMENS' in privtag1 or 'SIEMENS' in privtag2 or 'SIEMENS' in privtag3 or 'SIEMENS' in privtag4):
                     self.manufacturer = 'SIEMENS'
-                    
+
                 if('Siemens' in privtag1 or 'Siemens' in privtag2 or 'Siemens' in privtag3 or 'Siemens' in privtag4):
                     self.manufacturer = 'Siemens'
 
                 if('PHILIPS' in privtag1 or 'PHILIPS' in privtag2 or 'PHILIPS' in privtag3 or 'PHILIPS' in privtag4):
                     self.manufacturer = 'PHILIPS'
-                    
+
                 if('Philips' in privtag1 or 'Philips' in privtag2 or 'Philips' in privtag3 or 'Philips' in privtag4):
                     self.manufacturer = 'Philips'
                     print("manufacturer is Philips")
@@ -326,7 +326,7 @@ class FolderInfo:
         #If folder doesn't have DICOM's, add warning of this as series description
 ##        else:
 ##            self.serdesc = 'NOT DICOM'
-        
+
 
 
 def fillExamFolderInfoStructures(exampath):
@@ -342,7 +342,7 @@ def fillExamFolderInfoStructures(exampath):
         curr_FILES = [f for f in os.listdir(curr_path) if f.endswith('.DCM')]
         curr_files_noext = [f for f in os.listdir(curr_path) if f.isdigit()] #edit 1/26/2021: In some folders, there is a series of DICOM images
                                                                          #with no .dcm or .DCM extension, but all the files have a number as the filename.
-        
+
 
         #Edit 7/6/2020: Program code to not count SlicerReports folder as an image folder
         #Edit 10/28/2020: Program code to only look at folders that have numerical names
@@ -379,7 +379,7 @@ def fillExamFolderInfoStructures(exampath):
 
 
 def philips_folder_lbl(img_folders, all_folders_info):
-   
+
 
     #this is how to return all folder #'s that correspond to original, non-derived image (all folder #'s that have mod 1 when divided by 1)
     def condition(x): return (x%100) == 1
@@ -394,7 +394,7 @@ def philips_folder_lbl(img_folders, all_folders_info):
     dce_ind = []
     for l in range(len(original_idx)):
         finf = all_folders_info[original_idx[l]]
-    
+
         if ( ('dyn' in finf.serdesc) or ('DYN' in finf.serdesc) ):
             dce_folders.append(original_folders[l])
             dce_ind.append(original_idx[l])
@@ -404,14 +404,14 @@ def philips_folder_lbl(img_folders, all_folders_info):
         #loop through all original folders to find one with number of temporal positions > 1
         for l in range(len(original_idx)):
             finf = all_folders_info[original_idx[l]]
-    
+
             if ( finf.numtemp > 1 ):
                 dce_folders.append(original_folders[l])
                 dce_ind.append(original_idx[l])
 
     print("dce folders")
     print(dce_folders)
-    
+
     #print folder info structure for all image folders (original or otherwise)
 ##    for finf in all_folders_info:
 ##        print(finf.serdesc)
@@ -446,7 +446,7 @@ def philips_folder_lbl(img_folders, all_folders_info):
 
 
 def siemens_folder_lbl(img_folders, all_folders_info):
-    
+
 
     #Try to identify DCE images by presence of substring 'fl3d' or 'fl3_we' in pulseseqname field
     dce_folders = []
@@ -500,7 +500,7 @@ def siemens_folder_lbl(img_folders, all_folders_info):
 
 
     #Edit 2/5/21: Make this matrix, im_in_acq ... check more complicated, with max of 5 groups instead of max of 2.
-    
+
     folders1 = []
     idx1 = []
 
@@ -526,7 +526,7 @@ def siemens_folder_lbl(img_folders, all_folders_info):
             foldersn.append(dce_folders[a])
             idxn.append(dce_ind[a])
             match_found = 1
-            
+
         return foldersn, idxn, match_found
 
     match_found = 0 #variable to check when to add to new group
@@ -535,7 +535,7 @@ def siemens_folder_lbl(img_folders, all_folders_info):
     for a in range(len(dce_ind)):
         match_found = 0 #reset to 0 at start of each iteration
         fold_inf = all_folders_info[dce_ind[a]]
-        
+
         if a == 0:
             #If first folder in DCE list, just add its info to folders1 and idx1
             folders1.append(dce_folders[a])
@@ -613,15 +613,15 @@ def siemens_folder_lbl(img_folders, all_folders_info):
     totslicesmax = 0 #variable to keep track of which group has most totslices
     for zzzz in range(num_group):
         totslices_zzzz = 0 #number of totslices for group #zzzz
-        
+
         if(zzzz == 0):
             f = folders1
             idx = idx1
-            
+
         if(zzzz == 1):
             f = folders2
             idx = idx2
-            
+
         if(zzzz == 2):
             f = folders3
             idx = idx3
@@ -672,7 +672,7 @@ def siemens_folder_lbl(img_folders, all_folders_info):
 ##            pixsize10 = fold_inf.pixsize1
 ##            frame_ref0 = fold_inf.frame_ref
 ##            orient0 = fold_inf.orient
-##    
+##
 ##        #This assumes there will only be 2 possible combos of these parameters, one for DCE and other for T1. I don't know if that is the case.
 ##        if (fold_inf.matrix == matrix0 and fold_inf.im_in_acq == im_in_acq0 and fold_inf.pixsize0 == pixsize00 and fold_inf.pixsize1 == pixsize10 and fold_inf.frame_ref == frame_ref0 and fold_inf.orient == orient0):
 ##            folders1.append(dce_folders[a])
@@ -688,13 +688,13 @@ def siemens_folder_lbl(img_folders, all_folders_info):
 ##        if(len(folders1) <= 8):
 ##            dce_folders = folders1
 ##            dce_ind = idx1
-##    
+##
 ##            t1_folders = folders2
 ##            t1_ind = idx2
 ##        else:
 ##            dce_folders = folders2
 ##            dce_ind = idx2
-##    
+##
 ##            t1_folders = folders1
 ##            t1_ind = idx1
 ##
@@ -704,18 +704,18 @@ def siemens_folder_lbl(img_folders, all_folders_info):
 ##        if(len(folders2) <= 8):
 ##            dce_folders = folders2
 ##            dce_ind = idx2
-##    
+##
 ##            t1_folders = folders1
 ##            t1_ind = idx1
 ##        else:
 ##            dce_folders = folders1
 ##            dce_ind = idx1
-##    
+##
 ##            t1_folders = folders2
 ##            t1_ind = idx2
 
 
-    
+
 
     #Filter out some values from DCE based on TR
     #Assume the mode TR value is the DCE one
@@ -765,7 +765,7 @@ def siemens_folder_lbl(img_folders, all_folders_info):
         else:
             totslices_mode = mode(alltotslices)
             totslices_modecount = alltotslices.count(totslices_mode) #Edit 4/20/21: return # of times mode occurs
-            
+
         #If totslices in a folder is not equal to mode value of totslices, delete that folder from list of DCE folders
         bbb = 0
         while (bbb < len(dce_ind)):
@@ -784,7 +784,7 @@ def siemens_folder_lbl(img_folders, all_folders_info):
                     del(dce_ind[bbb])
             else:
                 bbb = bbb + 1
-    
+
 
     #Once you have the final list of DCE folders, sort them in order of increasing Content Time
     ctimes = []
@@ -805,7 +805,7 @@ def siemens_folder_lbl(img_folders, all_folders_info):
 
     print("Content times sorted")
     print(ctimes)
-    
+
     print("dce folders sorted by content time")
     print(dce_folders)
 
@@ -879,7 +879,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##            del dce_ind[ccc]
 ##        else:
 ##            ccc = ccc+1
-            
+
 
 
     #Try to remove CAD (processed) images from dce folders list
@@ -888,13 +888,13 @@ def ge_folder_lbl(img_folders, all_folders_info):
     print("Running section to remove CAD images from DCE folder list")
     for c in range(len(dce_ind)):
         finf = all_folders_info[dce_ind[c]]
-        
+
         #Edit 1/19/21: Adding PRE-SCAN in series description as a factor to eliminate from DCE folder list
         if( ('SUB' not in finf.serdesc) and ('SAG' not in finf.serdesc) and ('COR' not in finf.serdesc) and ('MIP' not in finf.serdesc) and ('PRE-SCAN' not in finf.serdesc) and ('SCOUT' not in finf.serdesc) ):
             non_cad_folders.append(dce_folders[c])
             non_cad_ind.append(dce_ind[c])
 
-    if( len(non_cad_folders) > 0): 
+    if( len(non_cad_folders) > 0):
         dce_folders = non_cad_folders
         dce_ind = non_cad_ind
 
@@ -907,13 +907,13 @@ def ge_folder_lbl(img_folders, all_folders_info):
     print(img_folders)
 
 
-    
+
     #Edit 11/16/2020: Series Description - based correction for UCSF ISPY ID 11749 v30
-    
+
     #2/9/2021: I found out that 'T1' in Series Description doesn't mean the folder is not DCE,
     #so I'll comment out this section and hope that other edits will fix issues for exams that
     #used this section.
-    
+
 ##    if(len(dce_folders) == 3):
 ##        f1 = all_folders_info[dce_ind[0]]
 ##        f2 = all_folders_info[dce_ind[1]]
@@ -927,7 +927,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##
 ##            dce_folders = [img_folders[dce_ind[0]]]
 ##            dce_ind = [dce_ind[0]]
-##            
+##
 ##        if('multiPhase' in f2.serdesc and 'T1' in f1.serdesc and 'T1' in f3.serdesc):
 ##            t1_folders = [img_folders[dce_ind[0]]]
 ##            t1_ind = [dce_ind[0]]
@@ -954,10 +954,10 @@ def ge_folder_lbl(img_folders, all_folders_info):
     #so I'll comment out this section and hope that other edits will fix issues for exams that
     #used this section.
 
-            
+
 ##    if(len(dce_folders) == 2):
 ##        print("Checking for multiPhase or T1 in series description")
-##        
+##
 ##        f1 = all_folders_info[dce_ind[0]]
 ##        f2 = all_folders_info[dce_ind[1]]
 ##
@@ -970,7 +970,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##
 ##            dce_folders = [img_folders[dce_ind[0]]]
 ##            dce_ind = [dce_ind[0]]
-##            
+##
 ##        if( ('multiPhase' in f2.serdesc and 'multiPhase' not in f1.serdesc) or ('T1' in f1.serdesc and 'T1'not in f2.serdesc) ):
 ##            print("folder 2 is DCE")
 ##            t1_folders = [img_folders[dce_ind[0]]]
@@ -989,19 +989,19 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##    print("image folders all")
 ##    print(img_folders)
 
-    
+
 
     #Edit 7/15/2020: If dce_folders array is empty after scanning through pulse sequence descriptions, use series descriptions
     #to find out which folders are DCE
     if( len(dce_folders) == 0):
 
         #Edit 1/22/2021: Added 'or's to these if statements so that it works for UCSD 36061 v20 as well.
-            
+
         #Edit 7/20/2020: First, just check for 'Ph' to find all post-contrast series. Then, you know that the part of the series description
         #that comes after 'Ph#/' is the pre-contrast series description, so you should use this to find the pre-contrast folder
         for ki in range(len(all_folders_info)):
             currfinf = all_folders_info[ki]
-            
+
             #5/20/2021: Check for other identifiers to make sure it is axial, non-subtraction post-contrast image
             if('Ph' in currfinf.serdesc or 'post' in currfinf.serdesc and ('SUB' not in currfinf.serdesc) and ('SAG' not in currfinf.serdesc) and ('COR' not in currfinf.serdesc) and ('MIP' not in currfinf.serdesc) and ('PRE-SCAN' not in currfinf.serdesc) and ('SCOUT' not in currfinf.serdesc) ):
                 dce_folders.append(img_folders[ki])
@@ -1024,8 +1024,8 @@ def ge_folder_lbl(img_folders, all_folders_info):
                     dce_ind.append(li)
         print("dce folders after checking series description")
         print(dce_folders)
-                
-        
+
+
 
     ##print("Folders with DCE pulse sequence")
     ##print(dce_folders)
@@ -1064,7 +1064,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
     print("Checking for mismatch between flip angle and repetition time in first and last slice")
 
     for m in range(len(dce_ind)):
-    
+
         finf = all_folders_info[dce_ind[m]]
         if (finf.tr == finf.trend and finf.fa == finf.faend):
             dce_fatrmatch_folders.append(dce_folders[m])
@@ -1100,13 +1100,13 @@ def ge_folder_lbl(img_folders, all_folders_info):
 
     ##print("Folders with DCE pulse sequence that are not CAD processed and have gone through ORIG label test")
     ##print(dce_folders)
-    
+
 
     #Edit 2/3/2021: Delete folders with < 32 slices from DCE folder list
     zzz = 0
     while zzz < len(dce_ind):
         finfzzz = all_folders_info[dce_ind[zzz]]
-        
+
         if(finfzzz.totslices < 32):
             del(dce_folders[zzz])
             del(dce_ind[zzz])
@@ -1130,7 +1130,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
     ###and the other will contain only T1 folder #'s
 
     #Edit 2/5/21: Make this matrix, im_in_acq ... check more complicated, with max of 5 groups instead of max of 2.
-    
+
     folders1 = []
     idx1 = []
 
@@ -1165,7 +1165,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
             foldersn.append(dce_folders[a])
             idxn.append(dce_ind[a])
             match_found = 1
-            
+
         return foldersn, idxn, match_found
 
     match_found = 0 #variable to check when to add to new group
@@ -1174,7 +1174,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
     for a in range(len(dce_ind)):
         match_found = 0 #reset to 0 at start of each iteration
         fold_inf = all_folders_info[dce_ind[a]]
-        
+
         if a == 0:
             #If first folder in DCE list, just add its info to folders1 and idx1
             folders1.append(dce_folders[a])
@@ -1252,15 +1252,15 @@ def ge_folder_lbl(img_folders, all_folders_info):
     totslicesmax = 0 #variable to keep track of which group has most totslices
     for zzzz in range(num_group):
         totslices_zzzz = 0 #number of totslices for group #zzzz
-        
+
         if(zzzz == 0):
             f = folders1
             idx = idx1
-            
+
         if(zzzz == 1):
             f = folders2
             idx = idx2
-            
+
         if(zzzz == 2):
             f = folders3
             idx = idx3
@@ -1318,13 +1318,13 @@ def ge_folder_lbl(img_folders, all_folders_info):
 
 
     #Edit 2/5/2021: Out of the 5 groups the one with the most slices is the DCE group
-    
+
 
     ##
 
 ######################   OLD CODE for matrix, im_in_acq, ... CHECK   ################################
 
-    
+
 ##    t1_folders = []
 ##    t1_ind = []
 ##    if len(folders1)>len(folders2):
@@ -1332,7 +1332,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##        exception = 0
 ##        for p in range(len(idx2)):
 ##            finf = all_folders_info[idx2[p]]
-##            
+##
 ##            finf_idx1 = all_folders_info[idx1[0]]
 ##            #Edit 1/28/2021: If > 1 folders in idx1, incorporate 2nd folder into totslices check too.
 ##            if(len(idx1) > 1):
@@ -1348,30 +1348,30 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##        if(exception == 1):
 ##            dce_folders = folders2
 ##            dce_ind = idx2
-##    
+##
 ##            t1_folders = folders1
 ##            t1_ind = idx1
 ##        else:
 ##            dce_folders = folders1
 ##            dce_ind = idx1
-##    
+##
 ##            t1_folders = folders2
 ##            t1_ind = idx2
-##        
+##
 ##    else:
 ##        #Edit 11/24/2020: Case where you have 2 folders and have to use matrix/orient/fatsat check to separate other folder from multivolume DCE folder
 ##        if(len(folders1) == 1 and len(folders2) == 1):
 ##            f1information = all_folders_info[idx1[0]]
 ##            f2information = all_folders_info[idx2[0]]
-##            
+##
 ##            if(f1information.totslices/f1information.im_in_acq > 1):
 ##                print("folder 1 is multivolume DCE, folder 2 is not DCE")
 ##                dce_folders = folders1
 ##                dce_ind = idx1
-##                
+##
 ##                t1_folders = folders2
 ##                t1_ind = idx2
-##                
+##
 ##            if(f2information.totslices/f2information.im_in_acq > 1):
 ##                print("folder 2 is multivolume DCE, folder 1 is not DCE")
 ##                dce_folders = folders2
@@ -1379,7 +1379,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##
 ##                t1_folders = folders1
 ##                t1_ind = idx1
-##            
+##
 ##        else:
 ##            exception = 0
 ##            for p in range(len(idx1)):
@@ -1401,13 +1401,13 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##            if(exception == 1):
 ##                dce_folders = folders1
 ##                dce_ind = idx1
-##    
+##
 ##                t1_folders = folders2
 ##                t1_ind = idx2
 ##            else:
 ##                dce_folders = folders2
 ##                dce_ind = idx2
-##    
+##
 ##                t1_folders = folders1
 ##                t1_ind = idx1
 
@@ -1418,7 +1418,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##    print(dce_folders)
 
 
-    
+
     #Edit 11/3/2020: Folder ident fix that is specific to UCSD ID 04967 v30
     #If there are 2 DCE folders and one has 'Post' in the name and the other still has more image slices, the other is DCE.
     if(len(dce_ind) == 2):
@@ -1433,12 +1433,12 @@ def ge_folder_lbl(img_folders, all_folders_info):
             dce_ind = [dce_ind[0]]
             dce_folders = [dce_folders[0]]
 
-            
+
 
 
     t1_folders = []
     t1_ind = []
-        
+
     if(len(dce_ind) > 1):
         #Filter out some values from DCE based on TR
         #Assume the mode TR value is the DCE one
@@ -1477,7 +1477,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
             ind_maxslc = np.argmax(totslicevals)
             dce_folders = [dce_folders[ind_maxslc]]
             dce_ind = [dce_ind[ind_maxslc]]
-            
+
 
     print("t1 folders after T_R check")
     print(t1_folders)
@@ -1506,17 +1506,17 @@ def ge_folder_lbl(img_folders, all_folders_info):
 
     print("DCE folders after group 18 check")
     print(dce_folders)
-    
+
     ##print("t1folders after")
     ##print(t1_folders)
 
     #Edit 5/29/2020: Add T1 folder back to dce list if it has Ph in series description (eg Ph1, Ph2, etc)
     #Edit 6/3/2020: Comment out this section, because sometimes you have ORIG Ph1 and separate Ph1 folder, etc
-    
+
 ##    t = 0
 ##    while ( t <= (len(t1_ind) -1) ):
 ##        finf = all_folders_info[int(t1_ind[t])]
-##    
+##
 ##        if('Ph' in finf.serdesc):
 ##            dce_folders.append(int(t1_folders[t]))
 ##            dce_ind.append(int(t1_ind[t]))
@@ -1532,7 +1532,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
     b = 0
     while b < (len(dce_ind)):
         fold_inf = all_folders_info[int(dce_ind[b])]
-    
+
         if ('TEST' in fold_inf.serdesc):
             t1_folders.append(dce_folders[b])
             t1_ind.append(dce_ind[b])
@@ -1571,10 +1571,10 @@ def ge_folder_lbl(img_folders, all_folders_info):
     print("DCE folders after transmit gain check")
     print(dce_folders)
 
-    
+
     #Edit 1/28/2021: Add this same # of folders check to ge_folder_lbl. Only do it for > 4 DCE folders
     #because GE can have 1, 2, 5, 6, or 7 DCE folders
-    
+
     #Edit 1/27/2021: Must make sure that all folders labeled as DCE have the same number of slices
     if(len(dce_folders) > 4):
         alltotslices = []
@@ -1602,7 +1602,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
                     del(dce_ind[bbb])
             else:
                 bbb = bbb + 1
-                    
+
     #Once you have the final list of DCE folders, sort them in order of increasing Content Time
     ctimes = []
     for z in range(len(dce_ind)):
@@ -1624,7 +1624,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 
     print("Content times sorted")
     print(ctimes)
-    
+
     print("dce folders sorted by content time")
     print(dce_folders)
 
@@ -1651,7 +1651,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##    if('UCSF' in folder1info.institution and len(dce_folders) <= 3):
 ##        dce_ind = dce_ind[-1]
 ##        dce_ind = [dce_ind]
-##        
+##
 ##        dce_folders = dce_folders[-1]
 ##        dce_folders = [dce_folders]
 
@@ -1706,7 +1706,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##            if param_combos[pc] == paramstr:
 ##                row_ind = pc
 ##                break
-##            
+##
 ##        folders[row_ind,int(col_ind[row_ind,0])] = dce_folders[a]
 ##        folders_ind[row_ind,int(col_ind[row_ind,0])] = dce_ind[a]
 ##        col_ind[row_ind,0] = col_ind[row_ind,0] + 1 #update column index for next entry for this parameter combo
@@ -1731,8 +1731,8 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##    curr_folders = folders[r,:]
 ##    curr_folders = curr_folders[curr_folders!=-1]
 ##    curr_folders = curr_folders.tolist()
-##    
-##    curr_folders_ind = folders_ind[r,:] 
+##
+##    curr_folders_ind = folders_ind[r,:]
 ##    curr_folders_ind = curr_folders_ind[curr_folders_ind!=-1]
 ##    curr_folders_ind = curr_folders_ind.tolist()
 ##
@@ -1754,7 +1754,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##            folders_vect = folders.ravel()
 ##            folders_vect = folders_vect[folders_vect!=-1]
 ##            t1_folders = folders_vect.tolist()
-##            
+##
 ##            folders_ind[r,:] = -1
 ##            folders_ind_vect = folders_ind.ravel()
 ##            folders_ind_vect = folders_ind_vect[folders_ind_vect!=-1]
@@ -1771,7 +1771,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##    dce_folders = folders[max_folders_row,:]
 ##    dce_folders = dce_folders[dce_folders!=0]
 ##    dce_folders = dce_folders.tolist()
-##    
+##
 ##    dce_ind = folders_ind[max_folders_row,:]
 ##    dce_ind = dce_ind[dce_ind!=0]
 ##    dce_ind = dce_ind.tolist()
@@ -1780,7 +1780,7 @@ def ge_folder_lbl(img_folders, all_folders_info):
 ##    folders_vect = folders.ravel()
 ##    folders_vect = folders_vect[folders_vect!=-1]
 ##    t1_folders = folders_vect.tolist()
-##            
+##
 ##    folders_ind[max_folders_row,:] = -1
 ##    folders_ind_vect = folders_ind.ravel()
 ##    folders_ind_vect = folders_ind_vect[folders_ind_vect!=-1]

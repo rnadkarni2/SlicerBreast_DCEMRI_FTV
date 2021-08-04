@@ -35,7 +35,7 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
     #If all DCE in same folder, nslice is already set to slices/phase, so N = nslice
     if (nslice == 0):
         N = len(files)
-        
+
         file1search1 = [i for i in files if '001.dcm' in i]
         file1search2 = [i for i in files if '001.DCM' in i]
 
@@ -51,7 +51,7 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
 
         if len(file1search3) > 0:
             file1 = os.path.join(imgpath,file1search3[0])
-            
+
         if len(file1search4) > 0:
             file1 = os.path.join(imgpath,file1search4[0])
 
@@ -64,13 +64,13 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
             if len(file1search5) > 0:
                 file1search5 = sorted(file1search5)
                 file1 = os.path.join(imgpath,file1search5[0])
-            
+
     else:
         N = nslice
         file1 = os.path.join(imgpath,fsort[0][0])
 
 
- 
+
     try:
         img1 = pydicom.dcmread(file1)
     except:
@@ -107,7 +107,7 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
             fileN = os.path.join(imgpath,fileNsearch[0])
     else:
         fileN = os.path.join(imgpath,fsort[0][N-1])
-    
+
     try:
         imgN = pydicom.dcmread(fileN)
     except:
@@ -139,7 +139,7 @@ def getVOIVoxelsFromInverseAffine(exampath,xmlfilepath,prefoldernum,nslice,fsort
 
     #Edit 5/19/2020: comment out os.listdir part because you're just
     #using the xmlfilepath specified by user
-    
+
     #Now, convert extreme ends of VOI from xml file from LPS to JIK to get voxel range of VOI
     #voipath = exampath + "\\" + "voi_lps_files"
     #xml_files = [f for f in os.listdir(voipath) if f.endswith('.xml')]
@@ -264,7 +264,7 @@ def getVOIVoxelsFromInverseAffine(exampath,xmlfilepath,prefoldernum,nslice,fsort
 
         ozs = np.zeros((len(centerinds)-1,1))
         ozf = np.zeros((len(centerinds)-1,1))
-                            
+
         for i in range(1,len(centerinds)): #loop through all omit regions
             #center and half lengths in all directions for omit region of current iteration
             ocentercoords = getXYZcoords(data,centerinds[i])
@@ -339,7 +339,7 @@ def readRASCoordsFromXMLFile(xmlfilepath):
             zcoords = getcoords(zcoordsrow)
             coords.append(float(zcoords[0]))
 
-        
+
         #6/9/2020: add exception for case where it splits x^-10 into x, 10
         if len(coords) > 3:
             coords_orig = coords
@@ -376,7 +376,7 @@ def readRASCoordsFromXMLFile(xmlfilepath):
     #convert center from LPS to RAS
     roicenter[0] = -1*roicenter[0]
     roicenter[1] = -1*roicenter[1]
-    
+
 
     roiradius = np.zeros((3,1))
     roiradius.astype(float)
@@ -419,7 +419,7 @@ def readRASCoordsFromXMLFile(xmlfilepath):
     if(len(centerinds)>1):
         ocenters = np.zeros((len(centerinds)-1,3))
         oradii = np.zeros((len(centerinds)-1,3))
-          
+
         for i in range(1,len(centerinds)): #loop through all omit regions
             #center and half lengths in all directions for omit region of current iteration
             ocenters[i-1,:] = getXYZcoords(data,centerinds[i])
@@ -436,7 +436,7 @@ def readRASCoordsFromXMLFile(xmlfilepath):
     else:
         ocenters = np.zeros((2,2))
         ocenters[0,0] = -1
-        
+
         oradii = np.zeros((2,2))
         oradii[0,0] = -1
 

@@ -46,7 +46,7 @@ def readInputToNumpy(path):
     #Edit 6/16/2020: os.listdir and adding full path may be faster
     dicom_names = os.listdir(path)
     dicom_names = addFullPathToFileList(path,dicom_names) #call function for converting list of DCM filenames to list of DCM file names with path included
-        
+
     plugin = slicer.modules.dicomPlugins['DICOMScalarVolumePlugin']()
     loadables = plugin.examine([dicom_names])
     volume = plugin.load(loadables[0])
@@ -94,7 +94,7 @@ def earlyOrLateImgSelect(postContrastNum,dce_folders,exampath):
         foldernum = int(dce_folders[postContrastNum])
     except:
         foldernum = str(dce_folders[postContrastNum])
-        
+
     print("Reading post-contrast image # " + str(postContrastNum) + " from folder " + str(foldernum))
     path = os.path.join(exampath,str(foldernum))
     a = readInputToNumpy(path)
@@ -111,7 +111,7 @@ def readPhilipsImageToNumpy(exampath,dce_folders,fsort,postContrastNum):
         print(dcepath)
     else:
         dcepath = os.path.join(exampath,str(dce_folders[0]))
-    
+
     dicom_names = fsort[postContrastNum][:]
     dicom_names = addFullPathToFileList(dcepath,dicom_names) #call function for converting list of DCM filenames to list of DCM file names with path included
 
@@ -136,7 +136,7 @@ def readPhilipsImageToNumpy(exampath,dce_folders,fsort,postContrastNum):
     #store RASToIJKMatrix in m so that you can use this to correct output images' orientations
     m = vtk.vtkMatrix4x4()
     volume.GetRASToIJKMatrix(m)
-    
+
     npimg = slicer.util.arrayFromVolume(volume)
     print("image min and max after arrayFromVolume")
     print(dcepath)
@@ -169,7 +169,7 @@ def readPhilipsImageToNumpy(exampath,dce_folders,fsort,postContrastNum):
             npimg = npimg.astype('float32')
         except:
             npimg = npimg.astype('int8')
-            
+
     return m, npimg
 
 #Wrote this function for quickly converting list of DCM filenames to list of DCM file names with path included
@@ -192,7 +192,7 @@ def addFullPathToFileList(path,files):
 ##        slcloc = float(curr_hdr[0x20,0x1041].value)
 ##        slclocs.append(slcloc)
 ##    slclocs = np.array(slclocs)
-##    
+##
 ##    #inds are the indices to sort dicom_names in order of slice location
 ##    inds = slclocs.argsort()
 ##
@@ -206,7 +206,7 @@ def addFullPathToFileList(path,files):
 #Edit 6/12/2020: Add exception so it can handle the kind of dicom numbering found in UCSF ISPY ID 16078
 ##def sortByName(dicom_names):
 ##    slc1 = dicom_names[0]
-##    
+##
 ##    slcend = dicom_names[len(dicom_names)-1]
 ##
 ##    try:
@@ -221,9 +221,9 @@ def addFullPathToFileList(path,files):
 ##        rrend = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", strend)
 ##        slcendnum = int(rrend[-1])
 ##
-##                      
+##
 ##    if (slc1num > slcendnum):
 ##        dicom_names = list(dicom_names)
 ##        dicom_names.reverse()
 ##    return dicom_names
-    
+

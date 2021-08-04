@@ -36,7 +36,7 @@ import sys
 
 
 def runExamIdentAndTiming(exampath,dce_folders_manual,dce_ind_manual,earlyadd,lateadd):
-    
+
 
     #First, fill header info structures for all DICOM folders in exam
     img_folders, all_folders_info = Get_header_info_all_manufacturer.fillExamFolderInfoStructures(exampath)
@@ -60,7 +60,7 @@ def runExamIdentAndTiming(exampath,dce_folders_manual,dce_ind_manual,earlyadd,la
         else:
             dce_folders = dce_folders_manual
             dce_ind = dce_ind_manual
-            
+
         #4/26/21: If you did auto DCE ID and it returned 0 DCE folders, exit this function
         if(len(dce_folders_manual) == 0 and len(dce_folders) == 0):
             slicer.util.confirmOkCancelDisplay("Automatic series ID failed. Please try manual series ID for this exam","Series ID Failed")
@@ -75,7 +75,7 @@ def runExamIdentAndTiming(exampath,dce_folders_manual,dce_ind_manual,earlyadd,la
 ##                orig_exampath = exampath[:-10] #remove \gunzipped from the end to get original exampath
 ##                gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[0]))
 ##                gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[1]))
-##                
+##
 ##            if(folder1info.totslices/folder1info.im_in_acq > 1):
 ##                multiinfo = folder1info
 ##                multifolder = img_folders[dce_ind[0]]
@@ -102,7 +102,7 @@ def runExamIdentAndTiming(exampath,dce_folders_manual,dce_ind_manual,earlyadd,la
 ##                curr_ctimesec = 3600*int(curr_ctime[0:2]) + 60*int(curr_ctime[2:4]) + float(curr_ctime[4:])
 ##                multictimes.append(curr_ctimesec)
 ##                multitrigtimes.append(curr_hdr.TriggerTime/1000) #convert to seconds
-##            
+##
 ##            multictimes = np.array(multictimes)
 ##            multictimes = np.unique(multictimes)
 ##
@@ -110,7 +110,7 @@ def runExamIdentAndTiming(exampath,dce_folders_manual,dce_ind_manual,earlyadd,la
 ##            if(len(multictimes) == 1):
 ##                multitrigtimes = np.array(multitrigtimes)
 ##                multictimes = np.unique(multitrigtimes)
-##            
+##
 ##            p1p2diff = float(multictimes[1]) - float(multictimes[0])
 ##            if(p1p2diff > 10):
 ##                print("There is pause of > 10 sec between phases 1 and 2 of multivolume folder. Therefore, this is the only DCE folder.")
@@ -146,7 +146,7 @@ def runExamIdentAndTiming(exampath,dce_folders_manual,dce_ind_manual,earlyadd,la
             print( "Late post-contrast image is post-contrast #" + str(latePostContrastNum) )
 
 
-    
+
     if ('SIEMENS' in folder1info.manufacturer or 'Siemens' in folder1info.manufacturer):
         print("---------- Siemens exam identification ----------")
         #Edit 2/12/2021: Only run DCE folder ident if dce_folders_manual (list of user's manual DCE folder selections) is empty
@@ -200,7 +200,7 @@ def runExamIdentAndTiming(exampath,dce_folders_manual,dce_ind_manual,earlyadd,la
         print("DCE folders are")
         print(dce_folders)
         print("Running timing ID")
-        
+
         try:
             tempres, fsort, studydate, nslice, earlyPostContrastNum, latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss = chooseEarly_LateByManufacturer.chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd)
         except:

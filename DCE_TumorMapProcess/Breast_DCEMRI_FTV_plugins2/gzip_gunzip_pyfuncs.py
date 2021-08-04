@@ -26,12 +26,12 @@ import shutil
 from distutils.dir_util import copy_tree
 
 def extractGZ(exampath):
-    
+
     sevenzipdir = r'C:\Program Fileszz\7-Zip'
     if(os.path.isdir(sevenzipdir) == 0):
         slicer.util.confirmOkCancelDisplay("Error. Please decompress all files in exam directory, then try running module again.","Compressed DICOMs Error")
         return
-    
+
     #return list of folders in exampath
     folders = [directory for directory in os.listdir(exampath) if os.path.isdir(os.path.join(exampath,directory))]
 
@@ -62,7 +62,7 @@ def extractGZ(exampath):
             #make a gunzipped folder if necessary
             if(os.path.isdir(new_dir) == 0):
                 os.mkdir(new_dir)
-                
+
             #If folder contains gzipped DICOMs, create a new folder & add gunzipped versions of first and last image to it
             #Edit 11/3/2020: Add file2 to this if statement
             #Edit 1/26/2021: Incorporate folders in which DICOMs don't have .dcm or .DCM extension into this
@@ -102,13 +102,13 @@ def extractGZ(exampath):
                         endsrc = os.path.join(curr_path,fileend)
                         enddst = os.path.join(new_path,fileend)
                         shutil.copyfile(endsrc,enddst)
-    
+
     return
 
 
 
-            
-    
+
+
 
 
 def deleteGunzipped(exampath):
@@ -130,13 +130,13 @@ def gunzipAllFilesDCE(exampath,dce_folder):
     def makeOrigAndDestPaths(exampath,dce_folder,dcegzipped_paths,dcegunzip_dest_paths):
         dce_orig_path = os.path.join(exampath,dce_folder)
         dcegzipped_paths.append(dce_orig_path)
-        
+
         dce_dest_path_p1 = os.path.join(exampath,"gunzipped")
         dce_dest_path = os.path.join(dce_dest_path_p1,dce_folder)
         dcegunzip_dest_paths.append(dce_dest_path)
 
         return dcegzipped_paths, dcegunzip_dest_paths
-        
+
     dcegzipped_paths = []
     dcegunzip_dest_paths = []
 
@@ -172,7 +172,7 @@ def gunzipAllFilesDCE(exampath,dce_folder):
             #Edit 2/4/2021: if file is not gzipped, gzip it and delete the original copy
             for f_i in files:
                 if('.gz' not in f_i):
-                    fullfile = os.path.join(dcegzipped_paths[0],f_i) 
+                    fullfile = os.path.join(dcegzipped_paths[0],f_i)
                     gzcmd = gzcmd_base + fullfile + '.gz' + ' ' + fullfile
                     os.system(gzcmd) #create a gzipped copy of the file
                     os.remove(fullfile) #delete the original, non-gzipped copy of the file
@@ -181,7 +181,7 @@ def gunzipAllFilesDCE(exampath,dce_folder):
             cmd_base = r'"C:\Program Files\7-Zip\7z" x '
             cmd_7z = cmd_base + dcegzipped_paths[0] + '\*' + ' -o' + dcegunzip_dest_paths[0]
             os.system(cmd_7z) #execute above command
-                                                           
+
     return
 
 
