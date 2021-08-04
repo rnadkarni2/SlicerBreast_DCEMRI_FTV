@@ -35,12 +35,7 @@ from vtk.util.numpy_support import vtk_to_numpy
 from vtk.util import numpy_support
 from slicer.ScriptedLoadableModule import *
 from slicer.util import VTKObservationMixin
-
-try:
-  import numpy as np
-except:
-  slicer.util.pip_install('numpy')
-  import numpy as np
+import numpy as np
 
 try:
   import pydicom

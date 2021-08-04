@@ -36,12 +36,7 @@ import vtk, qt, ctk, slicer
 from qt import *
 from slicer.ScriptedLoadableModule import *
 import logging
-
-try:
-  import numpy as np
-except:
-  slicer.util.pip_install('numpy')
-  import numpy as np
+import numpy as np
 
 try:
   import nibabel as nib
@@ -67,14 +62,6 @@ try:
 except:
   slicer.util.pip_install('dicom')
   import dicom
-
-try:
-  import scipy
-except:
-  slicer.util.pip_install('scipy')
-  import scipy
-
-from scipy import signal
 
 import math
 
