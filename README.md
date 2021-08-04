@@ -1,23 +1,23 @@
 <h1>Breast DCE-MRI FTV extension</h1>
 
 <p>Users of this extension must abide by the Slicer license. A copy of this license is included
-in this repository in the file <strong>license.txt</strong>. The <strong>copyright.txt</strong> 
+in this repository in the file <strong>license.txt</strong>. The <strong>copyright.txt</strong>
 file in this repository includes the copyright statement written on all Python code files in this extension.</p>
 
 <h2>Purpose of Extension</h2>
 
-<p>This 3D Slicer extension allows the user to compute functional tumor volume (FTV) from a 
-dynamic contrast-enhanced magnetic resonance imaging (DCE-MRI) exam of a breast 
-cancer patient. FTV is a quantitative measure of tumor burden. It is calculated through a 
-segmentation process developed by the UCSF Breast Imaging Research Group that accounts 
+<p>This 3D Slicer extension allows the user to compute functional tumor volume (FTV) from a
+dynamic contrast-enhanced magnetic resonance imaging (DCE-MRI) exam of a breast
+cancer patient. FTV is a quantitative measure of tumor burden. It is calculated through a
+segmentation process developed by the UCSF Breast Imaging Research Group that accounts
 for pre-contrast enhancement and post-contrast kinetics.</p>
 
 <h2>Background</h2>
 
-<p>FTV from DCE-MRI has already been established as a reliable biomarker in 
+<p>FTV from DCE-MRI has already been established as a reliable biomarker in
 breast cancer patients undergoing neoadjuvant chemotherapy (NAC). Research from the
-ACRIN 6657 / I-SPY 1 TRIAL showed that FTV is a stronger predictor of  treatment response 
-than clinical assessment. Due to this promising result, the ongoing I-SPY 2 TRIAL is using FTV 
+ACRIN 6657 / I-SPY 1 TRIAL showed that FTV is a stronger predictor of  treatment response
+than clinical assessment. Due to this promising result, the ongoing I-SPY 2 TRIAL is using FTV
 to guide adaptive randomization of therapy for patients.</p>
 
 <p>Despite the predictive power of the FTV segmentation method, access to it has been limited.
@@ -49,7 +49,7 @@ and late post-contrast phases to the Slicer window. </p>
 (ROI) and also has the option to select regions within the ROI to exclude from the segmentation (omit regions).
 The phases loaded by Module 1 as well as subtraction images and MIPs derived from
 them may be used to guide selection of ROI and omit regions. Furthermore, the user has the option
-to either create ROI and omit regions by dragging bounding boxes to the appropriate position and size 
+to either create ROI and omit regions by dragging bounding boxes to the appropriate position and size
 or import them from an existing xml file. If the user creates a new
 ROI and omit regions, they can be saved to an xml file for future use.</p>
 
@@ -65,7 +65,7 @@ and details about the exam selected.</p>
 
 <h2>Publication</h2>
 
-<p>A publication about this 3D Slicer extension called <strong>Validation of the Open-Source 3D Slicer Extension Breast DCE-MRI Functional Tumor Volume as a Tool to Assess Treatment Response</strong> 
+<p>A publication about this 3D Slicer extension called <strong>Validation of the Open-Source 3D Slicer Extension Breast DCE-MRI Functional Tumor Volume as a Tool to Assess Treatment Response</strong>
 will be submitted to the journal <strong>Tomography</strong> before the end of 2021.</p>
 
 <h2>Additional Resources</h2>

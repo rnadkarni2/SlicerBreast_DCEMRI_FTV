@@ -36,7 +36,7 @@ import numpy as np
 class DicomFileInfo:
     def __init__(self,dcepath,file):
         self.filename = file
-        
+
         imgpath = os.path.join(dcepath,file)
         hdr = pydicom.dcmread(imgpath,stop_before_pixels = True)
         try:
@@ -63,7 +63,7 @@ class DicomFileInfo:
             self.ctime = float(hdr.ContentTime)
         except:
             self.ctime = 0
-        
+
         try:
             self.trigtime = float(hdr.TriggerTime)
         except:
@@ -86,9 +86,9 @@ class DicomFileInfo:
         #other manufacturers.
         self.manufacturer = hdr.Manufacturer
 
-        
 
-        
+
+
 
 
 #dcepath = r"\\researchfiles.radiology.ucsf.edu\birp_perm2\ispy_2019\4460_OHSC\13432\20190910_v10\E20190910\701"
@@ -131,11 +131,11 @@ def sortDicoms(dcepath):
 
     print("content times all")
     print(contenttimesall)
-        
+
 
     print("content times all after removing small differences between adjacent elements")
     print(contenttimesall)
-    
+
     contenttimesunique = np.unique(contenttimesall)
     print("content times unique")
     print(contenttimesunique)
@@ -150,7 +150,7 @@ def sortDicoms(dcepath):
         nphase_forcheck = int(totslices/im_in_acq)
     except:
         nphase_forcheck = 0 #have to do this if unable to retrieve im_in_acq from header
-        
+
     maxdiff = (np.amax(contenttimesunique)-np.amin(contenttimesunique))
     print("number of phases")
     print(nphase_forcheck)
@@ -158,7 +158,7 @@ def sortDicoms(dcepath):
     print(contenttimesunique)
     print("max diff in content times")
     print(maxdiff)
-    
+
     if('Philips' in curr_dcm_info.manufacturer or 'PHILIPS' in curr_dcm_info.manufacturer):
         ttime_forphases = 1 #4/2/2021: For now, assume Philips always uses trigger time
         trigtimesall = np.array(trigtimesall)
@@ -167,7 +167,7 @@ def sortDicoms(dcepath):
         #works and use other timing variable if it doesn't
         if(len(contenttimesunique) <= 2):
             contenttimesunique = np.unique(contenttimesall)
-            
+
             ctime_forphases = 1
             ttime_forphases = 0
             if(len(contenttimesunique) <= 2):
@@ -182,7 +182,7 @@ def sortDicoms(dcepath):
             print("Using trigger time to sort multivolume folder slices by DCE phase")
 
 
-        
+
     #Edit 4/2/2021: Only default to content time for phase sorting for Siemens and GE
     else:
         #Edit 2/26/2021: Added new check --> use totslices and im_in_acq to make sure that number of content times matches number of phases.
@@ -233,7 +233,7 @@ def sortDicoms(dcepath):
                     else:
                         truetime = all_dcms_info[s].acqtime - 1
                     all_dcms_info[s].acqtime = truetime
-                    
+
             if(ctime_forphases == 1):
                 if(all_dcms_info[s].ctime in dlt_times1):
                     if(str(int(all_dcms_info[s].ctime)).endswith('00')):
@@ -241,7 +241,7 @@ def sortDicoms(dcepath):
                     else:
                         truetime = all_dcms_info[s].ctime - 1
                     all_dcms_info[s].ctime = truetime
-        
+
     #3/22/21: if timing array is longer than nphase, use the first nphase elements only
     if(nphase_forcheck > 1 and len(contenttimesunique) > nphase_forcheck):
         for v in range(len(all_dcms_info)):
@@ -250,10 +250,10 @@ def sortDicoms(dcepath):
                     all_dcms_info[v].trigtime = contenttimesunique[nphase_forcheck-1]
             if(atime_forphases == 1):
                 if(all_dcms_info[v].acqtime > contenttimesunique[nphase_forcheck-1]):
-                    all_dcms_info[v].acqtime = contenttimesunique[nphase_forcheck-1]                
+                    all_dcms_info[v].acqtime = contenttimesunique[nphase_forcheck-1]
             if(ctime_forphases == 1):
                 if(all_dcms_info[v].ctime > contenttimesunique[nphase_forcheck-1]):
-                    all_dcms_info[v].ctime = contenttimesunique[nphase_forcheck-1]                
+                    all_dcms_info[v].ctime = contenttimesunique[nphase_forcheck-1]
         contenttimesunique = contenttimesunique[0:nphase_forcheck]
 
     #Edit 3/22/2021: only sort slices after fixes above
@@ -263,7 +263,7 @@ def sortDicoms(dcepath):
         all_dcms_info = sorted(all_dcms_info, key = lambda s: s.acqtime)
     if(ctime_forphases == 1):
         all_dcms_info = sorted(all_dcms_info, key = lambda s: s.ctime)
-        
+
     numtemp = len(contenttimesunique)
     print("number of temporal positions based on timing variable")
     print(numtemp)
@@ -290,13 +290,13 @@ def sortDicoms(dcepath):
     #print(fsort[0][:])
     print(".......................... Finished multivolume DICOM sort")
     return fsort, numtemp, nslice, ctime_forphases, ttime_forphases, atime_forphases
-    
-
-
-    
-
-    
 
 
 
-    
+
+
+
+
+
+
+

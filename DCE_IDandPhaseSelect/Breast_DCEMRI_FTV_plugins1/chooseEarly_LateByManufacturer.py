@@ -46,7 +46,7 @@ def findClosestTime(imgtimes,time):
         postContrastNum = 1 + int(ind[0])
     except:
         postContrastNum = 1 + ind[0][0]
-    
+
 ##    try:
 ##        postContrastNum = 1+int(ind[0])
 ##    except:
@@ -54,7 +54,7 @@ def findClosestTime(imgtimes,time):
 ##            postContrastNum = 1 + int(ind)
 ##        except:
 ##            postContrastNum = 1 + int(ind[0,0])
-            
+
     return postContrastNum
 
 
@@ -67,7 +67,7 @@ def getTimeMMSS(timediff):
         timediffss = int(round(timediffss))
     except:
         timediffss = int(round(timediffss[0]))
-        
+
     return timediffmm, timediffss
 
 
@@ -105,7 +105,7 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
             if len(files_noext)>0:
                 curr_img_path = os.path.join(curr_path,files_noext[0])
 
-                
+
             phaseslc1paths.append(curr_img_path)
 
     #use one slice from each phase in same folder if there is only one DCE folder
@@ -124,7 +124,7 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
         #Edit 7/17/2020: If 'gunzipped' in exampath, gunzip all DCMs for multivolume postcontrast folder
         if('gunzipped' in exampath):
             gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[1]))
-    
+
         postpath = os.path.join(exampath,str(dce_folders[1]))
         fsort, numtemp, nslice, ctime_forphases, ttime_forphases, atime_forphases = multivolume_folder_sort.sortDicoms(postpath)
 
@@ -138,10 +138,10 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
         for p in range(len(fsort)):
             curr_img_path = os.path.join(postpath,fsort[p][0])
             phaseslc1paths.append(curr_img_path)
-        
-        
 
-    
+
+
+
     #Create array of Timing Structures
     if ('GE' in manufacturer):
         timing_all = timing_info_class_all_manufacturer.getGETimingAllFolders(phaseslc1paths)
@@ -162,7 +162,7 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
     #tempres is currently contenttime(2nd post) - contenttime(1st post), you
     #have to change tempres to match the new timing variable
     tempres_subtract = 0
-    
+
     #skip pre-contrast image, and return array of post-contrast image content times, in seconds
     for i in range(1,len(timing_all)):
         curr_timing = timing_all[i]
@@ -186,7 +186,7 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
         acqtime = curr_timing.acqtime
         acqtimesec = 3600*int(acqtime[0:2]) + 60*int(acqtime[2:4]) + float(acqtime[4:]) #For UMinn 23929 v10, must use this in place of content time.
         acqtimes[i-1,0] = acqtimesec
-        
+
         #Get temporal resolution (in seconds) from 2nd post-contrast image. Also read Study Date from this image.
         if i == 2:
             tempres = curr_timing.tempressec
@@ -213,7 +213,7 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
     else:
         #For some exams, like UKCC, must use trigger times in place of content times
         #Edit 2/1/2021: Add scenarios for using acqtimes
-        
+
         #Edit 2/8/2021: Added separation of 59 seconds between min and max content times as another condition
         #for choosing timing variable.
         try:
@@ -259,7 +259,7 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
     contenttimes = np.unique(contenttimes)
     if(smalldiff == 1):
         tempres = contenttimes[2]-contenttimes[1]
-    
+
     print("content times")
     print(contenttimes)
     print(" ")
@@ -311,11 +311,11 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
 
     #If more than 1 DCE folder, gunzip all DCMs for early and late post-contrast folders
     if(len(dce_folders) > 2):
-        #Edit 7/17/2020: If 'gunzipped' in exampath, gunzip all DCMs for early post-contrast folder 
+        #Edit 7/17/2020: If 'gunzipped' in exampath, gunzip all DCMs for early post-contrast folder
         if('gunzipped' in exampath):
             gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[earlyPostContrastNum]))
-        
-        #Edit 7/17/2020: If 'gunzipped' in exampath, gunzip all DCMs for late post-contrast folder 
+
+        #Edit 7/17/2020: If 'gunzipped' in exampath, gunzip all DCMs for late post-contrast folder
         if('gunzipped' in exampath):
             gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[latePostContrastNum]))
 
@@ -341,7 +341,7 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
 
     print("dce folders at start of Philips choose early/late")
     print(dce_folders)
-    
+
     #Edit 7/17/2020: If 'gunzipped' in exampath, gunzip all DCMs for DCE multivolume folder
     if('gunzipped' in exampath):
         gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[0]))
@@ -353,14 +353,14 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
     #Using test_multivolume_folder_sort to automatically sort dicom filenames
     if(len(dce_folders) == 1):
         dcepath = os.path.join(exampath,str(int(dce_folders[0])))
-        
+
     if(len(dce_folders) == 2):
         dcepath = os.path.join(exampath,str(int(dce_folders[1])))
 
     print("dce path")
     print(dcepath)
-    
-    fsort,numtemp,nslice, ctime_forphases, ttime_forphases, atime_forphases = multivolume_folder_sort.sortDicoms(dcepath) 
+
+    fsort,numtemp,nslice, ctime_forphases, ttime_forphases, atime_forphases = multivolume_folder_sort.sortDicoms(dcepath)
 
     print("ttime for phases")
     print(ttime_forphases)
@@ -387,7 +387,7 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
 
     print("1st slice of each phase")
     print(phaseslc1paths)
-    
+
     timing_all = timing_info_class_all_manufacturer.getPhilipsTimingAllFolders(phaseslc1paths)
 
     trig_times = []
@@ -408,12 +408,12 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
             atime = curr_timing.acqtime
             atime_sec = 3600*int(ctime[0:2]) + 60*int(ctime[2:4]) + float(ctime[4:])
             trig_times.append(atime_sec)
-        
+
 
         if j == 2:
             studydate = curr_timing.studydate
             tempres = curr_timing.tempressec
-            
+
             #set tempres to difference between consecutive trig times if necessary
             if ( tempres < 30 ): #Edit: use small fixed value threshold instead of actually setting it to difference between trigger/content times
                 tempres = trig_times[j-1] - trig_times[j-2]
@@ -436,7 +436,7 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
 
     earlyPostContrastNum = findClosestTime(imgtimes,earlytime)
     print(earlyPostContrastNum)
-    
+
     latePostContrastNum = findClosestTime(imgtimes,latetime)
     print(latePostContrastNum)
 
@@ -447,6 +447,6 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
     #find out how many min and sec after start of 1st post-contrast late post-contrast occurs, for report
     latediff = imgtimes[latePostContrastNum-1] - trig_times[0]
     latediffmm, latediffss = getTimeMMSS(latediff)
-    
+
     return tempres, fsort, studydate, nslice, earlyPostContrastNum, latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss
 

@@ -52,4 +52,4 @@ def checkForGzippedDicoms(exampath):
             gzipped = 1
             break
 
-    return gzipped    
+    return gzipped

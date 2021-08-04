@@ -133,7 +133,7 @@ def saveRASCoordsToLPSxml(roicenter,roiradius,ocenters,oradii,studydate):
             omits = 0
         else:
             omits = 1
-    
+
     #Define xml file format
     doc, tag, text = Doc().tagtext()
     omit = 1

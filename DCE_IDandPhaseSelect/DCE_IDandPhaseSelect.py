@@ -68,16 +68,16 @@ except:
   slicer.util.pip_install('dicom')
   import dicom
 
-try:  
+try:
   import scipy
 except:
   slicer.util.pip_install('scipy')
   import scipy
-  
+
 from scipy import signal
 
 import math
-  
+
 import time
 import datetime
 import pickle
@@ -131,11 +131,11 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
     earlynodestr = nodevisstr + ' early post-contrast'
     latenodestr = nodevisstr + ' late post-contrast'
 
-  
+
 
   #Edit 5/8/2020: Code for identifying manufacturer and then calling manufacturer-specific
   #function for identifying pre-contrast and post-contrast DCE folder(s)
-    
+
   #Edit 6/11/2020: Call function that does DCE folder and early/late timing identification given exampath
   tempres, all_folders_info, dce_folders, dce_ind, fsort, studydate, nslice, earlyPostContrastNum, latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss = Exam_Ident_and_timing.runExamIdentAndTiming(exampath,dce_folders_manual,dce_ind_manual,earlyadd,lateadd)
 
@@ -211,7 +211,7 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
   if (len(dce_folders) == 1):
     m,a = read_DCE_images_to_numpy.readPhilipsImageToNumpy(exampath,dce_folders,fsort,0)
   else:
-    apath = os.path.join(exampath,str(dce_folders[0])) 
+    apath = os.path.join(exampath,str(dce_folders[0]))
     m,a = read_DCE_images_to_numpy.readInputToNumpy(apath)
 
   print("RAS to IJK Matrix")
@@ -228,7 +228,7 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
   precontrast_node.GetIJKToRASMatrix(m1)
   print("IJK to RAS Matrix from Precontrast Node")
   print(m1)
-  
+
 
   progressBar.value = 50
   progressBar.labelText = 'Pre-contrast image loaded to Slicer'
@@ -246,7 +246,7 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
     if(len(dce_folders) == 2):
       m,b = read_DCE_images_to_numpy.readPhilipsImageToNumpy(exampath,dce_folders,fsort,earlyPostContrastNum)
     else:
-      m,b = read_DCE_images_to_numpy.earlyOrLateImgSelect(earlyPostContrastNum,dce_folders,exampath) 
+      m,b = read_DCE_images_to_numpy.earlyOrLateImgSelect(earlyPostContrastNum,dce_folders,exampath)
 
   #Edit 7/2/2020: Loading early post-contrast image directly to Slicer because want subtraction to be a button option
   #in 2nd module
@@ -272,7 +272,7 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
     if(len(dce_folders) == 2):
       m,c = read_DCE_images_to_numpy.readPhilipsImageToNumpy(exampath,dce_folders,fsort,latePostContrastNum)
     else:
-      m,c = read_DCE_images_to_numpy.earlyOrLateImgSelect(latePostContrastNum,dce_folders,exampath) 
+      m,c = read_DCE_images_to_numpy.earlyOrLateImgSelect(latePostContrastNum,dce_folders,exampath)
 
   #Edit 7/2/2020: Loading early post-contrast image directly to Slicer because want subtraction to be a button option
   #in 2nd module
@@ -295,7 +295,7 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
 
   return precontrast_node, early_post_node, late_post_node
 
-  
+
 
 class DCE_IDandPhaseSelect(ScriptedLoadableModule):
   """Uses ScriptedLoadableModule base class, available at:
@@ -437,11 +437,11 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
             except:
               self.sitestr = 'Site Unknown'
 
-          try:  
+          try:
             self.idstr = hdr_dcm1[0x12,0x40].value #Clinical Trial Subject ID
           except:
-            self.idstr = 'ID Unknown'              
-            
+            self.idstr = 'ID Unknown'
+
           try:
             self.visitstr = hdr_dcm1[0x12,0x50].value #Clinical Trial Time Point ID
             #7/4/2021: Try to use directory structure if visit number not found
@@ -452,13 +452,13 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
               self.visitstr = 'Visit unknown'
               if('v10' in self.exampath):
                 self.visitstr = 'MR1'
-              
+
               if('v20' in self.exampath):
                 self.visitstr = 'MR2'
-              
+
               if('v30' in self.exampath):
                 self.visitstr = 'MR3'
-              
+
               if('v40' in self.exampath):
                 self.visitstr = 'MR4'
 
@@ -468,18 +468,18 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
             self.visitstr = 'Visit unknown'
             if('v10' in self.exampath):
               self.visitstr = 'MR1'
-              
+
             if('v20' in self.exampath):
               self.visitstr = 'MR2'
-              
+
             if('v30' in self.exampath):
               self.visitstr = 'MR3'
-              
+
             if('v40' in self.exampath):
               self.visitstr = 'MR4'
-              
-                
-    #7/26/2021: If this step fails, DICOMs in exam directory are compressed.    
+
+
+    #7/26/2021: If this step fails, DICOMs in exam directory are compressed.
     try:
       print(self.exampath)
       print(self.studystr)
@@ -524,7 +524,7 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
 
     #7/6/2021: Add boxes to allow user to set early and late
     #post-contrast times
-    
+
     self.earlytimelbl = qt.QLabel("\nEarly Post-Contrast Time (seconds after contrast injection):")
     self.parametersFormLayout.addRow(self.earlytimelbl)
     self.earlytime = qt.QSpinBox()
@@ -554,19 +554,19 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
       visforlbl = 'Visit unknown'
       if(visnum == 'v10'):
         visforlbl = 'MR1'
-        
+
       if(visnum == 'v20'):
         visforlbl = 'MR2'
-        
+
       if(visnum == 'v25'):
         visforlbl = 'MR2.5'
-        
+
       if(visnum == 'v30'):
         visforlbl = 'MR3'
-        
+
       if(visnum == 'v40'):
         visforlbl = 'MR4'
-        
+
       if(visnum == 'v50'):
         visforlbl = 'MR5'
 
@@ -577,23 +577,23 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
 
       if(visnum == 'v10'):
         visforlbl = 'MR1'
-        
+
       if(visnum == 'v20'):
         visforlbl = 'MR2'
-        
+
       if(visnum == 'v25'):
         visforlbl = 'MR2.5'
-        
+
       if(visnum == 'v30'):
         visforlbl = 'MR3'
-        
+
       if(visnum == 'v40'):
         visforlbl = 'MR4'
-        
+
       if(visnum == 'v50'):
         visforlbl = 'MR5'
 
-      self.examlbl = "Choose Preferred Method of DCE Series ID for " + self.sitestr + " " + self.idstr + " " + visforlbl 
+      self.examlbl = "Choose Preferred Method of DCE Series ID for " + self.sitestr + " " + self.idstr + " " + visforlbl
 
     #2/11/2021: Adding interface to allow user to choose between manual and automatic folder ID
     self.DCE_ID_choose = qt.QLabel()
@@ -634,7 +634,7 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
     self.manualIdCheckBox.stateChanged.connect(self.manualDCESelectMenu) #2/11/2021: connect checking the manual folder ID box to function
                                                                          #for creating (or removing) manual DCE folder selection menu.
     self.manualSubmitButton.connect('clicked(bool)',self.onApplyButton)
-    
+
     # Add vertical spacer
     self.layout.addStretch(1)
 
@@ -650,7 +650,7 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
 
   #2/11/2021: New function to create or remove manual DCE selection menu.
   def manualDCESelectMenu(self):
-    
+
     if(self.manualIdCheckBox.isChecked() == True):
       #2/12/2021: If doing manual DCE folder ID, need to gunzip right now so that
       #all DICOM folders show up in the checkbox list for manual DCE folder selection.
@@ -663,13 +663,13 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
         gzip_gunzip_pyfuncs.extractGZ(self.exampath) #create folders with unzipped DICOMs
         self.exampath = os.path.join(self.exampath,"gunzipped") #set new exampath to gunzip folder inside of exam folder
 
-      
+
       #First, fill header info structures for all DICOM folders in exam
       self.img_folders, self.all_folders_info = Get_header_info_all_manufacturer.fillExamFolderInfoStructures(self.exampath)
 
       self.dce_folders_manual = [] #Initialize array that will be filled with user's folder selections from checkboxes
       self.dce_ind_manual = [] #Indices in img_folders that correspond to user selected DCE folders
-    
+
       #Then, add QLabel for this menu
       self.listLabel = qt.QLabel()
       self.listLabel.setText("Choose DCE folders from list below, then click 'Done' button.")
@@ -699,7 +699,7 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
       #Finally, add button that will be used to submit the user's final DCE folder selections
       self.parametersFormLayout.addRow(self.manualSubmitButton)
 
-        
+
 
     #Code for removing the manual DCE folder selection menu when Manual checkbox is unselected
     if(self.manualIdCheckBox.isChecked() == False):
@@ -709,16 +709,16 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
         self.parametersFormLayout.removeRow(self.listCheckBox[jjj])
 
       self.parametersFormLayout.removeRow(self.manualSubmitButton)
-        
+
 ##        allfolders_str = allfolders_str + '\n' + curr_str
 ##      #Once done populating this string, add it to a QLabel and display it
 ##      self.allDCElabel = qt.QLabel()
 ##      self.allDCElabel.setText(allfolders_str)
 ##      self.parametersFormLayout.addRow(self.allDCElabel)
 
-          
 
-    
+
+
   def onApplyButton(self):
     logic = DCE_IDandPhaseSelectLogic()
 
@@ -726,7 +726,7 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
       self.dce_folders_manual = []
       self.dce_ind_manual = []
       logic.run(self.exampath,self.dce_folders_manual,self.dce_ind_manual,self.visitstr,self.earlytime.value,self.latetime.value)
-  
+
     if(self.manualIdCheckBox.isChecked() == True):
       for mmm in range(len(self.img_folders)):
         if(self.listCheckBox[mmm].isChecked() == True):
@@ -753,9 +753,9 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
     """
     Run the actual algorithm
     """
-    
-      
-      
+
+
+
 ##    if not self.isValidInputOutputData(outputVolume):
 ##      #slicer.util.errorDisplay('Input volume is the same as output volume. Choose a different output volume.')
 ##      return False
@@ -774,15 +774,15 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
       exampath_node.SetParameter("exampath",exampath[:-9])
     else:
       exampath_node.SetParameter("exampath",exampath)
-    
+
     #slicer.mrmlScene.AddNode(exampath_node)
 
 
-    
+
 
     #savefolder = qt.QFileDialog.getExistingDirectory(0,("Choose save location for module outputs"))
     #savepath = savefolder+"\\"+outputfolder
-    
+
     #if not os.path.exists(savepath):
       #os.mkdir(savepath)
 
@@ -799,7 +799,7 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
         gzip_gunzip_pyfuncs.extractGZ(exampath) #create folders with unzipped DICOMs
         exampath = os.path.join(exampath,"gunzipped") #set new exampath to gunzip folder inside of exam folder
 
-          
+
     #find out which visit # is the one you're processing
     #visitnum = int(visitstr[-2:]) #visit number is last 2 digits of visit folder name
     #Edit 10/30/2020: To find visitnum, need to find position of 'v' in the visit folder name
@@ -813,7 +813,7 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
       visitnum = int(visitstr[vpos+1:vpos+3])
     else:
       visitnum = visitstr
-    
+
     #Edit 7/28/2020: Must have this before you process other visits.
     #This is because by default, the 2nd module reads the 1st node's image as precontrast.
     #This means that if you add nodes for your visit after you add nodes for other visits, the wrong
@@ -829,7 +829,7 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
 ##    print("visit folders for this exam are:")
 ##    print(visitfolders)
 ##
-##    
+##
 ##    #If more than one visit present in this exam, ask user if they want to load images for other visits
 ##    #Edit 8/7/2020: Only ask to load other visits if primary exam selected for FTV processing is NOT baseline
 ##    #Making this change because in Aegis, you would only load additional prior visits, not additional later visits
@@ -859,15 +859,15 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
 ##            if(currvisitnum == 10):
 ##              print("loading visit 10")
 ##              precontrast_nodev10, early_post_nodev10, late_post_nodev10 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)
-##              
+##
 ##            if(currvisitnum == 20):
 ##              print("loading visit 20")
 ##              precontrast_nodev20, early_post_nodev20, late_post_nodev20 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)
-##              
+##
 ##            if(currvisitnum == 30):
 ##              print("loading visit 30")
 ##              precontrast_nodev30, early_post_nodev30, late_post_nodev30 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)
-##              
+##
 ##            if(currvisitnum == 40):
 ##              print("loading visit 40")
 ##              precontrast_nodev40, early_post_nodev40, late_post_nodev40 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)

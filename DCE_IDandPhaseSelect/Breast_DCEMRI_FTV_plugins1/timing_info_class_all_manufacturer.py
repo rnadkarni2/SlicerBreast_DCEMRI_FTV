@@ -29,7 +29,7 @@ class GE_TimingInfo:
     def __init__(self,img1path,numpaths):
             #img1path is full path to 1st slice of the phase
             #trying to change inputs to make this compatible with both multi-folder DCE and single-folder DCE cases
-        
+
             try:
                 header = pydicom.dcmread(img1path,stop_before_pixels = True)
             except:
@@ -39,7 +39,7 @@ class GE_TimingInfo:
                 self.contenttime = header[0x8,0x33].value
             except:
                 self.contenttime = '000000'
-                
+
             #content time is a good field to use to identify the phase timing for UAB as well
             #For UAB, field that tells # of slices per phase for such single folder DCE GE exams is Locations in Acquisition (21,104f)
             #Still have to check if its the same for Loyola
@@ -48,7 +48,7 @@ class GE_TimingInfo:
                 self.locsinacq = header[0x21,0x104f].value
             except: #If field absent, assume each phase has its own folder and populate this field accordingly
                 self.locsinacq = numpaths
-            
+
             try:
                 self.temppos = int(header[0x20,0x100].value)
                 self.numtemp = int(header[0x20,0x105].value)
@@ -69,7 +69,7 @@ class GE_TimingInfo:
                     self.tempressec = self.acqdur/(self.numtemp * (10**6)) #temporal resolution in seconds is acquisition duration converted from usec to sec then divided by number of temporal positions
                 except: #finally, if neither work set temporal resolution to 0 (hopefully doesn't happen for 2nd-final post-contrast
                     self.tempressec = 0
-                
+
             try:
                 self.trigtime = float(header[0x18,0x1060].value) #for ucsd image, this has same value as temporal resolution
             except:
@@ -113,7 +113,7 @@ class SiemensTimingInfo:
         except: #may have to do this for some pre-contrast images
             self.temppos = 0
             self.numtemp = 0
-            
+
         try: #first, try using Temporal Resolution header field
             self.tempressec = float(header.TemporalResolution)
         except:
@@ -121,7 +121,7 @@ class SiemensTimingInfo:
                 self.tempressec = float(header[0x29,0x1010].value)
             except: #third, set to 0 if neither work (hopefully only needed for some pre-contrast)
                 self.tempressec = 0
-            
+
         #convert from usec or msec to sec
         while self.tempressec >= 1000:
             self.tempressec = self.tempressec/1000
@@ -153,7 +153,7 @@ def getSiemensTimingAllFolders(phaseslc1paths):
 
 
 
-        
+
 class PhilipsTimingInfo:
     def __init__(self,img1path):
         try:
@@ -162,7 +162,7 @@ class PhilipsTimingInfo:
             header = dicom.read_file(img1path)
 
         self.studydate = header.StudyDate
-        
+
         try:
             self.temppos = int(header[0x20,0x100].value)
             self.numtemp = int(header[0x20,0x105].value)
@@ -175,7 +175,7 @@ class PhilipsTimingInfo:
             #convert from usec or msec to sec
             while self.tempressec >= 1000:
                 self.tempressec = self.tempressec/1000
-        except: 
+        except:
             try: #Second, try using Scan Duration field for tempressec
                 self.tempressec = float(header[0x2005,0x1033].value)
                 if self.numtemp > 0:
@@ -212,8 +212,8 @@ def getPhilipsTimingAllFolders(phaseslc1paths):
         curr_philips_timing = PhilipsTimingInfo(phaseslc1paths[i])
         philips_timing_all.append(curr_philips_timing)
     return philips_timing_all
-        
 
-        
-            
+
+
+
 
