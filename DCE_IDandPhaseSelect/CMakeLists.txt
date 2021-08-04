@@ -1,6 +1,7 @@
 #-----------------------------------------------------------------------------
 set(MODULE_NAME DCE_IDandPhaseSelect)
 
+add_subdirectory(Breast_DCEMRI_FTV_plugins1)
 #-----------------------------------------------------------------------------
 set(MODULE_PYTHON_SCRIPTS
   ${MODULE_NAME}.py
