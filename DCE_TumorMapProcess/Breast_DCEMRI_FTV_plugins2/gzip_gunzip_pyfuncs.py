@@ -66,7 +66,6 @@ def extractGZ(exampath):
             #If folder contains gzipped DICOMs, create a new folder & add gunzipped versions of first and last image to it
             #Edit 11/3/2020: Add file2 to this if statement
             #Edit 1/26/2021: Incorporate folders in which DICOMs don't have .dcm or .DCM extension into this
-            #if( ( ( file1.endswith('.dcm.gz') or file2.endswith('.dcm.gz') ) and fileend.endswith('.dcm.gz') ) or ( ( file1.endswith('.DCM.gz') or file2.endswith('.DCM.gz') ) and fileend.endswith('.DCM.gz') ) or ( ( file1.endswith('.gz') or file2.endswith('.gz') ) and fileend.endswith('.gz') )):
             #Edit 2/4/2021: new version of this if statement that also incorporates folders that have regular non-gzipped DICOMs
             if( file1.endswith('.gz') or file1.endswith('.dcm') or file1.endswith('.DCM') or file1.isdigit() ):
 
@@ -106,11 +105,6 @@ def extractGZ(exampath):
     return
 
 
-
-
-
-
-
 def deleteGunzipped(exampath):
     #Edit 7/16/2020: If there is a gunzipped folder inside the exampath, delete it
     gunzip_path = os.path.join(exampath,"gunzipped")
@@ -119,8 +113,6 @@ def deleteGunzipped(exampath):
         shutil.rmtree(gunzip_path)
 
     return
-
-
 
 
 #function to unzip all DCM files for relevant DCE folders, instead of just first and last DCMs
@@ -183,5 +175,3 @@ def gunzipAllFilesDCE(exampath,dce_folder):
             os.system(cmd_7z) #execute above command
 
     return
-
-
