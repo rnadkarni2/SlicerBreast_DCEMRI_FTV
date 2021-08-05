@@ -64,8 +64,6 @@ except:
   slicer.util.pip_install('opencv-python')
   import cv2
 
-#from tr import tr
-
 try:
   import nrrd
 except:
@@ -109,7 +107,6 @@ from Breast_DCEMRI_FTV_plugins2 import ident_gzipped_exam
 from Breast_DCEMRI_FTV_plugins2 import gzip_gunzip_pyfuncs
 
 
-
 #Function that outputs the numpy image stored in a vtkMRMLScalarVolumeNode
 def getNPImgFromNode(nodename):
   prenode = slicer.util.getNode(nodename)
@@ -149,12 +146,6 @@ def IJKToRASFunc(roicenter,roiradius,inputVolume):
 
   roicenter_RAS = (roistart_RAS+roiend_RAS)/2
 
-  #Edit 9/30/2020: Commenting this out because it didn't help
-  #Edit 9/15/2020: Subtract 1/2 voxel size for roicenter_RAS
-##  roicenter_RAS[0] = roicenter_RAS[0] - 0.5*volIJKToRASMat.GetElement(0,0)
-##  roicenter_RAS[1] = roicenter_RAS[1] - 0.5*volIJKToRASMat.GetElement(1,1)
-##  roicenter_RAS[2] = roicenter_RAS[2] - 0.5*volIJKToRASMat.GetElement(2,2)
-
   roiradius_RAS = np.abs(roiend_RAS-roicenter_RAS)
 
   return roicenter_RAS, roiradius_RAS
@@ -166,13 +157,6 @@ def RASToIJKFunc(roicenter,roiradius,inputVolume):
 
   volIJKToRASMat = vtk.vtkMatrix4x4()
   inputVolume.GetIJKToRASMatrix(volIJKToRASMat)
-
-  #Edit 9/30/2020: Commenting this out because it didn't help
-  #Edit 9/15/2020: Subtract 1/2 voxel size for roicenter_RAS
-##  roicenter[0] = roicenter[0] - 0.5*volIJKToRASMat.GetElement(0,0)
-##  roicenter[1] = roicenter[1] - 0.5*volIJKToRASMat.GetElement(1,1)
-##  roicenter[2] = roicenter[2] - 0.5*volIJKToRASMat.GetElement(2,2)
-
 
   #Cannot directly apply transformation to roicenter, must do it this way.
   roistart = np.zeros((1,4))
@@ -202,26 +186,9 @@ def RASToIJKFunc(roicenter,roiradius,inputVolume):
 
   return roicenter_IJK, roiradius_IJK
 
-##def showdialog():
-##   d = qt.QDialog()
-##   lbl = qt.QLabel("Choose visit to load:")
-##   lbl.move(10,10)
-##   b1 = qt.QPushButton("ok",d)
-##   b1.move(50,50)
-##   d.setWindowTitle("Choose visit to load")
-##   #d.setWindowModality(Qt.ApplicationModal)
-##   b1.connect('clicked(bool)',closewindow(d))
-##   d.exec_()
-##
-##def closewindow(d):
-##  print("closing window")
-##  d.close()
 
 #
-# roiAndOmitsTest
-#
-
-
+# DCE_TumorMapProcess
 
 class DCE_TumorMapProcess(ScriptedLoadableModule):
   """Uses ScriptedLoadableModule base class, available at:
@@ -244,17 +211,13 @@ and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR0132
 """  # TODO: replace with organization, grant and thanks.
 
 #
-# roiAndOmitsTestWidget
+# DCE_TumorMapProcessWidget
 #
-
 
 class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
   """Uses ScriptedLoadableModuleWidget base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
-
-
-
 
   def setup(self):
 
@@ -262,28 +225,12 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
 
     ScriptedLoadableModuleWidget.setup(self)
 
-
-
-
-
-##    #Edit 8/13/2020: save initial axial position to variable
-##    layoutManager = slicer.app.layoutManager()
-##    red = layoutManager.sliceWidget('Red')
-##    redLogic = red.sliceLogic()
-##    # Save default slice offset (center axial slice of image) position to variable
-##    self.axpos = redLogic.GetSliceOffset()
-##
-##
-
     #Add Axes Orientation Marker to the red and yellow slices automatically
     redNode = slicer.util.getNode('vtkMRMLSliceNodeRed')
     redNode.SetOrientationMarkerType(redNode.OrientationMarkerTypeAxes)
 
     yellowNode = slicer.util.getNode('vtkMRMLSliceNodeYellow')
     yellowNode.SetOrientationMarkerType(yellowNode.OrientationMarkerTypeAxes)
-
-
-
 
     #According to Andras, you need to disable data probe like this to prevent corner annotation from being erased
     # Disable slice annotations immediately
@@ -293,7 +240,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     settings = qt.QSettings()
     settings.setValue('DataProbe/sliceViewAnnotations.enabled', 0)
 
-
     #Edit 7/28/2020: Try reading exampath from parameter node created in 1st module
     #instead of asking user to select folder again
     #1. Retrieve node by name
@@ -301,25 +247,7 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     #2. Read exampath from current node in pathSelector
     self.exampath = exampath_node.GetParameter("exampath")
 
-
     #Edit 7/29/2020: Adding exampath parsing code from createSubtractionsAndMIPs here
-
-
-    #If using mapped drive (B: for ispy_2019 or F: for ispy2)
-##    if('B:' in self.exampath or 'F:' in self.exampath):
-##      #site folder name is between the 1st and 2nd slashes
-##      self.sitestr = self.exampath[(int(slashinds[0])+1):int(slashinds[1])]
-##      #ISPY ID folder name is between the 2nd and 3rd slashes
-##      self.idstr = self.exampath[(int(slashinds[1])+1):int(slashinds[2])]
-##      self.idpath = self.exampath[0:int(slashinds[2])] #full path to ispy id folder
-##      #folder with visit name in it is between the 3rd and 4th slashes
-##      visitstr = self.exampath[(int(slashinds[2])+1):int(slashinds[3])]
-##
-##      #studystr is ispy_2019 for B: or ispy2 for F:
-##      if('B:' in self.exampath):
-##        studystr = 'ispy_2019'
-##      if('F:' in self.exampath):
-##        studystr = 'ispy2'
 
     #7/6/2021: Add code to convert mapped drive letter path
     #to full path based on Andras Lasso's answer in Slicer forums.
@@ -363,8 +291,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     dimstr = "axial slices are " + str(self.nrow_hdr) + " x " + str(self.ncol_hdr)
     print(dimstr)
 
-
-
     #find indices where slashes '/' occur in exampath
     slashinds = []
     for i in range(len(self.exampath)):
@@ -372,7 +298,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         slashinds.append(i)
 
     #If using full path instead of mapped drives
-##    else:
     #6/28/2021: Make this code compatible with
     #directory structures that are different from
     #our MR exam directories on \\researchfiles.radiology.ucsf.edu
@@ -487,9 +412,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
 
     #Add this label to a QLabel that will appear at the top of the widget
     #Edit 10/30/2020: Exam details only written on red & yellow slice views. Tumor volume written at top of widget.
-    #self.tumvolstr = "Tumor Volume Not Yet Calculated"
-    #self.heading = qt.QLabel(self.tumvolstr)
-
 
     #Edit 8/13/2020: Function to edit the slice value printed to the upper right corner of image
     #Edit 9/4/2020: Print image name to bottom right of red and yellow slices too
@@ -565,101 +487,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     # Layout within the dummy collapsible button
     parametersFormLayout = qt.QFormLayout(parametersCollapsibleButton)
 
-
-    #Edit 8/13/2020
-    #From: https://www.slicer.org/wiki/Documentation/Nightly/ScriptRepository#Get_DataProbe_text
-    #You can get the mouse location in pixel coordinates along with the pixel value at the mouse
-    #by hitting the '.' (period) key in a slice view after pasting in the following code.
-##    def printDataProbe():
-##      infoWidget = slicer.modules.DataProbeInstance.infoWidget
-##      for layer in ('B', 'F', 'L'):
-##        print(infoWidget.layerNames[layer].text, infoWidget.layerIJKs[layer].text, infoWidget.layerValues[layer].text)
-##
-##    s = qt.QShortcut(qt.QKeySequence('.')), mainWindow())
-##    s.connect('activated()', printDataProbe)
-
-
-
-    #Edit 5/18/2020: Make user choose exam path as soon as they load the module
-    #This avoids repeated exam path selection
-    #self.exampath = qt.QFileDialog.getExistingDirectory(0,("Select folder for DCE-MRI exam"))
-    #alternate method of setting exampath below doesn't work--at least not yet.
-    #self.exampath = exampath #Edit 7/24/2020: Directly using exampath selected in 1st module
-
-    #parametersFormLayout.addRow(self.heading)
-
-
-    #Edit 11/25/2020: Use parameter nodes to retrieve outputs of exam_ident_and_timing from 1st module
-
-    #1. Retrieve node by name
-##    tempres_node = slicer.util.getNode("tempres node")
-##    #2. Read parameter from current node
-##    tempres = tempres_node.GetParameter("tempres")
-##
-##    #1. Retrieve node by name
-##    allfolders_node = slicer.util.getNode("all folders node")
-##    #2. Read parameter from current node
-##    all_folders_info = allfolders_node.GetParameter("all_folders_info")
-##
-##    #1. Retrieve node by name
-##    dcefolders_node = slicer.util.getNode("dce folders node")
-##    #2. Read parameter from current node
-##    dce_folders = dcefolders_node.GetParameter("dce_folders")
-##
-##    #1. Retrieve node by name
-##    dceind_node = slicer.util.getNode("dce indices node")
-##    #2. Read parameter from current node
-##    dce_ind = dceind_node.GetParameter("dce_ind")
-##
-##    #1. Retrieve node by name
-##    fsort_node = slicer.util.getNode("fsort node")
-##    #2. Read parameter from current node
-##    fsort = fsort_node.GetParameter("fsort")
-##
-##    #1. Retrieve node by name
-##    studydate_node = slicer.util.getNode("studydate node")
-##    #2. Read parameter from current node
-##    studydate = studydate_node.GetParameter("studydate")
-##
-##    #1. Retrieve node by name
-##    nslice_node = slicer.util.getNode("nslice node")
-##    #2. Read parameter from current node
-##    nslice = nslice_node.GetParameter("nslice")
-##
-##    #1. Retrieve node by name
-##    earlyPostContrastNum_node = slicer.util.getNode("earlyPostContrastNum node")
-##    #2. Read parameter from current node
-##    earlyPostContrastNum = earlyPostContrastNum_node.GetParameter("earlyPostContrastNum")
-##
-##    #1. Retrieve node by name
-##    earlydiffmm_node = slicer.util.getNode("earlydiffmm node")
-##    #2. Read parameter from current node
-##    earlydiffmm = earlydiffmm_node.GetParameter("earlydiffmm")
-##
-##    #1. Retrieve node by name
-##    earlydiffss_node = slicer.util.getNode("earlydiffss node")
-##    #2. Read parameter from current node
-##    earlydiffss = earlydiffss_node.GetParameter("earlydiffss")
-##
-##    #1. Retrieve node by name
-##    latePostContrastNum_node = slicer.util.getNode("latePostContrastNum node")
-##    #2. Read parameter from current node
-##    latePostContrastNum = latePostContrastNum_node.GetParameter("latePostContrastNum")
-##
-##    #1. Retrieve node by name
-##    latediffmm_node = slicer.util.getNode("latediffmm node")
-##    #2. Read parameter from current node
-##    latediffmm = latediffmm_node.GetParameter("latediffmm")
-##
-##    #1. Retrieve node by name
-##    latediffss_node = slicer.util.getNode("latediffss node")
-##    #2. Read parameter from current node
-##    latediffss = latediffss_node.GetParameter("latediffss")
-
-    #End edit 11/25/2020
-
-
-
     #7/6/2021: Add exception for DCE series with number and letters in name,
     #like Duke TCIA.
     try:
@@ -675,13 +502,11 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     else:
       self.aff_mat,self.aff_inv_mat = compute_lps_to_rcs.computeAffineAndAffineInverse(self.imagespath,pre_folder,self.nslice,self.fsort)
 
-
     print("My affine matrix")
     print(self.aff_mat)
 
     f1info = self.all_folders_info[0]
     self.manufacturer = f1info.manufacturer
-
 
     #By default, use side by side view that only shows axial and sagittal views
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutSideBySideView)
@@ -691,18 +516,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     start = datetime.datetime.now()
     #Format of runstarttime is like 20200101_12:30
     self.runstarttime = str(start.year) + str(start.month) + str(start.day) + "_" + str(start.hour) + "_" + str(start.minute)  #Processing start time, that is included in output files or folders
-
-
-
-    #Edit 9/11/2020: Test out adding a slider (which does nothing for now)
-##    self.slider1 = ctk.ctkSliderWidget()
-##    self.slider1.minimum = 0
-##    self.slider1.maximum = 100
-##    self.slider1.value = 50
-##    parametersFormLayout.addRow("Slider1: ", self.slider1)
-
-
-
 
         #
     # input volume selector
@@ -719,11 +532,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.inputSelector.setToolTip( "Select image to view." )
     parametersFormLayout.addRow("Displayed Image: ", self.inputSelector)
 
-
-
-
-
-
     #Create ROI and add it to scene
     #Edit 6/8/2020: Make ROI always at center of image, regardless of image size
     inputVolume = self.inputSelector.currentNode()
@@ -735,7 +543,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     inputVolume.GetDisplayNode().SetAutoWindowLevel(False) #Do this to prevent auto window leveling
     self.windowmin = inputVolume.GetDisplayNode().GetWindowLevelMin()
     self.windowmax = inputVolume.GetDisplayNode().GetWindowLevelMax()
-
 
     #Read current node name
     self.currentnodename = self.inputSelector.currentNode().GetName()
@@ -779,7 +586,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         self.a = getNPImgFromNode(precontraststr)
     except:
       print("pre-contrast with unknown visit doesn't exist")
-
 
     #Edit 11/6/2020: Repeat part of updateSlicePrint code here because apparently just calling the function without connecting it to slice scrolling doesn't work
     layoutManager = slicer.app.layoutManager()
@@ -828,8 +634,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     viewsag.forceRender()
     #END repeat of updateSlicePrint code
 
-
-
     #Call function that returns RAS coordinate center and radius give input volume and IJK coordinate center and radius
     roicenter_RAS, roiradius_RAS = IJKToRASFunc(roicenter,roiradius,inputVolume)
 
@@ -838,62 +642,15 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.roi.SetRadiusXYZ(roiradius_RAS)
     slicer.mrmlScene.AddNode(self.roi)
 
-    #Edit 9/11/2020: Use sliders for window level and window width
-
-##    self.slider1 = ctk.ctkSliderWidget()
-##    self.slider1.minimum = 0
-##    self.slider1.maximum = 10000
-##    #self.slider1.value = 50
-##    parametersFormLayout.addRow("Window Width: ", self.slider1)
-##
-##
-##    self.slider2 = ctk.ctkSliderWidget()
-##    self.slider2.minimum = 0
-##    self.slider2.maximum = 8000
-##    #self.slider1.value = 50
-##    parametersFormLayout.addRow("Window Center: ", self.slider2)
-
-
-
-
-    #Edit 8/11/2020: Try QSpinBox for setting window level
-    #Changing this to reflect what "window" actually means
-##    self.disprangelbl = qt.QLabel("\nWindow Width:")
-##    parametersFormLayout.addRow(self.disprangelbl)
-##    self.disprange = qt.QSpinBox()
-##    #set min and max possible values for this spin box
-##    self.disprange.setMinimum(0)
-##    self.disprange.setMaximum(10000)
-##    parametersFormLayout.addRow(self.disprange)
-
-    #Changing this to reflect what "level" actually means
-##    self.dispctrlbl = qt.QLabel("\nWindow Center:")
-##    parametersFormLayout.addRow(self.dispctrlbl)
-##    self.dispctr = qt.QSpinBox()
-##    #set min and max possible values for this spin box
-##    self.dispctr.setMinimum(0)
-##    self.dispctr.setMaximum(10000)
-##    parametersFormLayout.addRow(self.dispctr)
-
     self.switchimage = True #variable to prevent calling of adjust window level function while changing image
                             #displayed from dropdown menu
 
-
     #Edit 9/29/2020: Read values from display node to update sliders, but do not auto window level.
-
-    #Revert back to AutoWindowLevel and set values in the spin boxes accordingly
-    #inputVolume.GetDisplayNode().SetAutoWindowLevel(True) #Revert back to auto window level whenever you switch images
-##    self.slider1.value = ( float( inputVolume.GetDisplayNode().GetWindow() ) )
-##    self.slider2.value = ( float( inputVolume.GetDisplayNode().GetLevel() ) )
-##    self.dfltrange = float(self.slider1.value)
-##    self.dfltctr = float(self.slider2.value)
-
 
     #Checkbox for subtraction
     self.subtractCheckBox = qt.QCheckBox("Show Subtraction")
     self.subtractCheckBox.setChecked(False)
     parametersFormLayout.addRow(self.subtractCheckBox)
-
 
     #Checkboxes for axial and sagittal MIPs
 
@@ -907,23 +664,12 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.sagchkbox.setChecked(False)
     parametersFormLayout.addRow(self.sagchkbox)
 
-
     #Edit 7/24/2020: Turn lesion segmenting into a checkbox option instead of a button
     #with no option to remove SER lesion segmentation after it has been overlayed on
     #image
     self.segmentLesionCheckBox = qt.QCheckBox("Show Lesion Segmentation")
     self.segmentLesionCheckBox.setChecked(False)
     parametersFormLayout.addRow(self.segmentLesionCheckBox)
-
-
-    #Try to make axial & sagittal MIP checkboxes mutually exclusive
-    #by adding them to a QButtonGroup
-    #-- don't do this because it allows selection of one or other,
-    #not both, and not neither
-##    self.chkgrp = qt.QButtonGroup()
-##    self.chkgrp.addButton(self.axchkbox,1)
-##    self.chkgrp.addButton(self.sagchkbox,2)
-
 
     #Initialize empty object elements that will be used to store
     #ROI and omit region(s) centers and radii. Max of 5 omit regions.
@@ -933,14 +679,12 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.omitradii = np.zeros((5,3))
     self.omitcenters = np.zeros((5,3))
 
-
     # 7/21/2021: Go to ROI Center button
     #
     self.goToROICenterButton = qt.QPushButton("Go to ROI Center")
     self.goToROICenterButton.toolTip = "Go to ROI Center"
     self.goToROICenterButton.enabled = True
     parametersFormLayout.addRow(self.goToROICenterButton)
-
 
     # Import ROI Button
     #
@@ -949,26 +693,12 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.importROIButton.enabled = True
     parametersFormLayout.addRow(self.importROIButton)
 
-
-
     # Add Omit Region Button
     #
     self.addOmitButton = qt.QPushButton("Add Omit Region")
     self.addOmitButton.toolTip = "Add Omit Region"
     self.addOmitButton.enabled = True
     parametersFormLayout.addRow(self.addOmitButton)
-
-    #Edit 6/30/2020: Disabling the invert ROI position button because it is no longer needed
-
-
-    #Invert ROI and Omits Axial Position Button -- only use if you import ROI and omits and it doesn't appear to match with tumor position
-    #This means images have z-order reversed, and you have to account for this in report
-##    self.imgReversed = 0 #this is how you check if axial slices are in reverse order for report labeling purposes
-##    self.invertROIposButton = qt.QPushButton("Invert Axial Position of ROI and Omits")
-##    self.invertROIposButton.toolTip = "Invert Axial Position of ROI and Omits"
-##    self.invertROIposButton.enabled = True
-##    parametersFormLayout.addRow(self.invertROIposButton)
-
 
     #Add Omit region count
     self.omitCount = 0
@@ -980,17 +710,12 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.omit4 = slicer.vtkMRMLAnnotationROINode()
     self.omit5 = slicer.vtkMRMLAnnotationROINode()
 
-
     # Save Region to File Button
     #
     self.saveRegionButton = qt.QPushButton("Save ROI and Omits to File")
     self.saveRegionButton.toolTip = "Save ROI and Omits to File"
     self.saveRegionButton.enabled = True
     parametersFormLayout.addRow(self.saveRegionButton)
-
-
-
-
 
     #Get default values of roi radius and center, because these will be used in onApplyButton for unused omits
     print("default center and radius are:")
@@ -1001,8 +726,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.roiradius_default = [0,0,0]
     self.omit1.GetRadiusXYZ(self.roiradius_default)
     print(self.roiradius_default)
-
-
 
       #
     # Apply Button
@@ -1015,8 +738,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.applyButton.toolTip = "Generate Report."
     self.applyButton.enabled = False
     parametersFormLayout.addRow(self.applyButton)
-
-
 
     #Edit 10/5/2020: Add spin boxes (and corresponding labels) for adjusting BKG thresh % and minconnpix and PE thresholds
     self.bkgthreshlbl = qt.QLabel("\nPercentage Background Threshold:")
@@ -1101,7 +822,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.TotVolValue = qt.QLabel()
     parametersFormLayout.addRow(self.TotVolLbl,self.TotVolValue)
 
-
     # connections
     #Edit 9/29/2020: try adding code to update window and level
     if(self.windowmin != inputVolume.GetDisplayNode().GetWindowLevelMin() or self.windowmax != inputVolume.GetDisplayNode().GetWindowLevelMax()):
@@ -1119,20 +839,11 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.saveRegionButton.connect('clicked(bool)',self.saveRegionToXML)
     self.goToROICenterButton.connect('clicked(bool)',self.goToROICenter)
     self.inputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
-##    self.slider1.connect('valueChanged(double)', self.adjustWindowLevel)
-##    self.slider2.connect('valueChanged(double)', self.adjustWindowLevel)
-
-##    self.dispctr.valueChanged.connect(self.adjustWindowLevel)
-##    self.disprange.valueChanged.connect(self.adjustWindowLevel)
-
 
     #Call function to update text giving axial slice position whenever red slice position is adjusted
     slicer.mrmlScene.GetNodeByID('vtkMRMLSliceNodeRed').AddObserver(vtk.vtkCommand.ModifiedEvent,updateSlicePrint)
     #Call function to update text giving sagittal slice position whenever yellow slice position is adjusted
     slicer.mrmlScene.GetNodeByID('vtkMRMLSliceNodeYellow').AddObserver(vtk.vtkCommand.ModifiedEvent,updateSlicePrint)
-
-
-##    self.invertROIposButton.connect('clicked(bool)',self.invertROIpos)
 
     # Add vertical spacer
     self.layout.addStretch(1)
@@ -1141,28 +852,14 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.onSelect()
 
 
-
-
   def cleanup(self):
     pass
-
+  
 
   def updateWindowSettingVariables(self):
     print("updating variables to match display setttings")
     self.windowmin = inputVolume.GetDisplayNode().GetWindowLevelMin()
     self.windowmax = inputVolume.GetDisplayNode().GetWindowLevelMax()
-
-
-  #Edit 8/11/2020: Function for adjusting window level according to user settings from spin boxes
-##  def adjustWindowLevel(self):
-##    #only adjust window level if changing of window or level is not during dropdown menu image switch
-##    if(self.switchimage == False):
-##      inputVolume = self.inputSelector.currentNode()
-##      window = float(self.slider1.value)
-##      level = float(self.slider2.value)
-##      inputVolume.GetDisplayNode().SetAutoWindowLevel(False) #Disable Auto window level
-##      inputVolume.GetDisplayNode().SetWindowLevel(window,level)
-
 
   def makeSubImg(self):
     #read in numpy array from node and compute subtraction image
@@ -1357,15 +1054,7 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
 
 
       #Edit 7/8/2020: Add code to set automatically set MIP axial slice position to center axial slice of ROI
-      #Edit 7/30/2020: if there is an SER color node, use the slice with most green, red, and yellow SER voxels
 
-      #Edit 7/30/2020: Disabling this if else for now because it is giving me problems with sagittal slice position.
-      #I'm sticking with just showing center slice of ROI for SER color overlayed on MIP
-
-##      if(hasattr(self,'segment_node') == 1):
-##        roizcenterIJK = self.findMaxSERSlice('ax') #Keep same name for slice for convenience
-##      #otherwise, use slice at center of ROI
-##      else:
         #read ROI and omit region info
     self.roi.GetXYZ(self.roicenter[0,:])
 
@@ -1409,15 +1098,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
   #Edit 7/8/2020: Add code to set automatically set MIP sagittal slice position to center sagittal slice of ROI
   def setSagittalSliderPositionToROICenter(self,inputVolume,img):
 
-
-      #Edit 7/30/2020: if there is an SER color node, use the slice with most green, red, and yellow SER voxels
-
-      #Edit 7/30/2020: Disabling this if else for now because it is giving me problems with sagittal slice position.
-      #I'm sticking with just showing center slice of ROI for SER color overlayed on MIP
-##      if(hasattr(self,'segment_node') == 1):
-##        roixcenterIJK = self.findMaxSERSlice('sag') #Keep same name for slice for convenience
-##      #otherwise, use slice at center of ROI
-##      else:
         #read ROI info
       self.roi.GetXYZ(self.roicenter[0,:])
 
@@ -1547,16 +1227,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
       inputVolume.GetRASToIJKMatrix(m)
       self.ax_mip_node.SetRASToIJKMatrix(m)
 
-      #make the new axial MIP the currently selected node automatically
-      #self.inputSelector.setCurrentNode(self.ax_mip_node)
-
-      #Edit 10/1/2020: Try Csaba Pinter's method for displaying image selected from dropdown menu or checkbox
-      #I tried it and it does in fact allow you to switch images while retaining the zoom and slice position chosen
-      #by the user in the prior image
-##      sliceCompositeNodes = slicer.util.getNodesByClass('vtkMRMLSliceCompositeNode')
-##      for sliceCompositeNode in sliceCompositeNodes:
-##        sliceCompositeNode.SetBackgroundVolumeID(self.ax_mip_node.GetID())
-
       #Edit 10/15/2020: Do this and let onSelect handle switching image. This makes the dropdown menu and top left corner of
       #red & yellow slices show the correct name ... Axial MIP
       self.inputSelector.setCurrentNode(self.ax_mip_node)
@@ -1570,31 +1240,15 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
       viewax.cornerAnnotation().SetText(vtk.vtkCornerAnnotation.UpperRight,redprint)
       viewax.forceRender()
 
-
       #call function to set red slice position to center axial slice of ROI
       slicer.util.resetSliceViews() #This reset before setting slice position based on ROI may ensure that MIP fills as much of screen as possible
       #7/21/2021: re-enabling this to see what happens
       self.setAxialSliderPositionToROICenter(inputVolume,self.ax_mip_disp)
       self.setSagittalSliderPositionToROICenter(inputVolume,self.ax_mip_disp)
 
-      #Edit 7/23/2020: Only disable slice scrolling if lesion segmentation is absent
-      #Edit 7/23/2020: Disabling this if statement because it causes a glitch where you are scrolling through
-      #another breast image behind the MIP. This is in spite of the fact that the SER image is
-      #white in non SER colored voxels
-
-      #if(hasattr(self,'segment_node') == 0):
-
-      #Edit 10/15/2020: Disable all references to interactorStyle.SetActionEnabled
-      #because calling this seems to disable ability to use Adjust Window Level tool
-
-      #Disable slice browsing with mouse and remove slider for red slice
-      #Disable mouse browsing
-      #interactorStyle = slicer.app.layoutManager().sliceWidget('Red').sliceView().sliceViewInteractorStyle()
-      #interactorStyle.SetActionEnabled(interactorStyle.BrowseSlice, False)
       #Remove red slice slider from view
       lm = slicer.app.layoutManager()
       lm.sliceWidget('Red').sliceController().setVisible(False)
-
 
     #If axial MIP box unchecked, remove node for axial MIP, set input image as current node
     #onSelect will take care of the rest
@@ -1620,30 +1274,15 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
       self.inputSelector.setCurrentNode(self.inputToMIP)
       self.goToROICenter
 
-      #Enable slice browsing with mouse and display slider for red slice
-      #Enable mouse browsing
-      #interactorStyle = slicer.app.layoutManager().sliceWidget('Red').sliceView().sliceViewInteractorStyle()
-      #interactorStyle.SetActionEnabled(interactorStyle.BrowseSlice, True)
       #Add red slice slider to view
       lm = slicer.app.layoutManager()
       lm.sliceWidget('Red').sliceController().setVisible(True)
-
-
-      #slicer.util.resetSliceViews() #want to always reset slider positions to center of image after going from MIP to non-MIP
-      #interactorStyle.SetActionEnabled(interactorStyle.BrowseSlice, True) #re-enable slice browsing
-      #7/21/2021: re-enabling this to see what happens
-##      self.setSagittalSliderPositionToROICenter(self.inputSelector.currentNode(),self.ax_mip_disp) #set sagittal position to center of ROI
-
-
-
 
   #Function for creating and showing axial MIP
   #by making numpy array and adding it to vtkMRMLScalarVolumeNode
   def showSagittalMIPFromNode(self):
     #made ax_mip_node part of self object so that it isn't removed from memory every time function is finished running
     #that way, it can be called again to remove node.
-
-
 
     #If sagittal MIP box checked, create and display sagittal MIP
     if(self.sagchkbox.isChecked() == True):
@@ -1656,7 +1295,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
       if (self.axchkbox.isChecked() == True):
         self.axchkbox.setChecked(False)
         #self.sagchkbox.setChecked(True) #Need to do this again to override effect in onSelect, which sets both to False
-
 
       #if exists, remove previous copies of axial MIP node
       try:
@@ -1712,19 +1350,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
       inputVolume.GetRASToIJKMatrix(m)
       self.sag_mip_node.SetRASToIJKMatrix(m)
 
-      #make the new axial MIP the currently selected node automatically
-      #self.inputSelector.setCurrentNode(self.sag_mip_node)
-
-
-      #make the new sagittal MIP the currently selected node automatically
-      #self.inputSelector.setCurrentNode(self.sag_mip_node)
-      #Edit 10/1/2020: Try Csaba Pinter's method for displaying image selected from dropdown menu or checkbox
-      #I tried it and it does in fact allow you to switch images while retaining the zoom and slice position chosen
-      #by the user in the prior image
-##      sliceCompositeNodes = slicer.util.getNodesByClass('vtkMRMLSliceCompositeNode')
-##      for sliceCompositeNode in sliceCompositeNodes:
-##        sliceCompositeNode.SetBackgroundVolumeID(self.sag_mip_node.GetID())
-
       #Edit 10/15/2020: Use this method to make the new axial MIP the currently selected node automatically
       #so that dropdown menu and top left corner of red & yellow slices show the name ... sagittal MIP
       self.inputSelector.setCurrentNode(self.sag_mip_node)
@@ -1738,35 +1363,15 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
       viewsag.cornerAnnotation().SetText(vtk.vtkCornerAnnotation.UpperRight,yellowprint)
       viewsag.forceRender()
 
-
-
-      #reset slice views so that you are shifting slice with center sagittal slice as starting point
-      #slicer.util.resetSliceViews() #This reset before setting slice position based on ROI may ensure that MIP fills as much of screen as possible
-
       slicer.util.resetSliceViews() #This reset before setting slice position based on ROI may ensure that MIP fills as much of screen as possible
       #7/21/2021: re-enabling this to see what happens
       self.setSagittalSliderPositionToROICenter(inputVolume,self.sag_mip_disp)
       self.setAxialSliderPositionToROICenter(inputVolume,self.sag_mip_disp)
       #7/21/2021: call axial version of this too so that axial slice position after
-      #unchecking sagittal MIP box is helpful for user.
-##      self.setAxialSliderPositionToROICenter(inputVolume,self.ax_mip_disp)
 
-
-      #Edit 7/23/2020: Only disable slice scrolling if lesion segmentation is absent
-      #Edit 7/23/2020: Disabling this if statement because it causes a glitch where you are scrolling through
-      #another breast image behind the MIP. This is in spite of the fact that the SER image is
-      #white in non SER colored voxels
-
-      #if(hasattr(self,'segment_node') == 0):
-
-      #Disable slice browsing with mouse and remove slider for yellow slice
-      #Disable mouse browsing
-      #interactorStyle = slicer.app.layoutManager().sliceWidget('Yellow').sliceView().sliceViewInteractorStyle()
-      #interactorStyle.SetActionEnabled(interactorStyle.BrowseSlice, False)
       #Remove yellow slice slider from view
       lm = slicer.app.layoutManager()
       lm.sliceWidget('Yellow').sliceController().setVisible(False)
-
 
     #If sagittal MIP box unchecked, remove node for sagittal MIP, set input image as current node
     #onSelect will take care of the rest
@@ -1792,115 +1397,13 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
       self.inputSelector.setCurrentNode(self.inputToMIP)
       self.goToROICenter
 
-      #Enable slice browsing with mouse and display slider for yellow slice
-      #Enable mouse browsing
-      #interactorStyle = slicer.app.layoutManager().sliceWidget('Yellow').sliceView().sliceViewInteractorStyle()
-      #interactorStyle.SetActionEnabled(interactorStyle.BrowseSlice, True)
       #Add red slice slider to view
       lm = slicer.app.layoutManager()
       lm.sliceWidget('Yellow').sliceController().setVisible(True)
-
-      #slicer.util.resetSliceViews() #want to always reset slider positions to center of image after going from MIP to non-MIP
-
-      #7/21/2021: re-enabling this to see what happens
-##      self.setAxialSliderPositionToROICenter(self.inputSelector.currentNode(),self.sag_mip_disp) #set sagittal position to center of ROI
-
-
-
-
-  #Function for creating and showing axial MIP using method shared by Andrey
-##  def showAxialMIP(self):
-##    #first, get # of slices in image so you can use this for creating MIP
-##    inputVolume = self.inputSelector.currentNode()
-##    img = inputVolume.GetImageData()
-##    rows,cols,slices = img.GetDimensions()
-##
-##    #Setup for altering image in red slice
-##    sliceNodeRed = slicer.mrmlScene.GetNodeByID('vtkMRMLSliceNodeRed')
-##    appLogic = slicer.app.applicationLogic()
-##    sliceLogicRed = appLogic.GetSliceLogic(sliceNodeRed)
-##    sliceLayerLogicRed = sliceLogicRed.GetBackgroundLayer()
-##    resliceRed = sliceLayerLogicRed.GetReslice()
-##
-##    #If axial MIP box is checked, compute and display axial MIP of image
-##    if(self.axchkbox.isChecked() == True):
-##      print("Showing axial MIP")
-##
-##      #create MIP with SlabNumberOfSlices equal to number of z slices in original image
-##      resliceRed.SetSlabModeToMax()
-##      resliceRed.SetSlabNumberOfSlices(slices) #use very large value to ensure only one MIP (for now)
-##      sliceNodeRed.Modified()
-##
-##      #Use red slice only view
-##      slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUpRedSliceView)
-##
-##    #If axial MIP box is unchecked, revert back to original image in red slice
-##    if(self.axchkbox.isChecked() == False):
-##      print("Showing original axial image")
-##      #revert to original image in red slice by setting SlabNumberOfSlices to 1
-##      resliceRed.SetSlabNumberOfSlices(1)
-##      sliceNodeRed.Modified()
-##
-##      #Return to side by side view that shows axial and sagittal views
-##      slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutSideBySideView)
-##
-##
-##
-##  #Function for creating and showing sagittal MIP using method shared by Andrey
-##  def showSagittalMIP(self):
-##    #first, get # of slices in image so you can use this for creating MIP
-##    inputVolume = self.inputSelector.currentNode()
-##    img = inputVolume.GetImageData()
-##    rows,cols,slices = img.GetDimensions()
-##
-##    #Setup for altering image in yellow slice
-##    sliceNodeYellow = slicer.mrmlScene.GetNodeByID('vtkMRMLSliceNodeYellow')
-##    appLogic = slicer.app.applicationLogic()
-##    sliceLogicYellow = appLogic.GetSliceLogic(sliceNodeYellow)
-##    sliceLayerLogicYellow = sliceLogicYellow.GetBackgroundLayer()
-##    resliceYellow = sliceLayerLogicYellow.GetReslice()
-##
-##    #If sagittal MIP is checked, compute and display sagittal MIP of image
-##    if(self.sagchkbox.isChecked() == True):
-##      print("Showing sagittal MIP")
-##
-##      #create MIP with SlabNumberOfSlices equal to half the number of x slices in original image
-##      #figure out if this is correct way to have a left breast sagittal and a right breast sagittal
-##      resliceYellow.SetSlabModeToMax()
-##      resliceYellow.SetSlabNumberOfSlices(1200) #use very large value to ensure only one MIP (for now)
-##      sliceNodeYellow.Modified()
-##
-##      #Use yellow slice view
-##      slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUpYellowSliceView)
-##
-##    #If sagittal MIP box is unchecked, revert back to original image in yellow slice
-##    if(self.sagchkbox.isChecked() == False):
-##      print("Showing original sagittal image")
-##      #revert to original image in yellow slice by setting SlabNumberOfSlices to 1
-##      resliceYellow.SetSlabNumberOfSlices(1)
-##      sliceNodeYellow.Modified()
-##
-##      #Return to side by side view that shows axial and sagittal views
-##      slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutSideBySideView)
-
+      
 
   def onSelect(self):
-    #Comment this out because it makes Slicer crash
-    #Edit 7/9/2020: Code for removing subraction MIP nodes
-##    if ('subtraction axial MIP' in self.currentnodename):
-##      #if you checked subtraction box 1st then ax MIP box, remove ax MIP node. Otherwise, remove subimg_node
-##      if('subtraction' in self.inputToMIP.GetName()):
-##        slicer.mrmlScene.RemoveNode(self.ax_mip_node)
-##      else:
-##        slicer.mrmlScene.RemoveNode(self.subimg_node)
-##
-##    if ('subtraction sagittal MIP' in self.currentnodename):
-##      #if you checked subtraction box 1st then sag MIP box, remove sag MIP node. Otherwise, remove subimg_node
-##      if('subtraction' in self.inputToMIP.GetName()):
-##        slicer.mrmlScene.RemoveNode(self.sag_mip_node)
-##      else:
-##        slicer.mrmlScene.RemoveNode(self.subimg_node)
-
+  
     self.switchimage = True #variable to prevent calling of adjust window level function while changing image
                             #displayed from dropdown menu
 
@@ -1933,14 +1436,9 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     if('subtraction' not in self.currentnodename):
       self.newSubSelection = 1 #variable to prevent overriding of user selected pre-contrast image with subtraction input
 
-
-      #self.axchkbox.setChecked(False)
-      #self.sagchkbox.setChecked(False)
-
+      
     #First, display whatever user selected from dropdown menu
     self.applyButton.enabled = self.inputSelector.currentNode()
-    #5/14/2020: Confirmed that this is how you make image shown in Slicer change to match user selection from drop down menu
-    #slicer.util.setSliceViewerLayers(background=self.inputSelector.currentNodeID)
 
     #Edit 10/1/2020: Try Csaba Pinter's method for displaying image selected from dropdown menu
     #I tried it and it does in fact allow you to switch images while retaining the zoom and slice position chosen
@@ -1949,14 +1447,10 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     for sliceCompositeNode in sliceCompositeNodes:
       sliceCompositeNode.SetBackgroundVolumeID(self.inputSelector.currentNode().GetID())
 
-
-
     #Edit 7/10/2020: If it exists, make segment node the foreground
     #Edit 8/24/2020: Only do this if there is a segment node and the SER colorization checkbox is checked
     if(hasattr(self,'segment_node') and self.segmentLesionCheckBox.isChecked() == True):
       slicer.util.setSliceViewerLayers(foreground=self.segment_node,foregroundOpacity = self.fopac)
-
-
 
     inputVolume = self.inputSelector.currentNode()
     inputVolume.GetDisplayNode().SetAutoWindowLevel(False) #Do this to prevent auto window leveling
@@ -1969,23 +1463,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     #I tried other dimension orders but they gave "Scrambled" image
     img_np = img_np.reshape(slices,rows,cols) #3/24/2020: apparently this is the correct way to reshape numpy array so that it can be viewed in slicer as NIFTI
     img_np = img_np.astype('float64')
-##    self.setSagittalSliderPositionToROICenter(inputVolume,img_np)
-
-
-    #Edit 7/2/2020: Disabling this part because we eliminated dropdown menu method of MIP selection in favor of checkbox method
-
-    #if axial MIP, adjust Slicer to only show red slice
-##    if('MIPax' in self.currentnodename):
-##      slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUpRedSliceView)
-##    else:
-##      #if sagittal MIP, adjust Slicer to only show yellow slice
-##      if('MIPsag' in self.currentnodename):
-##        slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUpYellowSliceView)
-##      #If not a MIP, use side by side view that only shows axial and sagittal views
-##      else:
-##        slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutSideBySideView)
-
-    #slicer.util.resetSliceViews() #get rid of this because this negates slice position settings for MIP
 
     #Only enable the subtraction checkbox if user is not viewing a pre-contrast image
     if('pre' in self.currentnodename):
@@ -2024,8 +1501,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         self.showSubtractionFromNode()
         slicer.mrmlScene.RemoveNode(self.ax_mip_node)
 
-
-
     #if sagittal MIP box is checked but current user selected image is not a sagittal MIP,
     #compute the sagittal MIP of user selection from dropdown menu and display it
     if(self.sagchkbox.isChecked() == True and 'sagittal MIP' not in self.currentnodename):
@@ -2042,16 +1517,7 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         self.showSubtractionFromNode()
         slicer.mrmlScene.RemoveNode(self.sag_mip_node)
 
-    #Edit 9/29/2020: David and Jessica do not want Auto Window Level every time displayed image is switched
-
-    #Revert back to AutoWindowLevel and set values in the sliders accordingly
-##    inputVolume.GetDisplayNode().SetAutoWindowLevel(True) #Revert back to auto window level whenever you switch images
-##    self.slider1.value = ( float( inputVolume.GetDisplayNode().GetWindow() ) )
-##    self.slider2.value = ( float( inputVolume.GetDisplayNode().GetLevel() ) )
-
-
     self.switchimage = False #now that done switching image, set this to False
-
 
     #Edit 9/4/2020: Add lines of code to update text on upper left of slice views every time you switch image
     viewax = slicer.app.layoutManager().sliceWidget('Red').sliceView()
@@ -2071,30 +1537,10 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.startInputVolume = inputVolume
 
 
-
-##    self.dfltrange = float(self.disprange.value)
-##    self.dfltctr = float(self.dispctr.value)
-
-    #Edit 8/11/2020: test out syntax for setting window level
-    #https://radiopaedia.org/articles/windowing-ct?lang=us
-    #the above link suggests that window width is the display range and
-    #window level is center value in that range.
-    #Therefore, when I tested this out with window = 10 and level = 1231,
-    #it displayed the pre-contrast image with min = 1226 and max = 1236
-    #inputVolume.GetScalarVolumeDisplayNode().SetAutoWindowLevel(False)
-    #inputVolume.GetScalarVolumeDisplayNode().SetWindowLevel(10,1231)
-
-
-
-
-
-
-
   def onApplyButton(self):
     #Edit 5/21/2020: take absolute value of radius coordinates to prevent
     #errors from negative values
     #Specifically, was getting this error -- IndexError: cannot do a non-empty take from an empty axes.
-
 
     inputVolume = self.inputSelector.currentNode()
 
@@ -2112,13 +1558,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     print(self.roicenter)
     print("roi radius")
     print(self.roiradius)
-
-    #Edit 7/30/2020: Pressing "Generate Report" button will no longer trigger removal of vtkMRMLAnnotationROINode's
-    #Remove ROI from scene
-##    slicer.mrmlScene.RemoveNode(self.roi)
-
-    #Tried the line below and got error like "self.roi has no attribute WriteXML"
-    #self.roi.WriteXML("ROI.xml",1)
 
     #then, add final coordinates of all omit regions to arrays that belong to widget class object
     #these are already in voxel coordinates, all you have to do is convert them to type int
@@ -2142,30 +1581,11 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.omitcenters[3,:], self.omitradii[3,:] = RASToIJKFunc(self.omitcenters[3,:],self.omitradii[3,:],inputVolume)
     self.omitcenters[4,:], self.omitradii[4,:] = RASToIJKFunc(self.omitcenters[4,:],self.omitradii[4,:],inputVolume)
 
-
     print("omit centers")
     print(self.omitcenters)
 
     print("omit radii")
     print(self.omitradii)
-
-    #Edit 7/30/2020: Pressing "Generate Report" button will no longer trigger removal of vtkMRMLAnnotationROINode's
-    #Remove all omits defined by user from scene
-##    for i in range(self.omitCount):
-##      if i == 0:
-##        slicer.mrmlScene.RemoveNode(self.omit1)
-##
-##      if i == 1:
-##        slicer.mrmlScene.RemoveNode(self.omit2)
-##
-##      if i == 2:
-##        slicer.mrmlScene.RemoveNode(self.omit3)
-##
-##      if i == 3:
-##        slicer.mrmlScene.RemoveNode(self.omit4)
-##
-##      if i == 4:
-##        slicer.mrmlScene.RemoveNode(self.omit5)
 
     #Edit 6/29/2020: Compare z value of intial position in IJKToRAS matrix from inputVolume to same element in
     #my IJKToLPS aff_mat, and if they do match, add an extra flip to sagittal images in report
@@ -2232,7 +1652,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     else:
       slicer.util.confirmOkCancelDisplay("You have already added the maximum allowable number of omit regions.","Cannot add another omit region.")
 
-
     #Choose which omit object to add to scene based on omit count
     if self.omitCount == 1:
       if(slicer.util.confirmYesNoDisplay(yesnotxt)):
@@ -2293,10 +1712,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     #and input that directly into node position setting function. I'm trying this because both
     #David and Andrey said that slice order should not affect the ability of the RAS (or LPS)
     #coordinates in xml file to correspond to tumor
-
-##    pre_folder = int(dce_folders[0])
-##    print("Pre-contrast folder # is: " + str(pre_folder))
-
 
     #Edit 9/14/2020: message box interface for choosing ROI xml file for any visit for current patient
 
@@ -2434,8 +1849,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
       except:
         self.dflt_xml_dir = self.exampath
 
-    #self.dflt_xml_dir = self.exampath + "\\" + "voi_lps_files"
-
     #allow user to select xml file they want to import ROI from, if the exam has existing xml files
     try:
       xmlfilepath = qt.QFileDialog.getOpenFileName(0,"Select xml file to import ROI from",self.dflt_xml_dir)
@@ -2445,35 +1858,10 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
 
     roicenter, roiradius, ocenters, oradii = compute_lps_to_rcs.readRASCoordsFromXMLFile(xmlfilepath)
 
-    #call function that returns voxel bounds of ROI from file
-##    xs, xf, ys, yf, zs, zf, oxs, oxf, oys, oyf, ozs, ozf, voi_mask, aff_mat, aff_inv_mat = compute_lps_to_rcs.getVOIVoxelsFromInverseAffine(self.exampath,xmlfilepath,pre_folder,nslice,fsort)
-##
-##    inputVolume = self.inputSelector.currentNode()
-##
-##    roicenter = np.zeros((1,3))
-##    roicenter[0,0] = int((xs+xf)/2)
-##    roicenter[0,1] = int((ys+yf)/2)
-##    roicenter[0,2] = int((zs+zf)/2)
-##
-##    roiradius = np.zeros((1,3))
-##    roiradius[0,0] = int(roicenter[0,0])-xs
-##    roiradius[0,1] = int(roicenter[0,1])-ys
-##    roiradius[0,2] = int(roicenter[0,2])-zs
-##    roiradius = np.abs(roiradius)
-##
-##    #Convert ROI center and radius to RAS before using to set AnnotationROINode position
-##    roicenter, roiradius = IJKToRASFunc(roicenter,roiradius,inputVolume)
-##
-##    print(roicenter)
-##    print(roiradius)
-
-
     #Remove ROI from scene and then add it back to scene with
     #position from xml file
-    #slicer.mrmlScene.RemoveNode(self.roi)
     self.roi.SetXYZ(roicenter)
     self.roi.SetRadiusXYZ(roiradius)
-    #slicer.mrmlScene.AddNode(self.roi)
 
     #7/16/2021: Before proceeding to check xml file for omits,
     #remove any omits that may already be in the scene.
@@ -2548,135 +1936,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.setSagittalSliderPositionToROICenter(inputVolume,img)
 
 
-
-
-    #Edit 5/21/2020: Import omits from file as well
-    #Check if there are any omits at all
-##    if oxs[0] != -1:
-##      for i in range(len(oxs)):
-##        self.omitCount = self.omitCount+1
-##
-##        if self.omitCount > 5:
-##          print("Cannot add any more omit regions")
-##          break
-##
-##        #create np arrays containing center and radius of ith omit region
-##        curr_center = np.zeros((1,3))
-##        curr_center[0,0] = ( int(oxs[i]) + int(oxf[i]) )/2
-##        curr_center[0,1] = ( int(oys[i]) + int(oyf[i]) )/2
-##        curr_center[0,2] = ( int(ozs[i]) + int(ozf[i]) )/2
-##
-##
-##        curr_radius = np.zeros((1,3))
-##        curr_radius[0,0] = abs( int(curr_center[0,0]) - int(oxs[i]) )
-##        curr_radius[0,1] = abs( int(curr_center[0,1]) - int(oys[i]) )
-##        curr_radius[0,2] = abs( int(curr_center[0,2]) - int(ozs[i]) )
-##
-##
-##        #Convert current omit's center and radius to RAS before using to set AnnotationROINode position
-##        curr_center, curr_radius = IJKToRASFunc(curr_center,curr_radius,inputVolume)
-##
-##        #Choose which omit object to add to scene based on omit count
-##        if self.omitCount == 1:
-##          self.omit1.SetXYZ(curr_center)
-##          self.omit1.SetRadiusXYZ(curr_radius)
-##          slicer.mrmlScene.AddNode(self.omit1)
-##
-##        if self.omitCount == 2:
-##          self.omit2.SetXYZ(curr_center)
-##          self.omit2.SetRadiusXYZ(curr_radius)
-##          slicer.mrmlScene.AddNode(self.omit2)
-##
-##        if self.omitCount == 3:
-##          self.omit3.SetXYZ(curr_center)
-##          self.omit3.SetRadiusXYZ(curr_radius)
-##          slicer.mrmlScene.AddNode(self.omit3)
-##
-##        if self.omitCount == 4:
-##          self.omit4.SetXYZ(curr_center)
-##          self.omit4.SetRadiusXYZ(curr_radius)
-##          slicer.mrmlScene.AddNode(self.omit4)
-##
-##        if self.omitCount == 5:
-##          self.omit5.SetXYZ(curr_center)
-##          self.omit5.SetRadiusXYZ(curr_radius)
-##          slicer.mrmlScene.AddNode(self.omit5)
-
-
-
-#Edit 6/30/2020: invertROIPos will be commented out because it is no longer needed
-  #Edit 6/25/2020: Function to use in case where ROI doesn't match with tumor because image appears to have slices in reverse order
-##  def invertROIpos(self):
-##    self.imgReversed = 1 #This is how to track if image has axial slices reversed for report
-##
-##    inputVolume = self.inputSelector.currentNode()
-##    img = inputVolume.GetImageData()
-##    rows,cols,slices = img.GetDimensions()
-##
-##    #read ROI and omit region info
-##    self.roi.GetXYZ(self.roicenter[0,:])
-##
-##    self.roi.GetRadiusXYZ(self.roiradius[0,:])
-##
-##    #convert ROI coordinates from RAS to IJK
-##    self.roicenter[0,:], self.roiradius[0,:] = RASToIJKFunc(self.roicenter[0,:],self.roiradius[0,:],inputVolume)
-##    #invert z position
-##    self.roicenter[0,2] = slices - self.roicenter[0,2]
-##    #convert from IJK to RAS again
-##    self.roicenter[0,:], self.roiradius[0,:] = IJKToRASFunc(self.roicenter[0,:],self.roiradius[0,:],inputVolume)
-##    #Add new z-position to node
-##    self.roi.SetXYZ(self.roicenter[0,:])
-##    self.roi.SetRadiusXYZ(self.roiradius[0,:])
-##
-##    #repeat the process above for all omits that are in the scene
-##    for o in range(self.omitCount):
-##      if o == 0:
-##        self.omit1.GetXYZ(self.omitcenters[0,:])
-##        self.omit1.GetRadiusXYZ(self.omitradii[0,:])
-##        self.omitcenters[0,:], self.omitradii[0,:] = RASToIJKFunc(self.omitcenters[0,:],self.omitradii[0,:],inputVolume)
-##        self.omitcenters[0,2] = slices - self.omitcenters[0,2]
-##        self.omitcenters[0,:], self.omitradii[0,:] = IJKToRASFunc(self.omitcenters[0,:],self.omitradii[0,:],inputVolume)
-##        self.omit1.SetXYZ(self.omitcenters[0,:])
-##        self.omit1.SetRadiusXYZ(self.omitradii[0,:])
-##
-##      if o == 1:
-##        self.omit2.GetXYZ(self.omitcenters[1,:])
-##        self.omit2.GetRadiusXYZ(self.omitradii[1,:])
-##        self.omitcenters[1,:], self.omitradii[1,:] = RASToIJKFunc(self.omitcenters[1,:],self.omitradii[1,:],inputVolume)
-##        self.omitcenters[1,2] = slices - self.omitcenters[1,2]
-##        self.omitcenters[1,:], self.omitradii[1,:] = IJKToRASFunc(self.omitcenters[1,:],self.omitradii[1,:],inputVolume)
-##        self.omit2.SetXYZ(self.omitcenters[1,:])
-##        self.omit2.SetRadiusXYZ(self.omitradii[1,:])
-##
-##      if o == 2:
-##        self.omit3.GetXYZ(self.omitcenters[2,:])
-##        self.omit3.GetRadiusXYZ(self.omitradii[2,:])
-##        self.omitcenters[2,:], self.omitradii[2,:] = RASToIJKFunc(self.omitcenters[2,:],self.omitradii[2,:],inputVolume)
-##        self.omitcenters[2,2] = slices - self.omitcenters[2,2]
-##        self.omitcenters[2,:], self.omitradii[2,:] = IJKToRASFunc(self.omitcenters[2,:],self.omitradii[2,:],inputVolume)
-##        self.omit3.SetXYZ(self.omitcenters[2,:])
-##        self.omit3.SetRadiusXYZ(self.omitradii[2,:])
-##
-##      if o == 3:
-##        self.omit4.GetXYZ(self.omitcenters[3,:])
-##        self.omit4.GetRadiusXYZ(self.omitradii[3,:])
-##        self.omitcenters[3,:], self.omitradii[3,:] = RASToIJKFunc(self.omitcenters[3,:],self.omitradii[3,:],inputVolume)
-##        self.omitcenters[3,2] = slices - self.omitcenters[3,2]
-##        self.omitcenters[3,:], self.omitradii[3,:] = IJKToRASFunc(self.omitcenters[3,:],self.omitradii[3,:],inputVolume)
-##        self.omit4.SetXYZ(self.omitcenters[3,:])
-##        self.omit4.SetRadiusXYZ(self.omitradii[3,:])
-##
-##      if o == 4:
-##        self.omit5.GetXYZ(self.omitcenters[4,:])
-##        self.omit5.GetRadiusXYZ(self.omitradii[4,:])
-##        self.omitcenters[4,:], self.omitradii[4,:] = RASToIJKFunc(self.omitcenters[4,:],self.omitradii[4,:],inputVolume)
-##        self.omitcenters[4,2] = slices - self.omitcenters[4,2]
-##        self.omitcenters[4,:], self.omitradii[4,:] = IJKToRASFunc(self.omitcenters[4,:],self.omitradii[4,:],inputVolume)
-##        self.omit5.SetXYZ(self.omitcenters[4,:])
-##        self.omit5.SetRadiusXYZ(self.omitradii[4,:])
-
-
-
   def segmentLesion(self):
     #Edit 5/21/2020: take absolute value of radius coordinates to prevent
     #errors from negative values
@@ -2737,12 +1996,10 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         omitradiimatch = (omitradiicp == segomitradiicp)
         print(omitradiimatch)
 
-
         #only use existing if there is a segment node and current ROI and omit positions are same as that one
         #Edit 10/6/2020: ROI and all 3 thresholds (BKG, PE, MC) must be unchanged in order to reuse existing segmentation
         if(roicentermatch.all() and roiradiusmatch.all() and omitradiimatch.all() and omitcentersmatch.all() and self.bkgthresh.value/100 == self.segbkgthresh and self.pethresh.value == self.segpethresh and self.minconnthresh.value == self.segmcthresh):
           use_exist = 1
-
 
       #Edit 8/20/2020
       #if there is an existing segment node and the ROI and omit coordinates have not changed, load the existing segment node
@@ -2751,9 +2008,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         #slicer.mrmlScene.RemoveNode(inputVolume)
 
         slicer.util.setSliceViewerLayers(foreground=self.segment_node,foregroundOpacity = self.fopac)
-
-        #slicer.util.setSliceViewerLayers(background=inputVolume)
-        #slicer.util.resetSliceViews()
 
       #Otherwise, compute new SER colorization and display that
       else:
@@ -2772,41 +2026,18 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         #I tried other dimension orders but they gave "Scrambled" image
 
         img_np = img_np.reshape(slices,rows,cols) #3/24/2020: apparently this is the correct way to reshape numpy array so that it can be viewed in slicer as NIFTI
-    ##    img_np = img_np.astype('float64') # convert to 64-bit datatype to avoid too small dynamic range
-    ##
         #normalization before making rgb appears to work well
 
         img_np = img_np.transpose(2,1,0) #transpose to cols,rows,slices to give same orientation as input. Can't do this earlier because image gets "scrambled"
         #7/13/2021: Can make int8 to avoid memory error
         #because only using this to retrieve shape.
         img_np = img_np.astype('int8')
-        #img_np = 128*img_np/(np.amax(img_np)) #normalize to max 128
         #rgb version of input image that we will add SER colorization to
-
-        #normalization sets everything to 0 no matter how I do it
-    ##    img_np_rgb = img_np_rgb.astype('float64') #do this so dividing by max doesn't make everything 0
-    ##    norm_array = np.amax(img_np_rgb)*np.ones(img_np_rgb.shape)
-    ##    norm_array = norm_array.astype('float64')
-    ##    img_np_rgb = img_np_rgb/norm_array
 
         #Update progress bar to say that SER colorized image array has been initialized
         progressBar.value = 20
         progressBar.labelText = "Initialized array for SER colorized image"
         slicer.app.processEvents()
-
-
-        #since negative value voxels end up really bright in rgb image, set these to 0 first
-##        img_np = np.where(img_np>0,img_np,0) #set to 0 where img_np is NOT greater than 0
-##        img_np_u1 = 255*img_np/(np.amax(img_np)) #convert to 8-bit unsigned (u1) then add to rgb array
-
-
-
-        #Edit 7/31/2020: img_np_rgb should be initialized as all zeros, NOT as input image repeated across all 3 color channels
-
-        #define contents of array after datatype conversion
-  ##      img_np_rgb[:,:,:,0] = img_np_u1
-  ##      img_np_rgb[:,:,:,1] = img_np_u1
-  ##      img_np_rgb[:,:,:,2] = img_np_u1
 
         #SER colorization -- need to read pre, early, and late images into numpy arrays, then compute PE and SER images, then make tumor mask
         #then use tumor mask and SER image to define colorized overlay
@@ -2836,7 +2067,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         progressBar.value = 40
         progressBar.labelText = "Done reading ROI and omit voxel coordinates"
         slicer.app.processEvents()
-
 
         #generate FTV processing outputs
         #NOTE: The way this code is set up, the BKG thresh value from spin box MUST BE DIVIDED BY 100
@@ -2870,32 +2100,13 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         progressBar.labelText = "SER map created"
         slicer.app.processEvents()
 
-
         #Edit 5/21/2020: Want to print ftv in cc every time user makes lesion segmentation
         #First, compute ftv in voxels
-        #7/13/2021: Only multiply by voi_mask if maps are not cropped.
-##        if(voi_mask.shape[0] == a.shape[0]):
         tumor_mask_voi = tumor_mask*voi_mask
-##        else:
-##          tumor_mask_voi = tumor_mask
 
         ftv_voxels = np.sum(tumor_mask_voi) #ftv in # of voxels
         print("Number of voxels in tumor mask")
         print(ftv_voxels)
-
-        #4/23/21: Print number of voxels with SER 0 to see if not applying this
-        #filter is significantly affecting results
-##        if(self.ser.shape[0] == tumor_mask_voi.shape[0]):
-##          ser_masked = self.ser*tumor_mask_voi
-##        else:
-##          serfull = np.zeros((tumor_mask_voi.shape))
-##          serfull[xs:xf+1,ys:yf+1,zs:zf+1] = self.ser
-##          ser_masked = self.ser*tumor_mask_voi
-##
-##        ser_maskednegval = np.sum(ser_masked < 0)
-##        print("Number of VOI voxels with SER less than 0")
-##        print(ser_maskednegval)
-
 
         #Then, use DICOM header to compute voxel volume in cubic centimeters (cc)
         pre_imgs = os.listdir(pre_path)
@@ -2922,7 +2133,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
 
         self.heading = ftvcm3print
 
-
         #Manually update the lower left slice print info here so that this occurs as soon as segmentation is overlayed
         #and doesn't force user to slice scroll in order to show new FTV value
         #Update red and yellow slices with new text
@@ -2934,23 +2144,10 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         viewsag.cornerAnnotation().SetText(vtk.vtkCornerAnnotation.LowerLeft,self.ttlstr) #Edit 10/30/2020: add exam details here
         viewsag.forceRender()
 
-
-
         #Update progress bar to say that FTV has been calculated
         progressBar.value = 80
         progressBar.labelText = "FTV calculated"
         slicer.app.processEvents()
-
-
-        #add affine matrix IJKToRAS to numpy array so that it can be added to RGB image
-
-    ##    volIJKToRASMat = vtk.vtkMatrix4x4()
-    ##    inputVolume.GetIJKToRASMatrix(volIJKToRASMat)
-
-    ##    aff_mat_RAS = np.zeros((4,4))
-    ##    for i in range(4):
-    ##      for j in range(4):
-    ##        aff_mat_RAS[i,j] = volIJKToRASMat.GetElement(i,j)
 
         volRASToIJKMat = vtk.vtkMatrix4x4()
         inputVolume.GetRASToIJKMatrix(volRASToIJKMat)
@@ -2998,17 +2195,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
           print("\nYellow:")
           print(pctyellow)
 
-
-      ##    rgb_dtype = np.dtype([('R', 'u1'), ('G', 'u1'), ('B', 'u1')])
-      ##    rgb_typed = img_np_rgb.view(rgb_dtype).reshape(shape_3d)
-
-          #rgb_typed = np.transpose(rgb_typed,(1,0,2)) #apparently you need x and y dimension order to be switched to make orientation match with other images
-          #rgb_typed = np.flip(rgb_typed,2) #apparently you also need to flip order of z-slices to make orientation match
-
-      #try displaying rgb image directly instead of saving to .nii first
-      #when I tried, I got the error: TypeError: Could not find a suitable VTK type for [('R', 'u1'), ('G', 'u1'), ('B', 'u1')]
-      ##    segment_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScalarVolumeNode")
-
           #Edit 7/10/2020: Andras Lasso said I should use vtkMRMLVectorVolumeNode to display SER colorized
           #lesion segmention directly without saving image first-- it worked!
           self.segment_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLVectorVolumeNode","SER Colorized Lesion Segmentation")
@@ -3016,7 +2202,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
           self.segment_node.SetRASToIJKMatrix(volRASToIJKMat)
           slicer.util.setSliceViewerLayers(foreground=self.segment_node,foregroundOpacity = self.fopac)
           slicer.util.setSliceViewerLayers(background=inputVolume) #check if this helps you get rid of glitch of showing wrong background image when there are multiple visits
-  ##        slicer.util.resetSliceViews()
 
           #Update progress bar to say lesion segmentation process is done
           progressBar.value = 100
@@ -3033,36 +2218,14 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
         except:
           slicer.util.confirmOkCancelDisplay("Only showing FTV value. Unable to display SER colorized map because input image is too large.","Error Displaying SER Colorization")
 
-
-
-    ##    seg_savepath = qt.QFileDialog.getExistingDirectory(0,("Select save location for SER colorized image"))
-    ##    rgb_img = nib.Nifti1Image(rgb_typed, aff_mat_RAS) #add IJKToRAS matrix to the rgb image to save
-    ##    rgb_img_savename = seg_savepath + "\\" + "SERcolorized.nii"
-    ##    nib.save(rgb_img,rgb_img_savename)
-        #print("SER colorized image saved")
-
-
-        #This does not work for 3D RGB image
-    ##    segment_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScalarVolumeNode")
-    ##    slicer.util.updateVolumeFromArray(segment_node,img_np_rgb)
-    ##    slicer.util.setSliceViewerLayers(background=segment_node)
-    ##    slicer.util.resetSliceViews()
-
     #Edit 7/24/2020: If segmentLesion box is unchecked, remove vector volume
     else:
       slicer.util.setSliceViewerLayers(foreground=None,foregroundOpacity = self.fopac) #check if this helps you get rid of glitch after removing SER color when there are multiple visits
       #slicer.mrmlScene.RemoveNode(self.segment_node)
 
 
-
   def saveRegionToXML(self):
     #Edit 6/26/2020: Must make this avoid using LPS aff_mat and only use the image's RAS/IJK transform matrices
-
-
-    #update datetime for filename every time you save a new xml file
-    #start = datetime.datetime.now()
-    #Format of runstarttime is like 20200101_12:30
-    #self.runstarttime = str(start.year) + str(start.month) + str(start.day) + "_" + str(start.hour) + "_" + str(start.minute)  #Processing start time, that is included in output files or folders
 
     #Edit 7/6/2020: changing save file method so that path is automatically set to voi_lps_files and
     #user can specify name of xml file
@@ -3079,8 +2242,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
                                        dflt_xml_svnm,
                                        'XML (*.xml)')
 
-    #savename = savepath + "\\" + "voi_omits_" + self.runstarttime + ".xml"
-
     inputVolume = self.inputSelector.currentNode()
 
 
@@ -3088,10 +2249,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.roi.GetXYZ(self.roicenter[0,:])
 
     self.roi.GetRadiusXYZ(self.roiradius[0,:])
-
-    #convert ROI coordinates from RAS to IJK
-##    self.roicenter[0,:], self.roiradius[0,:] = RASToIJKFunc(self.roicenter[0,:],self.roiradius[0,:],inputVolume)
-
 
     self.omit1.GetXYZ(self.omitcenters[0,:])
     self.omit2.GetXYZ(self.omitcenters[1,:])
@@ -3104,48 +2261,6 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.omit3.GetRadiusXYZ(self.omitradii[2,:])
     self.omit4.GetRadiusXYZ(self.omitradii[3,:])
     self.omit5.GetRadiusXYZ(self.omitradii[4,:])
-
-    #convert all omit coordinates from RAS to IJK
-##    self.omitcenters[0,:], self.omitradii[0,:] = RASToIJKFunc(self.omitcenters[0,:],self.omitradii[0,:],inputVolume)
-##    self.omitcenters[1,:], self.omitradii[1,:] = RASToIJKFunc(self.omitcenters[1,:],self.omitradii[1,:],inputVolume)
-##    self.omitcenters[2,:], self.omitradii[2,:] = RASToIJKFunc(self.omitcenters[2,:],self.omitradii[2,:],inputVolume)
-##    self.omitcenters[3,:], self.omitradii[3,:] = RASToIJKFunc(self.omitcenters[3,:],self.omitradii[3,:],inputVolume)
-##    self.omitcenters[4,:], self.omitradii[4,:] = RASToIJKFunc(self.omitcenters[4,:],self.omitradii[4,:],inputVolume)
-
-
-    #convert this info into voxel coordinates
-
-    #get xs,xf,ys,yf,zs,zf,oxs,oxf,oys,oyf,ozs,ozf from center and radius variables
-##    center = np.transpose(self.roicenter)
-##    radius = np.transpose(self.roiradius)
-##
-##    xs = int(center[0]) - int(radius[0])
-##    xf = int(center[0]) + int(radius[0])
-##
-##    ys = int(center[1]) - int(radius[1])
-##    yf = int(center[1]) + int(radius[1])
-##
-##    zs = int(center[2]) - int(radius[2])
-##    zf = int(center[2]) + int(radius[2])
-##
-##    #if no omits, all these variables are -1
-##    if self.omitCount == 0:
-##      oxs = np.array([-1])
-##      oxf = np.array([-1])
-##      oys = np.array([-1])
-##      oyf = np.array([-1])
-##      ozs = np.array([-1])
-##      ozf = np.array([-1])
-##    #otherwise, omit voxel variables should be made based on user defined omit regions only (using omitCount)
-##    else:
-##      oxs = self.omitcenters[0:self.omitCount,0] - self.omitradii[0:self.omitCount,0]
-##      oxf = self.omitcenters[0:self.omitCount,0] + self.omitradii[0:self.omitCount,0]
-##
-##      oys = self.omitcenters[0:self.omitCount,1] - self.omitradii[0:self.omitCount,1]
-##      oyf = self.omitcenters[:,1] + self.omitradii[:,1]
-##
-##      ozs = self.omitcenters[0:self.omitCount,2] - self.omitradii[0:self.omitCount,2]
-##      ozf = self.omitcenters[0:self.omitCount,2] + self.omitradii[0:self.omitCount,2]
 
     #create xml text and save to file
     if self.omitCount > 0:
@@ -3161,7 +2276,7 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
 
 
 #
-# roiAndOmitsTestLogic
+# DCE_TumorMapProcessLogic
 #
 
 class DCE_TumorMapProcessLogic(ScriptedLoadableModuleLogic):
@@ -3277,46 +2392,6 @@ class DCE_TumorMapProcessLogic(ScriptedLoadableModuleLogic):
     slicer.app.processEvents()
     print("Report saved")
 
-    #for purpose of testing out pyradiomics, save these 2 nrrd's
-##    pe_roi = makeROIFocusedImg(pe,voi_mask,xs,xf,ys,yf,zs,zf)
-##    pe_roi_savename = exampath + "\\" + "PE_roi.nrrd"
-##    nrrd.write(pe_roi_savename,pe_roi)
-##
-##    tumor_mask_roi = makeROIFocusedImg(tumor_mask,voi_mask,xs,xf,ys,yf,zs,zf)
-##    tumor_mask_roi_savename = exampath + "\\" + "tumormask_roi.nrrd"
-##    nrrd.write(tumor_mask_roi_savename,tumor_mask_roi)
-
-
-
-    #make cropped pre-contrast and save it to node
-##    a_roi = makeROIFocusedImg(a,voi_mask,xs,xf,ys,yf,zs,zf)
-##    a_node = makeImageNode(a_roi,"Precontrast ROI")
-##
-##    progressBar.value = 50
-##    progressBar.labelText = 'Pre-contrast ROI loaded to Slicer'
-##    slicer.app.processEvents()
-##    print("Pre-contrast ROI loaded to Slicer")
-##
-##
-##    #make cropped PE and save it to node
-##    pe_roi = makeROIFocusedImg(pe,voi_mask,xs,xf,ys,yf,zs,zf)
-##    pe_node = makeImageNode(pe_roi,"PE ROI")
-##
-##    progressBar.value = 75
-##    progressBar.labelText = 'PE ROI loaded to Slicer'
-##    slicer.app.processEvents()
-##    print("PE ROI loaded to Slicer")
-##
-##
-##    #make cropped tumor mask and save it to node
-##    tumor_mask_roi = makeROIFocusedImg(tumor_mask,voi_mask,xs,xf,ys,yf,zs,zf)
-##    tumor_mask_node = makeImageNode(tumor_mask_roi,"Tumor Mask ROI")
-##
-##    progressBar.value = 99
-##    progressBar.labelText = 'Tumor Mask ROI loaded to Slicer'
-##    slicer.app.processEvents()
-##    print("Tumor Mask ROI loaded to Slicer")
-
     time.sleep(1) #pause for 1 second at progress bar 99%
 
     progressBar.value = 100
@@ -3327,10 +2402,8 @@ class DCE_TumorMapProcessLogic(ScriptedLoadableModuleLogic):
     logging.info('Processing completed')
 
 
-
-
 #
-# roiAndOmitsTestTest
+# DCE_TumorMapProcessTest
 #
 
 class DCE_TumorMapProcessTest(ScriptedLoadableModuleTest):
