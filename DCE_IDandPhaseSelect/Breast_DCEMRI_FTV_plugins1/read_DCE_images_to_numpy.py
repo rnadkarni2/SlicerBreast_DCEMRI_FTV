@@ -146,6 +146,5 @@ def addFullPathToFileList(path,files):
         filei = files[i]
         fullfilei = os.path.join(path,filei)
         files[i] = fullfilei
-        
     return files
 
