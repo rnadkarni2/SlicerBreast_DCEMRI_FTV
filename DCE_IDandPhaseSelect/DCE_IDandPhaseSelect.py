@@ -143,55 +143,12 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
     with open(wkspc_savepath,'wb') as f:
       pickle.dump([tempres, all_folders_info, dce_folders, dce_ind, fsort, studydate, nslice, earlyPostContrastNum, latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss],f)
 
-  #Edit 11/25/2020: save all outputs from exam_ident_and_timing to parameter nodes
-##  tempres_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","tempres node")
-##  tempres_node.SetParameter("tempres",str(tempres))
-##
-##  allfolders_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","all folders node")
-##  allfolders_node.SetParameter("all_folders_info",all_folders_info)
-##
-##  dcefolders_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","dce folders node")
-##  dcefolders_node.SetParameter("dce_folders",dce_folders)
-##
-##  dceind_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","dce indices node")
-##  dceind_node.SetParameter("dce_ind",dce_ind)
-##
-##  fsort_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","fsort node")
-##  fsort_node.SetParameter("fsort",fsort)
-##
-##  studydate_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","studydate node")
-##  studydate_node.SetParameter("studydate",studydate)
-##
-##  nslice_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","nslice node")
-##  nslice_node.SetParameter("nslice",nslice)
-##
-##  earlyPostContrastNum_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","earlyPostContrastNum node")
-##  earlyPostContrastNum_node.SetParameter("earlyPostContrastNum",earlyPostContrastNum)
-##
-##  earlydiffmm_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","earlydiffmm node")
-##  earlydiffmm_node.SetParameter("earlydiffmm",earlydiffmm)
-##
-##  earlydiffss_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","earlydiffss node")
-##  earlydiffss_node.SetParameter("earlydiffss",earlydiffss)
-##
-##  latePostContrastNum_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","latePostContrastNum node")
-##  latePostContrastNum_node.SetParameter("latePostContrastNum",latePostContrastNum)
-##
-##  latediffmm_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","latediffmm node")
-##  latediffmm_node.SetParameter("latediffmm",latediffmm)
-##
-##  latediffss_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScriptedModuleNode","latediffss node")
-##  latediffss_node.SetParameter("latediffss",latediffss)
-  #End edit 11/25/2020
-
   lbltxt = "DCE images are in folders " + str(dce_folders) + ". Early and late post-contrast phases are " + str(earlyPostContrastNum) + " and " + str(latePostContrastNum)
   progressBar.value = 25
   progressBar.labelText = lbltxt
   slicer.app.processEvents()
-  #print("Pre-contrast image loaded to Slicer")
 
   #Edit 6/9/2020: Even for GE or Siemens, use Philips method of loading images into numpy array if all DCE images are in same folder
-
   folder1info = all_folders_info[0]
   #Loading pre-contrast image into numpy array
   #5/20/2021: Take Philips out of this if statement because Philips can have 2 folder DCE
@@ -204,7 +161,6 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
   print("RAS to IJK Matrix")
   print(m)
 
-
   #create node for displaying pre-contrast image
   adisp = np.transpose(a,(2,1,0)) #nii needs x,y,z to have same orientation as DICOM, but for numpy array you need to return to dimension order z,y,x
   precontrast_node = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLScalarVolumeNode",prenodestr) #add this image to dropdown node with name precontrast
@@ -215,13 +171,11 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
   precontrast_node.GetIJKToRASMatrix(m1)
   print("IJK to RAS Matrix from Precontrast Node")
   print(m1)
-
-
+  
   progressBar.value = 50
   progressBar.labelText = 'Pre-contrast image loaded to Slicer'
   slicer.app.processEvents()
   print("Pre-contrast image loaded to Slicer")
-
 
   #Loading early post-contrast image into numpy array
   print("-----EARLY POST-CONTRAST IMAGE-----")
@@ -247,7 +201,6 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
   progressBar.labelText = 'Early post-contrast image loaded to Slicer'
   slicer.app.processEvents()
   print("Early post-contrast image loaded to Slicer")
-
 
   #Loading late post-contrast image into numpy array
   print("-----LATE POST-CONTRAST IMAGE-----")
@@ -332,24 +285,6 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
     #Edit 2/11/2021: Moving exampath selection here
     self.exampath = qt.QFileDialog.getExistingDirectory(0,("Select folder for DCE-MRI exam"))
 
-
-    #If using mapped drive (B: for ispy_2019 or F: for ispy2)
-##    if('B:' in self.exampath or 'F:' in self.exampath):
-##      #site folder name is between the 1st and 2nd slashes
-##      self.sitestr = self.exampath[(int(slashinds[0])+1):int(slashinds[1])]
-##      #ISPY ID folder name is between the 2nd and 3rd slashes
-##      self.idstr = self.exampath[(int(slashinds[1])+1):int(slashinds[2])]
-##      self.idpath = self.exampath[0:int(slashinds[2])] #full path to ispy id folder
-##      #folder with visit name in it is between the 3rd and 4th slashes
-##      self.visitstr = self.exampath[(int(slashinds[2])+1):int(slashinds[3])]
-##
-##      #studystr is ispy_2019 for B: or ispy2 for F:
-##      #6/28/2021: Changing this because David said
-##      #ispy_2019 is not a separate study from ispy2,
-##      #it's just the name for the additional disk.
-##      if('B:' in self.exampath or 'F:' in self.exampath):
-##        self.studystr = 'ispy2'
-
     #7/6/2021: Add code to convert mapped drive letter path
     #to full path based on Andras Lasso's answer in Slicer forums.
     if(':' in self.exampath and 'C:' not in self.exampath):
@@ -363,7 +298,6 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
     for i in range(len(self.exampath)):
       if(self.exampath[i] == '/'):
         slashinds.append(i)
-
 
     #If using full path instead of mapped drives
 ##    else:
@@ -465,7 +399,6 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
             if('v40' in self.exampath):
               self.visitstr = 'MR4'
 
-
     #7/26/2021: If this step fails, DICOMs in exam directory are compressed.
     try:
       print(self.exampath)
@@ -476,42 +409,12 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
     except:
       slicer.util.confirmOkCancelDisplay("Error. Please decompress all files in exam directory, then try running module again.","Compressed DICOMs Error")
 
-
     #7/16/2021: Force side-by-side axial-sagittal layout immediately after
     #processing user's MR study selection.
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutSideBySideView)
 
-
-    #5/18/2021: Try to retrieve study, site, visit, etc from dicom header
-    #instead of exampath, because users outside UCSF will not have the
-    #same directory structure
-    #5/19/2021: Comment out this part when running gzipped exam
-##    print("\nExam info from scan 1 DICOM header")
-##    scans = [f for f in os.listdir(self.exampath) if f.isnumeric()]
-##    scan1path = os.path.join(self.exampath,scans[0])
-##    dcms_scan1 = os.listdir(scan1path)
-##    dcm1scan1path = os.path.join(scan1path,dcms_scan1[0])
-##    hdr_dcm1scan1 = pydicom.dcmread(dcm1scan1path,stop_before_pixels=True)
-##    #5/18/2021: Results from UCSD 12013 MR1 suggest that I may have to
-##    #find out which study based on study date instead of retrieving
-##    #study directly from header field
-##    studyfromhdr = hdr_dcm1scan1[0x18,0x1030].value
-##    print(studyfromhdr)
-##    #Group 12 is clinical trial header fields,
-##    #so I'm trying to use those as much as possible.
-##    sitefromhdr = hdr_dcm1scan1[0x12,0x31].value
-##    print(sitefromhdr)
-##    idfromhdr = hdr_dcm1scan1[0x12,0x40].value
-##    print(idfromhdr)
-##    visitfromhdr = hdr_dcm1scan1[0x12,0x50].value
-##    print(visitfromhdr)
-##    datefromhdr = hdr_dcm1scan1[0x8,0x20].value
-##    print(datefromhdr)
-##    print("\n")
-
     #7/6/2021: Add boxes to allow user to set early and late
     #post-contrast times
-
     self.earlytimelbl = qt.QLabel("\nEarly Post-Contrast Time (seconds after contrast injection):")
     self.parametersFormLayout.addRow(self.earlytimelbl)
     self.earlytime = qt.QSpinBox()
@@ -605,16 +508,6 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
     self.manualSubmitButton.toolTip = "Submit manual DCE folder selections."
     self.manualSubmitButton.enabled = True
 
-
-
-    #
-    # Apply Button
-    #
-##    self.applyButton = qt.QPushButton("Run")
-##    self.applyButton.toolTip = "Run the algorithm."
-##    self.applyButton.enabled = False
-##    self.parametersFormLayout.addRow(self.applyButton)
-
     # connections
 ##    self.applyButton.connect('clicked(bool)', self.onApplyButton)
     self.autoIdCheckBox.stateChanged.connect(self.onApplyButton) #2/11/2021: connect checking the auto folder ID box to onApplyButton function
@@ -625,15 +518,8 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
     # Add vertical spacer
     self.layout.addStretch(1)
 
-    # Refresh Apply button state
-##    self.onSelect()
-
-
   def cleanup(self):
     pass
-
-##  def onSelect(self):
-##    self.applyButton.enabled = True
 
   #2/11/2021: New function to create or remove manual DCE selection menu.
   def manualDCESelectMenu(self):
@@ -697,14 +583,6 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
 
       self.parametersFormLayout.removeRow(self.manualSubmitButton)
 
-##        allfolders_str = allfolders_str + '\n' + curr_str
-##      #Once done populating this string, add it to a QLabel and display it
-##      self.allDCElabel = qt.QLabel()
-##      self.allDCElabel.setText(allfolders_str)
-##      self.parametersFormLayout.addRow(self.allDCElabel)
-
-
-
 
   def onApplyButton(self):
     logic = DCE_IDandPhaseSelectLogic()
@@ -762,19 +640,6 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
     else:
       exampath_node.SetParameter("exampath",exampath)
 
-    #slicer.mrmlScene.AddNode(exampath_node)
-
-
-
-
-    #savefolder = qt.QFileDialog.getExistingDirectory(0,("Choose save location for module outputs"))
-    #savepath = savefolder+"\\"+outputfolder
-
-    #if not os.path.exists(savepath):
-      #os.mkdir(savepath)
-
-    #logging.info('Processing started')
-
     #Edit 2/12/21: Only do gunzip here if using automatic DCE folder ID.
     #If doing manual folder ID, gunzipping is already done.
     if(len(dce_folders_manual) == 0):
@@ -807,72 +672,7 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
     #image will be used as precontrast when computing subtraction images.
     #Call function for generating pre, early, and late nodes for the visit & exam you will do FTV processing for
     precontrast_node, early_post_node, late_post_node = loadPreEarlyLate(exampath,visitnum,1,dce_folders_manual,dce_ind_manual,earlyadd,lateadd)
-
-
-  #Edit 2/17/21: Commenting out section for loading other visits because JG and TB confirmed that this is not
-  #needed and it would be too difficult to allow manual folder ID for other visits.
-
-##    visitfolders = [directory for directory in os.listdir(idpath) if os.path.isdir(idpath + "\\" + directory)]
-##    print("visit folders for this exam are:")
-##    print(visitfolders)
-##
-##
-##    #If more than one visit present in this exam, ask user if they want to load images for other visits
-##    #Edit 8/7/2020: Only ask to load other visits if primary exam selected for FTV processing is NOT baseline
-##    #Making this change because in Aegis, you would only load additional prior visits, not additional later visits
-##    if(len(visitfolders)>1 and visitnum > 10):
-##      for j in range(len(visitfolders)):
-##        currvisit = visitfolders[j]
-##        vpos = visitstr.find('v')
-##        currvisitnum = int(currvisit[vpos+1:vpos+3])
-##        #Only have option to load images to node right now if this is not the visit you are computing FTV outputs for
-##        #Edit 8/7/2020: Only have option to load images to node if it's from an earlier visit than the primary exam you chose.
-##        #Reason for this is same as above 8/7/2020 edit.
-##        if(currvisit != visitstr and currvisitnum < visitnum):
-##          if((currvisitnum % 10) == 0):
-##            currvisname = 'MR' + str(int(currvisitnum/10))
-##          else:
-##            currvisname = 'MR' + str(float(currvisitnum/10))
-##
-##          yesnostr = 'Do you want to load ' + currvisname + ' images for this patient?'
-##
-##          #Edit 8/7/2020: Have separate yes/no dialog for each prior visit. Only load visit's images to node if user says yes
-##          if(slicer.util.confirmYesNoDisplay(yesnostr)):
-##            visitpath = idpath + "\\" + currvisit
-##            examfolders = [directory for directory in os.listdir(visitpath) if os.path.isdir(visitpath + "\\" + directory)]
-##            exampath_currvisit = visitpath + "\\" + examfolders[0]
-##            #Call function for generating pre, early, and late nodes for other visits for same patient
-##            #Name variables according to visit here to prevent mix-up between visits in 2nd module
-##            if(currvisitnum == 10):
-##              print("loading visit 10")
-##              precontrast_nodev10, early_post_nodev10, late_post_nodev10 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)
-##
-##            if(currvisitnum == 20):
-##              print("loading visit 20")
-##              precontrast_nodev20, early_post_nodev20, late_post_nodev20 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)
-##
-##            if(currvisitnum == 30):
-##              print("loading visit 30")
-##              precontrast_nodev30, early_post_nodev30, late_post_nodev30 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)
-##
-##            if(currvisitnum == 40):
-##              print("loading visit 40")
-##              precontrast_nodev40, early_post_nodev40, late_post_nodev40 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)
-##
-##            if(currvisitnum == 50):
-##              print("loading visit 50")
-##              precontrast_nodev50, early_post_nodev50, late_post_nodev50 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)
-##
-##            #Edit 7/31/2020: Just changed this one to 25 because that is the only other value I've seen
-##            #Earlier I had this as else, but that made every visit (other than main one) have its images loaded to Slicer twice
-##            if(currvisitnum == 25):
-##              print("loading visit 25")
-##              precontrast_nodev25, early_post_nodev25, late_post_nodev25 = loadPreEarlyLate(exampath_currvisit,currvisitnum,0)
-
-
-
-
-    #logging.info('Processing completed')
+    
     print("All images loaded to Slicer")
     return True
 
