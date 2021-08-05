@@ -87,10 +87,6 @@ class DicomFileInfo:
         self.manufacturer = hdr.Manufacturer
 
 
-
-
-
-
 #dcepath = r"\\researchfiles.radiology.ucsf.edu\birp_perm2\ispy_2019\4460_OHSC\13432\20190910_v10\E20190910\701"
 #it's faster to use os.listdir that sitk method of retrieving filenames
 
@@ -114,24 +110,12 @@ def sortDicoms(dcepath):
         acqtimesall.append(curr_dcm_info.acqtime)
 
     im_in_acq = curr_dcm_info.im_in_acq
-    #all_dcms_info = sorted(all_dcms_info, key = lambda s: s.temppos) #sort by phase
-
-    #Take DICOM file info structures for first and last slices. If both have numtemp greater than 0, then nslice = len(dicom_names)/numtemp
-    #If one of them has numtemp == 0, real numtemp = numtemp + 1 and nslice is calculated with this numtemp
-##    dcm1info = all_dcms_info[0]
-##    dcmendinfo = all_dcms_info[len(all_dcms_info)-1]
-##
-##    if(dcm1info.numtemp > 0 and dcmendinfo.numtemp > 0):
-##        numtemp = int(dcmendinfo.numtemp)
-##    if(dcm1info.numtemp == 0 or dcmendinfo.numtemp == 0):
-##        numtemp = int(dcmendinfo.numtemp) + 1
 
     #Edit 7/24/2020: use number of unique content time values as numtemp
     contenttimesall = np.array(contenttimesall)
 
     print("content times all")
     print(contenttimesall)
-
 
     print("content times all after removing small differences between adjacent elements")
     print(contenttimesall)
@@ -180,8 +164,6 @@ def sortDicoms(dcepath):
 
         else:
             print("Using trigger time to sort multivolume folder slices by DCE phase")
-
-
 
     #Edit 4/2/2021: Only default to content time for phase sorting for Siemens and GE
     else:
@@ -290,13 +272,4 @@ def sortDicoms(dcepath):
     #print(fsort[0][:])
     print(".......................... Finished multivolume DICOM sort")
     return fsort, numtemp, nslice, ctime_forphases, ttime_forphases, atime_forphases
-
-
-
-
-
-
-
-
-
 
