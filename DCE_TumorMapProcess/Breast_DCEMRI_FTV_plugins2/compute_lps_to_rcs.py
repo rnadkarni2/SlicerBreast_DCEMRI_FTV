@@ -137,15 +137,6 @@ def getVOIVoxelsFromInverseAffine(exampath,xmlfilepath,prefoldernum,nslice,fsort
     print("-----Starting conversion of VOI to voxel coordinates-----")
     aff_mat, aff_inv_mat = computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort)
 
-    #Edit 5/19/2020: comment out os.listdir part because you're just
-    #using the xmlfilepath specified by user
-
-    #Now, convert extreme ends of VOI from xml file from LPS to JIK to get voxel range of VOI
-    #voipath = exampath + "\\" + "voi_lps_files"
-    #xml_files = [f for f in os.listdir(voipath) if f.endswith('.xml')]
-    #xml_file = xml_files[0]
-
-    #filepath = voipath + "\\" + xml_file
     #This method successfully read all lines in the file
     with open (xmlfilepath,"r") as myfile:
         data = myfile.readlines()
@@ -208,9 +199,6 @@ def getVOIVoxelsFromInverseAffine(exampath,xmlfilepath,prefoldernum,nslice,fsort
     radius[2] = depthcoords[2]
     print("depth")
     print(depthcoords)
-
-
-
 
 
     def lpsTorcs(lpscoords,aff_inv_mat):
@@ -412,9 +400,6 @@ def readRASCoordsFromXMLFile(xmlfilepath):
         d_ind = findNonZeroInd(depthcoords)
         roiradius[d_ind] = depthcoords[d_ind]
 
-
-
-
     #Second step: If there are omit regions, get RAS coordinates for each of those
     if(len(centerinds)>1):
         ocenters = np.zeros((len(centerinds)-1,3))
@@ -441,7 +426,6 @@ def readRASCoordsFromXMLFile(xmlfilepath):
         oradii[0,0] = -1
 
     return roicenter, roiradius, ocenters, oradii
-
 
 
 def makeVOIMask(a,xs, xf, ys, yf, zs, zf, oxs, oxf, oys, oyf, ozs, ozf):
