@@ -52,13 +52,11 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     from Breast_DCEMRI_FTV_plugins2 import create2DimgAllFunctions
     #import parse_xml
 
-
     #Edit 8/12/2020: Use window and level to set display min and max
     dispmin = int(level)
     dispmax = int(level+window/2)
     minmaxstr = "Displaying images with min " + str(dispmin) + " and max" + str(dispmax)
     print(minmaxstr)
-
 
     #Edit 4/27/2020: Since images now use dimension order x,y,z
     #but we still want axial images to have dimension order y,x,z for this report,
@@ -73,50 +71,16 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     print(np.amin(img3d))
     print(np.amax(img3d))
 
-
-
     ser = np.transpose(ser,(1,0,2))
     tumor_mask = np.transpose(tumor_mask,(1,0,2))
     voi_mask = np.transpose(voi_mask,(1,0,2))
 
     #Edit 5/11/2020: Multiply tumor mask by voi mask to prevent SER colorization in omit regions
-    #7/13/2021: Only multiply by voi_mask if maps are not cropped.
-##    if(voi_mask.shape[0] == tumor_mask.shape[0]):
     tumor_mask = tumor_mask*voi_mask
-
-
-
-    #Method for sagittal image to make width/height match aspect ratio
-    #Method should be biased towards cutting off the chest wall behind the breast rather than cutting off nipple
-##    def cropSagittal(sagimg,ys,yf,aspect):
-##        space_diff = aspect*sagimg.shape[0]-(yf-ys) #difference between aspect x # of rows in image and # of columns occupied by ROI in sagittal slice
-##        if space_diff>0:
-##            #crop img to aspect x #rows by adding 2/3 of the space difference to end of yf and 1/3 before ys
-##            col_s = ys-int(space_diff/3)
-##            if col_s < 0:
-##                col_s = 0
-##            col_f = yf+int(2*space_diff/3)
-##            if col_f > (sagimg.shape[1]-1):
-##                col_f = sagimg.shape[1]-1
-##            sagimg = sagimg[:,col_s:col_f]
-##            #incorporate l/r flip that gives desired orientation
-##        sagimg = np.fliplr(sagimg)
-##        return sagimg
 
     #Function to colorize tumor in ROI based on SER values
     #Edit 7/24/2020: Change function to reflect fact that input is now an RGB image
     def serColorize(img_wroi,tumor_mask_slc,ser_slc,row_s,row_f,col_s,col_f):
-        #edit 5/19/2020: first, re-format input image by setting negative values to zero and normalizing image to max value 255
-        #img_wroi = np.where(img_wroi>0,img_wroi,0) #set to 0 in voxels where image is not greater than 0
-
-        #img_wroi = img_wroi/np.percentile(img_wroi,90) #normalize by 90th percentile value
-
-        #initialize output array by making RGB version of input slice w ROI box
-        #img_wroi_sercolor = np.dstack((img_wroi,img_wroi,img_wroi))
-        #img_wroi_sercolor.astype('uint8')
-
-        #edit 5/19/2020: getting rid of old normalization method
-        #img_wroi_sercolor = img_wroi_sercolor/(np.percentile(img_wroi_sercolor,pct))
 
         img_wroi_sercolor = np.copy(img_wroi) #need to use np.copy so that input image is not SER colorized
 
@@ -441,15 +405,6 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         img_sag_slc_wroi = np.flipud(img_sag_slc_wroi)
         img_sag_clr_crop = np.flipud(img_sag_clr_crop)
 
-#Edit 6/30/2020: No more imgReversed
-    #If you had to invert axial slices of ROI, img slices are reversed from what aff_mat suggests and you have
-    #to compensate for this with a flip
-##    if(imgReversed == 1):
-##        mip_sagittal_wroi = np.flipud(mip_sagittal_wroi)
-##        img_sag_slc_wroi = np.flipud(img_sag_slc_wroi)
-##        img_sag_clr_crop = np.flipud(img_sag_clr_crop)
-
-
     #Edit 6/29/2020: Compare z value of intial position in IJKToRAS matrix from inputVolume to same element in
     #my IJKToLPS aff_mat, and if they do match, add an extra flip to sagittal images in report
     #If these two z origin values match, this means Slicer used closest to foot as 1st slice and
@@ -461,7 +416,6 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         img_sag_slc_wroi = np.flipud(img_sag_slc_wroi)
         img_sag_clr_crop = np.flipud(img_sag_clr_crop)
 
-
     #Edit 7/26/2021: Flip sagittal images again if Philips cropped images
     #Like ispy_2019, UChic, 10747, v10
     if(len(dce_folders) == 1 and preimg3d.shape[2] < len(fsort[earlyPostContrastNum][:])):
@@ -471,11 +425,8 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         img_sag_slc_wroi = np.flipud(img_sag_slc_wroi)
         img_sag_clr_crop = np.flipud(img_sag_clr_crop)
 
-
     sagtoplbl = 'H'
     sagbtmlbl = 'F'
-
-
 
     #read header of slice in late post-contrast image
     #edit 6/11/2020: Split by single vs multi folder DCE instead of non-Philips vs Philips
@@ -504,7 +455,6 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     except:
         lateslice1hdr = dicom.read_file(lateslice1path)
 
-
     font = {'color': 'yellow','size': 15} #font dictionary settings for orientation labels on images
     fontfov = {'color': 'yellow', 'size': 8} #font dictionary settings for FOV labels on images
     fontfovcrop = {'color': 'yellow', 'size': 6} #font dictionary settings for FOV labels on images
@@ -531,10 +481,6 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     #visit id
     #Edit 7/30/2020: Use nodevisstr, which was obtained from exampath instead of DICOM header, to fill this field
     visit_id = "Visit ID: " + nodevisstr
-##    try:
-##        visit_id = "Visit ID: " + str(earlyslice1hdr.ClinicalTrialTimePointID)
-##    except: #in some cases, this is not in the DICOM header
-##        visit_id = "Visit ID: Unavailable"
 
     #Return Left or Right breast based on xcenter of ROI
     #Edit 5/1/2020: make it so that L/R determination doesn't depend
@@ -545,13 +491,6 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         breast = "Breast: L"
     else:
         breast = "Breast: R"
-
-
-##    centercoords, widthcoords, heightcoords, depthcoords = parse_xml.returnPrimaryROICoordsFromXML(path)
-##    if (int(centercoords[0])>0):
-##        breast = "Breast: L"
-##    else:
-##        breast = "Breast: R"
 
     #tumor volume
     #Counting all white voxels in VOI as part of tumor
@@ -610,7 +549,6 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     sag_crop_fovy = abs(round(aff_mat[2,2]*img_sag_clr_crop.shape[0]/10,2))
     sag_crop_fov = "FOV: " + str(sag_crop_fovx) + " x " + str(sag_crop_fovy) + " cm"
 
-
     #Read UCSF logo into array
     #Edit 7/30/2020: Use 3D Slicer logo instead because Jessica said use of UCSF logo
     #is confusing for report of exam from non-UCSF site
@@ -621,7 +559,6 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     pathtofunc,funcname = os.path.split(os.path.realpath(__file__))
     logo_path = os.path.join(pathtofunc,'3DSlicerLogo.png')
     logo = cv2.imread(logo_path)
-
 
 
 #------------------------Plotting starts here----------------------------------#
