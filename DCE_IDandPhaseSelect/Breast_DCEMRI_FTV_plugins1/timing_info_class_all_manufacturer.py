@@ -91,8 +91,6 @@ def getGETimingAllFolders(phaseslc1paths):
     return ge_timing_all
 
 
-
-
 class SiemensTimingInfo:
     def __init__(self,img1path):
         try:
@@ -142,16 +140,13 @@ class SiemensTimingInfo:
         except:
             self.acqtime = '000000'
 
-
-
+            
 def getSiemensTimingAllFolders(phaseslc1paths):
     siemens_timing_all = []
     for i in range(len(phaseslc1paths)):
         curr_siemens_timing = SiemensTimingInfo(phaseslc1paths[i])
         siemens_timing_all.append(curr_siemens_timing)
     return siemens_timing_all
-
-
 
 
 class PhilipsTimingInfo:
@@ -205,15 +200,11 @@ class PhilipsTimingInfo:
         except:
             self.acqtime = '000000'
 
-
+            
 def getPhilipsTimingAllFolders(phaseslc1paths):
     philips_timing_all = []
     for i in range(len(phaseslc1paths)):
         curr_philips_timing = PhilipsTimingInfo(phaseslc1paths[i])
         philips_timing_all.append(curr_philips_timing)
     return philips_timing_all
-
-
-
-
 
