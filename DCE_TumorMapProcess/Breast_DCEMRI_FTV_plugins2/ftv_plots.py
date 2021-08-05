@@ -25,8 +25,6 @@
 def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_folders,nslice,earlyPostContrastNum,latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss, preimg3d,img3d,ser,tumor_mask,voi_mask,xs,xf,ys,yf,zs,zf,omitCount,omitradii,omitcenters,pct,pre_thresh,pethresh,minconnpix,aff_mat,ijkToRASmat,nodevisstr,window,level,idstr):
     #note: although variable is called ser_colormap, may decide to use regular SER image instead so that colorbar shows true SER values
 
-
-
     #All of the figures (except ser colormap) are using 2nd post-contrast minus pre-contrast
     import slicer
     import matplotlib
