@@ -47,14 +47,6 @@ def findClosestTime(imgtimes,time):
     except:
         postContrastNum = 1 + ind[0][0]
 
-##    try:
-##        postContrastNum = 1+int(ind[0])
-##    except:
-##        try:
-##            postContrastNum = 1 + int(ind)
-##        except:
-##            postContrastNum = 1 + int(ind[0,0])
-
     return postContrastNum
 
 
@@ -139,15 +131,11 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
             curr_img_path = os.path.join(postpath,fsort[p][0])
             phaseslc1paths.append(curr_img_path)
 
-
-
-
     #Create array of Timing Structures
     if ('GE' in manufacturer):
         timing_all = timing_info_class_all_manufacturer.getGETimingAllFolders(phaseslc1paths)
     if ('Siemens' in manufacturer or 'SIEMENS' in manufacturer):
         timing_all = timing_info_class_all_manufacturer.getSiemensTimingAllFolders(phaseslc1paths)
-
 
     #initialize array of times (in seconds) for all post-contrast images
     contenttimes = np.zeros((len(timing_all)-1,1))
@@ -307,8 +295,6 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
             earlyPostContrastNum = findClosestTime(imgtimes_new,earlytime)
             latePostContrastNum = findClosestTime(imgtimes_new,latetime)
 
-
-
     #If more than 1 DCE folder, gunzip all DCMs for early and late post-contrast folders
     if(len(dce_folders) > 2):
         #Edit 7/17/2020: If 'gunzipped' in exampath, gunzip all DCMs for early post-contrast folder
@@ -318,7 +304,6 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
         #Edit 7/17/2020: If 'gunzipped' in exampath, gunzip all DCMs for late post-contrast folder
         if('gunzipped' in exampath):
             gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[latePostContrastNum]))
-
 
     #find out how many min and sec after start of 1st post-contrast early post-contrast occurs, for report
     earlydiff = imgtimes[earlyPostContrastNum-1] - contenttimes[0]
@@ -348,7 +333,6 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
         #Edit 3/29/2021: If 2 DCE folders, must also gunzip the 2nd one
         if(len(dce_folders) == 2):
             gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[1]))
-
 
     #Using test_multivolume_folder_sort to automatically sort dicom filenames
     if(len(dce_folders) == 1):
@@ -408,7 +392,6 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
             atime = curr_timing.acqtime
             atime_sec = 3600*int(ctime[0:2]) + 60*int(ctime[2:4]) + float(ctime[4:])
             trig_times.append(atime_sec)
-
 
         if j == 2:
             studydate = curr_timing.studydate
