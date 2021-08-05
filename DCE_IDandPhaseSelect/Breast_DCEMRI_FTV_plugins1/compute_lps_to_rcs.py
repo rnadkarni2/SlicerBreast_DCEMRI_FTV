@@ -69,8 +69,6 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
         N = nslice
         file1 = os.path.join(imgpath,fsort[0][0])
 
-
-
     try:
         img1 = pydicom.dcmread(file1)
     except:
@@ -131,21 +129,10 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
     return aff_mat, aff_inv_mat
 
 
-
-
 def getVOIVoxelsFromInverseAffine(exampath,xmlfilepath,prefoldernum,nslice,fsort):
     print("-----Starting conversion of VOI to voxel coordinates-----")
     aff_mat, aff_inv_mat = computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort)
 
-    #Edit 5/19/2020: comment out os.listdir part because you're just
-    #using the xmlfilepath specified by user
-
-    #Now, convert extreme ends of VOI from xml file from LPS to JIK to get voxel range of VOI
-    #voipath = exampath + "\\" + "voi_lps_files"
-    #xml_files = [f for f in os.listdir(voipath) if f.endswith('.xml')]
-    #xml_file = xml_files[0]
-
-    #filepath = voipath + "\\" + xml_file
     #This method successfully read all lines in the file
     with open (xmlfilepath,"r") as myfile:
         data = myfile.readlines()
@@ -186,7 +173,6 @@ def getVOIVoxelsFromInverseAffine(exampath,xmlfilepath,prefoldernum,nslice,fsort
     heightinds = findWordIndices('<HeightHalfLength',data)
     depthinds = findWordIndices('<DepthHalfLength',data)
 
-
     #First step: Do coordinate conversion from LPS to RCS for actual VOI
     centercoords = getXYZcoords(data,centerinds[0])
     print("center")
@@ -208,10 +194,6 @@ def getVOIVoxelsFromInverseAffine(exampath,xmlfilepath,prefoldernum,nslice,fsort
     radius[2] = depthcoords[2]
     print("depth")
     print(depthcoords)
-
-
-
-
 
     def lpsTorcs(lpscoords,aff_inv_mat):
         lps_homog = np.zeros((4,1))
@@ -339,7 +321,6 @@ def readRASCoordsFromXMLFile(xmlfilepath):
             zcoords = getcoords(zcoordsrow)
             coords.append(float(zcoords[0]))
 
-
         #6/9/2020: add exception for case where it splits x^-10 into x, 10
         if len(coords) > 3:
             coords_orig = coords
@@ -370,13 +351,11 @@ def readRASCoordsFromXMLFile(xmlfilepath):
     heightinds = findWordIndices('<HeightHalfLength',data)
     depthinds = findWordIndices('<DepthHalfLength',data)
 
-
     #First step: Do coordinate conversion from LPS to RCS for actual VOI
     roicenter = getXYZcoords(data,centerinds[0])
     #convert center from LPS to RAS
     roicenter[0] = -1*roicenter[0]
     roicenter[1] = -1*roicenter[1]
-
 
     roiradius = np.zeros((3,1))
     roiradius.astype(float)
@@ -412,9 +391,6 @@ def readRASCoordsFromXMLFile(xmlfilepath):
         d_ind = findNonZeroInd(depthcoords)
         roiradius[d_ind] = depthcoords[d_ind]
 
-
-
-
     #Second step: If there are omit regions, get RAS coordinates for each of those
     if(len(centerinds)>1):
         ocenters = np.zeros((len(centerinds)-1,3))
@@ -443,7 +419,6 @@ def readRASCoordsFromXMLFile(xmlfilepath):
     return roicenter, roiradius, ocenters, oradii
 
 
-
 def makeVOIMask(a,xs, xf, ys, yf, zs, zf, oxs, oxf, oys, oyf, ozs, ozf):
     #a is numpy array of pre-contrast image
 
@@ -459,6 +434,3 @@ def makeVOIMask(a,xs, xf, ys, yf, zs, zf, oxs, oxf, oys, oyf, ozs, ozf):
             voi_mask[int(oxs[i-1]):int(oxf[i-1]),int(oys[i-1]):int(oyf[i-1]),int(ozs[i-1]):int(ozf[i-1])] = 0
 
     return voi_mask
-
-
-
