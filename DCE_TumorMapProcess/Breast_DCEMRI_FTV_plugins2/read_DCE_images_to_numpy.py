@@ -33,7 +33,6 @@ import vtk
 #multivolume_folder_sort always leads to the correct orientation in the report, regardless of if the
 #filenames are in reverse order or not -- This is for Philips only
 
-
 #GE & Siemens correct z-order of slices
 #Update--It appears that regular, increasing order of Slice Location works for RMH exams, but not for UCSD exams
 #Maybe just use the slice names for sorting again, but only for GE & Siemens?
@@ -50,9 +49,6 @@ def readInputToNumpy(path):
     plugin = slicer.modules.dicomPlugins['DICOMScalarVolumePlugin']()
     loadables = plugin.examine([dicom_names])
     volume = plugin.load(loadables[0])
-
-    #print(loadables)
-    #print(volume)
 
     #store RASToIJKMatrix in m so that you can use this to correct output images' orientations
     m = vtk.vtkMatrix4x4()
@@ -74,16 +70,6 @@ def readInputToNumpy(path):
     return m, npimg
 
 
-#Old sitk code for reading file
-##    dicom_names = sortByName(dicom_names)
-##    reader.SetFileNames(dicom_names)
-##    image = reader.Execute()
-##    npimg = sitk.GetArrayFromImage(image)
-##    npimg = np.transpose(npimg,(2,1,0)) #edit 4/27/2020: using dimension order x,y,z gives same orientation as input DICOM (original numpy one is z,y,x)
-##    #Make sure that when you take ROI from numpy array, you are following the x,y,z dimension order
-##    npimg = npimg.astype('float64') #convert to float64 to avoid dynamic range issues when calculating PE and SER
-
-
 #5/8/2020: Edited to go with identify_dce_folders
 def earlyOrLateImgSelect(postContrastNum,dce_folders,exampath):
     #Function called to select early & late post-contrast images based on timing
@@ -99,6 +85,7 @@ def earlyOrLateImgSelect(postContrastNum,dce_folders,exampath):
     path = os.path.join(exampath,str(foldernum))
     a = readInputToNumpy(path)
     return a
+
 
 #For this function, need loop to concatenate full path to filename at each iteration
 def readPhilipsImageToNumpy(exampath,dce_folders,fsort,postContrastNum):
@@ -130,9 +117,6 @@ def readPhilipsImageToNumpy(exampath,dce_folders,fsort,postContrastNum):
     loadables = plugin.examine([dicom_names])
     volume = plugin.load(loadables[0])
 
-    #print(loadables)
-    #print(volume)
-
     #store RASToIJKMatrix in m so that you can use this to correct output images' orientations
     m = vtk.vtkMatrix4x4()
     volume.GetRASToIJKMatrix(m)
@@ -143,22 +127,6 @@ def readPhilipsImageToNumpy(exampath,dce_folders,fsort,postContrastNum):
     print(np.amin(npimg))
     print(np.amax(npimg))
     slicer.mrmlScene.RemoveNode(volume) #this is how to prevent "unnamed volume ..." from staying in slicer window
-
-    #must do this with sitk method, otherwise there are orientation and intensity differences
-    #reader = sitk.ImageSeriesReader()
-    #reader.SetFileNames(dicom_names)
-    #image = reader.Execute()
-    #npimg = sitk.GetArrayFromImage(image)
-##    for i in range(len(dicom_names)):
-##        curr_path = exampath + "\\" + str(int(dce_folders[0])) + "\\" + dicom_names[i]
-##        try:
-##          curr_img = pydicom.dcmread(curr_path)
-##        except:
-##          curr_img = dicom.read_file(curr_path)
-##        curr_img = curr_img.pixel_array
-##        if i == 0:
-##          npimg = np.zeros(( len(dicom_names), curr_img.shape[0], curr_img.shape[1]))
-##        npimg[i,:,:] = curr_img
 
     npimg = np.transpose(npimg,(2,1,0)) #edit 4/27/2020: using dimension order x,y,z gives same orientation as input DICOM (original numpy one is z,y,x)
     #npimg = np.flip(npimg,2) #apparently slicer method of reading DICOM series always reverses slice order from what we want, so add this flip
@@ -179,51 +147,4 @@ def addFullPathToFileList(path,files):
         fullfilei = os.path.join(path,filei)
         files[i] = fullfilei
     return files
-
-#Edit 6/10/2020: Introduced this function to make sure that GE and Siemens DICOM slices are always in correct order
-##def sortBySliceLocation(dicom_names):
-##    slclocs = []
-##    for i in range(len(dicom_names)):
-##        curr_path = dicom_names[i]
-##        try:
-##            curr_hdr = pydicom.dcmread(curr_path,stop_before_pixels = True)
-##        except:
-##            curr_hdr = dicom.read_file(curr_path)
-##        slcloc = float(curr_hdr[0x20,0x1041].value)
-##        slclocs.append(slcloc)
-##    slclocs = np.array(slclocs)
-##
-##    #inds are the indices to sort dicom_names in order of slice location
-##    inds = slclocs.argsort()
-##
-##    #loop to resort dicom_names according to inds
-##    dicom_names_old = dicom_names
-##    dicom_names = []
-##    for j in range(len(inds)):
-##        dicom_names.append(dicom_names_old[int(inds[j])])
-##    return dicom_names
-
-#Edit 6/12/2020: Add exception so it can handle the kind of dicom numbering found in UCSF ISPY ID 16078
-##def sortByName(dicom_names):
-##    slc1 = dicom_names[0]
-##
-##    slcend = dicom_names[len(dicom_names)-1]
-##
-##    try:
-##        slc1num = int(slc1[-7:-4])
-##        slcendnum = int(slcend[-7:-4])
-##    except:
-##        str1 = slc1[-7:-4]
-##        rr1 = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", str1)
-##        slc1num = int(rr1[-1])
-##
-##        strend = slcend[-7:-4]
-##        rrend = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", strend)
-##        slcendnum = int(rrend[-1])
-##
-##
-##    if (slc1num > slcendnum):
-##        dicom_names = list(dicom_names)
-##        dicom_names.reverse()
-##    return dicom_names
 
