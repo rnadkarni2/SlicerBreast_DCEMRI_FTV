@@ -792,7 +792,7 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     #Call function that returns RAS coordinate center and radius give input volume and IJK coordinate center and radius
     roicenter_RAS, roiradius_RAS = IJKToRASFunc(roicenter,roiradius,inputVolume)
 
-    self.roi = slicer.vtkMRMLAnnotationROINode()
+    self.roi = slicer.vtkMRMLMarkupsLineNode()
     self.roi.SetXYZ(roicenter_RAS)
     self.roi.SetRadiusXYZ(roiradius_RAS)
     slicer.mrmlScene.AddNode(self.roi)
@@ -859,11 +859,11 @@ class DCE_TumorMapProcessWidget(ScriptedLoadableModuleWidget):
     self.omitCount = 0
 
     #5 omit regions max. These are stored in distinct attributes of widget class object
-    self.omit1 = slicer.vtkMRMLAnnotationROINode()
-    self.omit2 = slicer.vtkMRMLAnnotationROINode()
-    self.omit3 = slicer.vtkMRMLAnnotationROINode()
-    self.omit4 = slicer.vtkMRMLAnnotationROINode()
-    self.omit5 = slicer.vtkMRMLAnnotationROINode()
+    self.omit1 = slicer.vtkMRMLMarkupsLineNode()
+    self.omit2 = slicer.vtkMRMLMarkupsLineNode()
+    self.omit3 = slicer.vtkMRMLMarkupsLineNode()
+    self.omit4 = slicer.vtkMRMLMarkupsLineNode()
+    self.omit5 = slicer.vtkMRMLMarkupsLineNode()
 
     # Save Region to File Button
     #
