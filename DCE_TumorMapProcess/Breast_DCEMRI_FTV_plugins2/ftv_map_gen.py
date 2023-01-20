@@ -93,6 +93,7 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
       #4/27/21: Add the +1 to each dimension to compensate for
       #Python array indexing rules
       voi_mask[xs:xf+1,ys:yf+1,zs:zf+1] = maskval
+      #voi_mask[ys:yf+1,xs:xf+1,zs:zf+1] = maskval
       return xs,xf,ys,yf,zs,zf,voi_mask
 
     #same dimension order as other images -- x,y,z
@@ -115,6 +116,9 @@ def makeFTVMaps(exampath, manufacturer, dce_folders, roicenter,roiradius,omitcen
     #with this dimension order in DCE_TumorMapProcess
     amasked = a*voi_mask
     amasked = amasked[xs:xf+1,ys:yf+1,zs:zf+1]
+
+    print("size of ROI")
+    print(np.size(voi_mask))
 
     #4/27/21: Add the +1 to each dimension to compensate for
     #Python array indexing rules

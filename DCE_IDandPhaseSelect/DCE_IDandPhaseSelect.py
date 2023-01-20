@@ -83,10 +83,6 @@ from Breast_DCEMRI_FTV_plugins1 import gzip_gunzip_pyfuncs
 # DCE_IDandPhaseSelect
 #
 
-
-
-
-
 #Code for finding pre, early, and late images and adding them to nodes
 #Separate function for this now (7/28/2020) because it may have to be
 #called for multiple visits
@@ -101,7 +97,7 @@ def loadPreEarlyLate(exampath,visitnum,orig,dce_folders_manual,dce_ind_manual,ea
 
   #6/28/2021: Make this compatible with exams that don't use
   #\\researchfiles directory structure
-  if('ispy' in exampath or 'acrin' in exampath):
+  if('ispy_2019' in exampath or 'ispy2' in exampath or 'acrin' in exampath):
     #Do this so you can have MR2.5 but MR1 will not be written as MR1.0
     if(visitnum%10 == 0):
       mrnum = int(visitnum/10)
@@ -304,12 +300,14 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
     #6/28/2021: Make this code compatible with
     #directory structures that are different from
     #our MR exam directories on \\researchfiles.radiology.ucsf.edu
-    if('//researchfiles' in self.exampath and ('ispy2' in self.exampath or 'ispy_2019' in self.exampath or 'acrin_6698' in self.exampath) ):
+    if('//researchfiles' in self.exampath and ('ispy2' in self.exampath or 'ispy_2019' in self.exampath or 'ispy_2022' in self.exampath or 'acrin_6698' in self.exampath) ):
       #study folder name is between the 4th and 5th slashes
       self.studystr = self.exampath[(int(slashinds[3])+1):int(slashinds[4])]
       #Correction: ispy_2019 disk contains exams that belong to ispy2 study
       if(self.studystr == 'ispy_2019'):
         self.studystr = 'ispy2'
+      if(self.studystr == 'ispy_2022'):
+        self.studystr = 'ispy2.2'
       #site folder name is between the 5th and 6th slashes
       self.sitestr = self.exampath[(int(slashinds[4])+1):int(slashinds[5])]
       #ISPY ID folder name is between the 6th and 7th slashes
@@ -370,34 +368,94 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
             if('1' not in self.visitstr and '2' not in self.visitstr and '3' not in self.visitstr and '4' not in self.visitstr and '5' not in self.visitstr):
               #6/29/2021: Default to 'Visit unknown',
               #change this if visit is found in exampath
-              self.visitstr = 'Visit unknown'
-              if('v10' in self.exampath):
-                self.visitstr = 'MR1'
+              if(self.studystr == 'ispy_2022' or self.studystr == 'ispy2.2' or ('//researchfiles' in self.exampath and 'ispy_2022' in self.exampath)):
+                self.visitstr = 'Visit unknown'
+                if('v10' in self.exampath):
+                  self.visitstr = 'A0'
+              
+                if('v20' in self.exampath):
+                  self.visitstr = 'A3W'
+              
+                if('v25' in self.exampath):
+                  self.visitstr = 'A6W'
+              
+                if('v30' in self.exampath):
+                  self.visitstr = 'A12W'
 
-              if('v20' in self.exampath):
-                self.visitstr = 'MR2'
+                if('v35' in self.exampath):
+                  self.visitstr = 'AC2'
 
-              if('v30' in self.exampath):
-                self.visitstr = 'MR3'
+                if('v40' in self.exampath):
+                  self.visitstr = 'S1'
+              
+                if('v71' in self.exampath):
+                  self.visitstr = 'B3W'
 
-              if('v40' in self.exampath):
-                self.visitstr = 'MR4'
+                if('v72' in self.exampath):
+                  self.visitstr = 'B6W'
+
+                if('v73' in self.exampath):
+                  self.visitstr = 'B12W'
+
+              else:
+                self.visitstr = 'Visit unknown'
+                if('v10' in self.exampath):
+                  self.visitstr = 'MR1'
+              
+                if('v20' in self.exampath):
+                  self.visitstr = 'MR2'
+
+                if('v30' in self.exampath):
+                  self.visitstr = 'MR3'
+
+                if('v40' in self.exampath):
+                  self.visitstr = 'MR4'
 
           except:
-            #6/29/2021: Default to 'Visit unknown',
-            #change this is visit is found in exampath
-            self.visitstr = 'Visit unknown'
-            if('v10' in self.exampath):
-              self.visitstr = 'MR1'
+          #6/29/2021: Default to 'Visit unknown',
+          #change this is visit is found in exampath
+              if(self.studystr == 'ispy_2022' or self.studystr == 'ispy2.2' or ('//researchfiles' in self.exampath and 'ispy_2022' in self.exampath)):
+                self.visitstr = 'Visit unknown'
+                if('v10' in self.exampath):
+                  self.visitstr = 'A0'
+              
+                if('v20' in self.exampath):
+                  self.visitstr = 'A3W'
+              
+                if('v25' in self.exampath):
+                  self.visitstr = 'A6W'
+              
+                if('v30' in self.exampath):
+                  self.visitstr = 'A12W'
 
-            if('v20' in self.exampath):
-              self.visitstr = 'MR2'
+                if('v35' in self.exampath):
+                  self.visitstr = 'AC2'
 
-            if('v30' in self.exampath):
-              self.visitstr = 'MR3'
+                if('v40' in self.exampath):
+                  self.visitstr = 'S1'
+              
+                if('v71' in self.exampath):
+                  self.visitstr = 'B3W'
 
-            if('v40' in self.exampath):
-              self.visitstr = 'MR4'
+                if('v72' in self.exampath):
+                  self.visitstr = 'B6W'
+
+                if('v73' in self.exampath):
+                  self.visitstr = 'B12W'
+
+              else:
+                self.visitstr = 'Visit unknown'
+                if('v10' in self.exampath):
+                  self.visitstr = 'MR1'
+              
+                if('v20' in self.exampath):
+                  self.visitstr = 'MR2'
+
+                if('v30' in self.exampath):
+                  self.visitstr = 'MR3'
+
+                if('v40' in self.exampath):
+                  self.visitstr = 'MR4'
 
     #7/26/2021: If this step fails, DICOMs in exam directory are compressed.
     try:
@@ -436,29 +494,86 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
     self.parametersFormLayout.addRow(self.latetime)
 
 
-    if('ispy' in self.exampath or 'acrin' in self.exampath):
-      #position of v in visit string
-      vpos = self.visitstr.find('v')
-      #2/17/2021: Add exam details retrieved from exampath to DCE folder ID method selection menu.
-      visnum = self.visitstr[vpos:vpos+3]
+##    if('ispy' in self.exampath or 'acrin' in self.exampath):
+##      #position of v in visit string
+##      vpos = self.visitstr.find('v')
+##      #2/17/2021: Add exam details retrieved from exampath to DCE folder ID method selection menu.
+##      visnum = self.visitstr[vpos:vpos+3]
+##      visforlbl = 'Visit unknown'
+##      if(visnum == 'v10'):
+##        visforlbl = 'MR1'
+##
+##      if(visnum == 'v20'):
+##        visforlbl = 'MR2'
+##
+##      if(visnum == 'v25'):
+##        visforlbl = 'MR2.5'
+##
+##      if(visnum == 'v30'):
+##        visforlbl = 'MR3'
+##
+##      if(visnum == 'v40'):
+##        visforlbl = 'MR4'
+##
+##      if(visnum == 'v50'):
+##        visforlbl = 'MR5'
+##
+##      self.examlbl = "Choose Preferred Method of DCE Series ID for " + self.sitestr[5:] + " " + self.idstr + " " + visforlbl
+##    else:
+##      visnum = self.visitstr
+##      visforlbl = 'Visit unknown'
+##
+##      if(visnum == 'v10'):
+##        visforlbl = 'MR1'
+##
+##      if(visnum == 'v20'):
+##        visforlbl = 'MR2'
+##
+##      if(visnum == 'v25'):
+##        visforlbl = 'MR2.5'
+##
+##      if(visnum == 'v30'):
+##        visforlbl = 'MR3'
+##
+##      if(visnum == 'v40'):
+##        visforlbl = 'MR4'
+##
+##      if(visnum == 'v50'):
+##        visforlbl = 'MR5'
+##
+##      self.examlbl = "Choose Preferred Method of DCE Series ID for " + self.sitestr + " " + self.idstr + " " + visforlbl
+
+    #8/13/2022 New structure for ISPY2.2
+    if('ispy_2022' in self.exampath):
+      visnum = self.visitstr
       visforlbl = 'Visit unknown'
+
       if(visnum == 'v10'):
-        visforlbl = 'MR1'
+        visforlbl = 'A0'
 
       if(visnum == 'v20'):
-        visforlbl = 'MR2'
+        visforlbl = 'A3W'
 
       if(visnum == 'v25'):
-        visforlbl = 'MR2.5'
+        visforlbl = 'A6W'
 
       if(visnum == 'v30'):
-        visforlbl = 'MR3'
+        visforlbl = 'A12W'
+
+      if(visnum == 'v35'):
+        visforlbl = 'AC2'
 
       if(visnum == 'v40'):
-        visforlbl = 'MR4'
+        visforlbl = 'S1'
 
-      if(visnum == 'v50'):
-        visforlbl = 'MR5'
+      if(visnum == 'v71'):
+        visforlbl = 'B3W'
+
+      if(visnum == 'v72'):
+        visforlbl = 'B6W'
+
+      if(visnum == 'v73'):
+        visforlbl = 'B12W'
 
       self.examlbl = "Choose Preferred Method of DCE Series ID for " + self.sitestr[5:] + " " + self.idstr + " " + visforlbl
     else:
@@ -572,8 +687,6 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
       #Finally, add button that will be used to submit the user's final DCE folder selections
       self.parametersFormLayout.addRow(self.manualSubmitButton)
 
-
-
     #Code for removing the manual DCE folder selection menu when Manual checkbox is unselected
     if(self.manualIdCheckBox.isChecked() == False):
       self.parametersFormLayout.removeRow(self.listLabel)
@@ -582,7 +695,6 @@ class DCE_IDandPhaseSelectWidget(ScriptedLoadableModuleWidget):
         self.parametersFormLayout.removeRow(self.listCheckBox[jjj])
 
       self.parametersFormLayout.removeRow(self.manualSubmitButton)
-
 
   def onApplyButton(self):
     logic = DCE_IDandPhaseSelectLogic()
@@ -618,7 +730,6 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
     """
     Run the actual algorithm
     """
-
 
 
 ##    if not self.isValidInputOutputData(outputVolume):
@@ -660,11 +771,38 @@ class DCE_IDandPhaseSelectLogic(ScriptedLoadableModuleLogic):
 
     #6/28/2021: Make this part compatible with exams that don't use
     #\\researchfiles MR exam directory structure
-    if('ispy' in exampath or 'acrin' in exampath):
+    if('ispy_2019' in exampath or 'ispy2' in exampath or 'acrin' in exampath):
       vpos = visitstr.find('v')
       visitnum = int(visitstr[vpos+1:vpos+3])
     else:
-      visitnum = visitstr
+      if('v10' in exampath):
+        visitnum = 'A0'
+
+      if('v20' in exampath):
+        visitnum = 'A3W'
+              
+      if('v25' in exampath):
+        visitnum = 'A6W'
+             
+      if('v30' in exampath):
+        visitnum = 'A12W'
+
+      if('v35' in exampath):
+        visitnum = 'AC2'
+
+      if('v40' in exampath):
+        visitnum = 'S1'
+              
+      if('v71' in exampath):
+        visitnum = 'B3W'
+
+      if('v72' in exampath):
+        visitnum = 'B6W'
+
+      if('v73' in exampath):
+        visitnum = 'B12W'
+
+      ## visitnum = visitstr
 
     #Edit 7/28/2020: Must have this before you process other visits.
     #This is because by default, the 2nd module reads the 1st node's image as precontrast.

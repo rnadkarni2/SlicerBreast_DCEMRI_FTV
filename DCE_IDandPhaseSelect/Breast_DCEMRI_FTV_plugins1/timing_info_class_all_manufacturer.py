@@ -37,9 +37,27 @@ class GE_TimingInfo:
 
             try:
                 self.contenttime = header[0x8,0x33].value
+                print("contenttime1")
+                print(self.contenttime)
             except:
                 self.contenttime = '000000'
+                print("contenttime2")
+                print(self.contenttime)
 
+                #try:
+                #    self.contenttime = float(header[0x18,0x1060].value)
+                #    print("contenttime")
+                #    print(self.contenttime)
+                #except:
+                #    self.contenttime = '000000'
+                
+            try:
+                self.trigtime = float(header[0x18,0x1060].value) #for ucsd image, this has same value as temporal resolution
+                print("trigtime1")
+                print(self.trigtime)
+            except:
+                self.trigtime = 0
+                
             #content time is a good field to use to identify the phase timing for UAB as well
             #For UAB, field that tells # of slices per phase for such single folder DCE GE exams is Locations in Acquisition (21,104f)
             #Still have to check if its the same for Loyola
@@ -70,11 +88,6 @@ class GE_TimingInfo:
                 except: #finally, if neither work set temporal resolution to 0 (hopefully doesn't happen for 2nd-final post-contrast
                     self.tempressec = 0
 
-            try:
-                self.trigtime = float(header[0x18,0x1060].value) #for ucsd image, this has same value as temporal resolution
-            except:
-                self.trigtime = 0
-
             #Edit 2/1/2021: Include Acquisition Time
             try:
                 self.acqtime = header.AcquisitionTime
@@ -87,6 +100,7 @@ def getGETimingAllFolders(phaseslc1paths):
     ge_timing_all = []
     for i in range(len(phaseslc1paths)):
         curr_ge_timing = GE_TimingInfo(phaseslc1paths[i],len(phaseslc1paths))
+        print(curr_ge_timing)
         ge_timing_all.append(curr_ge_timing)
     return ge_timing_all
 

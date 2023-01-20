@@ -150,20 +150,21 @@ def runExamIdentAndTiming(exampath,dce_folders_manual,dce_ind_manual,earlyadd,la
 
         try:
             if (len(dce_folders) < 3):
-                tempres, fsort, studydate, nslice, earlyPostContrastNum, latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss = chooseEarly_LateByManufacturer.chooseEarlyLatePhilips(exampath, dce_folders, earlyadd, lateadd)
+                tempres, fsort, studydate, nslice, earlyPostContrastNum, latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss = chooseEarly_LateByManufacturer.chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd)
             else:
-                tempres, fsort, studydate, nslice, earlyPostContrastNum, latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss = chooseEarly_LateByManufacturer.chooseEarlyLateGE_Siemens(exampath, dce_folders, manufacturer, earlyadd, lateadd)
+                tempres, fsort, studydate, nslice, earlyPostContrastNum, latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss = chooseEarly_LateByManufacturer.chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd,lateadd)
+            print (tempres)
         except:
             if(len(dce_folders_manual) == 0):
                 slicer.util.confirmOkCancelDisplay("Error occurred during early/late timing ID. Please try manual series ID for this exam.","Early/Late Timing ID Error")
             else:
                 slicer.util.confirmOkCancelDisplay("Error occurred during early/late timing ID. If your manual series selection is correct, Slicer FTV cannot process this exam.","Early/Late Timing ID Error")
 
-        if(len(dce_folders) == 1):
+        if len(dce_folders) == 1:
             print("All DCE images are in folder #" + str(dce_folders[0]))
             print( "Early post-contrast image is post-contrast #" + str(earlyPostContrastNum) )
             print( "Late post-contrast image is post-contrast #" + str(latePostContrastNum) )
-        if(len(dce_folders) == 2):
+        if len(dce_folders) == 2:
             print( "Pre-contrast image is in folder #" + str(dce_folders[0]) )
             print("All post-contrast images are in folder #" + str(dce_folders[1]))
             print( "Early post-contrast image is post-contrast #" + str(earlyPostContrastNum) )

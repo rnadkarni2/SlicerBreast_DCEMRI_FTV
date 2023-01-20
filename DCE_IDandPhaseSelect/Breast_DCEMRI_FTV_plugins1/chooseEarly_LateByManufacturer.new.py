@@ -87,7 +87,6 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
             FILES = [f for f in os.listdir(curr_path) if f.endswith('.DCM')]
             files_noext = [f for f in os.listdir(curr_path) if f.isdigit()] #edit 1/26/2021: In some folders, there is a series of DICOM images
                                                                             #with no .dcm or .DCM extension, but all the files have a number as the filename.
-
             if len(files) > 0:
                 files = sorted(files)
                 curr_img_path = os.path.join(curr_path,files[0])
@@ -147,7 +146,6 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
     use_acq_time = 0
     print("length timing all")
     print(len(timing_all))
-    print(timing_all)
 
     #6/24/21: If you change timing variable from content time to other and
     #tempres is currently contenttime(2nd post) - contenttime(1st post), you
@@ -159,9 +157,6 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
         curr_timing = timing_all[i]
 
         ctime = curr_timing.contenttime
-        print(curr_timing)
-        print(curr_timing.acqtime)
-        print(curr_timing.trigtime)
         #Edit 6/27/2021: If ctime has less than 6 digits, it is not a valid
         #hh:mm:ss time, so then make ctimesec 0 so that one of the other
         #phase timing variables will be used.
@@ -181,58 +176,24 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
         acqtimesec = 3600*int(acqtime[0:2]) + 60*int(acqtime[2:4]) + float(acqtime[4:]) #For UMinn 23929 v10, must use this in place of content time.
         acqtimes[i-1,0] = acqtimesec
 
-##        #Get temporal resolution (in seconds) from 2nd post-contrast image. Also read Study Date from this image.
-##        if i == 2:
-##            tempres = curr_timing.tempressec
-##            studydate = curr_timing.studydate
-##
-##            #Edit 6/12/2020: Like Philips, make tempres equal to difference between trigger (content) times if necessary
-##            #Edit 3/22/2021: Also use difference between 2nd and 1st post-contrast
-##            #timing as tempres if tempres from header is too large (> 120 sec).
-##            if ( tempres < 30 or tempres > 120): #Edit: use small fixed value threshold instead of actually setting it to difference between trigger/content times
-##                tempres = contenttimes[i-1,0] - contenttimes[i-2,0]
-##                #For UKCC, use trigger time because all content times are the same
-##                if(tempres == 0):
-##                    use_trig_time = 1
-##                    tempres = trigtimes[i-1,0] - trigtimes[i-2,0]
-##                tempres_subtract = 1
-
-        #Get temporal resolution (in seconds) from all post-contrast phases. 
+        #Get temporal resolution (in seconds) from 2nd post-contrast image. Also read Study Date from this image.
         if i == 2:
             tempres = curr_timing.tempressec
             studydate = curr_timing.studydate
-      
-        if i >= 2:            
-            tempres_ct = contenttimes[i-1,0] - contenttimes[i-2,0]
-            tempres_at = acqtimes[i-1,0] - acqtimes[i-2,0]
-            tempres_tt = trigtimes[i-1,0] - trigtimes[i-2,0]
-            tempres_min = min(tempres_ct, tempres_at, tempres_tt)
-            tempres_max = max(tempres_ct, tempres_at, tempres_tt)
-            
-            if  tempres_min != 0:
-                if tempres != 0:
-                    tempres = min (tempres, tempres_min)
-                else:
-                    tempres = max (tempres, tempres_min) 
-            else :
-                if tempres_max != 0:
-                    if tempres != 0:
-                        tempres = min (tempres, tempres_max)
-                    else:
-                        tempres = max (tempres, tempres_max)
-##            print("tempres")
-##            print(i)
-##            print(tempres)
-##            print(tempres_min)
-##            print(tempres_ct)
-##            print(tempres_at)
-##            print(tempres_tt)
-##            print(tempres_max)
-                
+
+            #Edit 6/12/2020: Like Philips, make tempres equal to difference between trigger (content) times if necessary
+            #Edit 3/22/2021: Also use difference between 2nd and 1st post-contrast
+            #timing as tempres if tempres from header is too large (> 120 sec).
+            if ( tempres < 30 or tempres > 120): #Edit: use small fixed value threshold instead of actually setting it to difference between trigger/content times
+                tempres = contenttimes[i-1,0] - contenttimes[i-2,0]
+                #For UKCC, use trigger time because all content times are the same
+                if(tempres == 0):
+                    use_trig_time = 1
+                    tempres = trigtimes[i-1,0] - trigtimes[i-2,0]
+                tempres_subtract = 1
+
     print("Content times just before trigger time check")
     print(contenttimes)
-    print("tempres")
-    print(tempres)
 
     #Edit 2/2/2021: If multivolume_folder_sort was used, make sure choice of timing variable is same as the one chosen in that function.
     if(len(dce_folders) == 1 or len(dce_folders) == 2):
@@ -315,16 +276,11 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
 
         earlyPostContrastNum = findClosestTime(imgtimes,earlytime)
         latePostContrastNum = findClosestTime(imgtimes,latetime)
-
-        print("earlyPostContrastNum-1")
-        print(earlyPostContrastNum)
     else:
         #Edit 1/21/2021: For cases like UAB exam 19701 v30 where there are only 2 post-contrast phases
         earlyPostContrastNum = 1
         latePostContrastNum = 2
-        print("earlyPostContrastNum-2")
-        print(earlyPostContrastNum)
-    
+
     #Edit 2/26/2021: If obvious error such as same phase labeled early and late,
     #Redo timing ident using only numtemp and tempres
     #Edit 3/16/2021: Adding another case for use of numtemp and tempres, because if 1st post-contrast
@@ -358,9 +314,6 @@ def chooseEarlyLateGE_Siemens(exampath,dce_folders,manufacturer,earlyadd, latead
     latediff = imgtimes[latePostContrastNum-1] - contenttimes[0]
     latediffmm, latediffss = getTimeMMSS(latediff)
 
-    print("earlyPostContrastNum-3")
-    print(earlyPostContrastNum)
-
     return tempres, fsort, studydate, nslice, earlyPostContrastNum, latePostContrastNum, earlydiffmm, earlydiffss, latediffmm, latediffss
 
 
@@ -383,23 +336,22 @@ def chooseEarlyLatePhilips(exampath,dce_folders,earlyadd,lateadd):
             gzip_gunzip_pyfuncs.gunzipAllFilesDCE(orig_exampath,str(dce_folders[1]))
 
     #Using test_multivolume_folder_sort to automatically sort dicom filenames
-    if(len(dce_folders) == 1):
+    if(len(dce_folders) <3 & len(dce_folders) == 1):
         dcepath = os.path.join(exampath,str(int(dce_folders[0])))
 
-    if(len(dce_folders) == 2):
+    if(len(dce_folders) <3 & len(dce_folders) == 2):
         dcepath = os.path.join(exampath,str(int(dce_folders[1])))
 
-    print("dce path")
-    print(dcepath)
-
-    fsort,numtemp,nslice, ctime_forphases, ttime_forphases, atime_forphases = multivolume_folder_sort.sortDicoms(dcepath)
-
-    print("ttime for phases")
-    print(ttime_forphases)
-    print("ctime for phases")
-    print(ctime_forphases)
-    print("atime for phases")
-    print(atime_forphases)
+    if(len(dce_folders) <3):
+        print("dce path")
+        print(dcepath)
+        fsort,numtemp,nslice, ctime_forphases, ttime_forphases, atime_forphases = multivolume_folder_sort.sortDicoms(dcepath)
+        print("ttime for phases")
+        print(ttime_forphases)
+        print("ctime for phases")
+        print(ctime_forphases)
+        print("atime for phases")
+        print(atime_forphases)
 
     #For Philips, can assume always single-folder DCE
     #3/29/2021: Brtool results for OHSC 06294 v10 showed that

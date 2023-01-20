@@ -69,7 +69,7 @@ def chooseMaxTumorSlice(slc_s,slc_f,tumor_mask):
     slc_sums = np.zeros(((1+slc_f-slc_s),1)) #array that contains tumor area of each slice in roi slice range
     slc_maxA = 0 #slice index of max tumor area
     maxsum = 0 #max tumor area in that slice
-    for slc in range(slc_s,(slc_f+1)):
+    for slc in range(slc_s+1,slc_f-1):
         tumor_mask_slc = tumor_mask[:,:,slc]
         #update max slice index when current tumor area sum exceeds previous max value
         if(np.sum(tumor_mask_slc) > maxsum):

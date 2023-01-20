@@ -28,14 +28,17 @@ import re
 
 def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
     imgpath = os.path.join(exampath,str(prefoldernum))
+    print("imgpath")
     print(imgpath)
+    print("fsort")
+    print(fsort)
     files = os.listdir(imgpath)
-
+    print(files)
     #nslice = 0 is when there is 1 phase per folder, so N = slices/phase = # of DICOMs in folder
     #If all DCE in same folder, nslice is already set to slices/phase, so N = nslice
     if (nslice == 0):
         N = len(files)
-
+        print(N)
         file1search1 = [i for i in files if '001.dcm' in i]
         file1search2 = [i for i in files if '001.DCM' in i]
 
@@ -91,7 +94,8 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
     img_sp = img1[0x28,0x30] #Pixel Spacing
     row_sp = float(img_sp[0]) #row spacing
     col_sp = float(img_sp[1]) #column spacing
-
+    print("N")
+    print(N)
     #Read DICOM for last slice
     #Once again, separate by Philips and non-Philips (6/9/2020)
     if (nslice == 0):
@@ -99,12 +103,14 @@ def computeAffineAndAffineInverse(exampath,prefoldernum,nslice,fsort):
             searchstr = str(N) + '.dcm'
         if (len(file1search2)>0 or len(file1search4)>0):
             searchstr = str(N) + '.DCM'
-
         if( len(file1search5) > 0):
             fileN = os.path.join(imgpath,file1search5[len(file1search5) - 1])
         else:
             fileNsearch = [i for i in files if searchstr in i]
-            fileN = os.path.join(imgpath,fileNsearch[0])
+            if len(fileNsearch) > 0:
+                fileN = os.path.join(imgpath,fileNsearch[0])
+            else:
+                fileN = os.path.join(imgpath,fsort[0][N-1])
     else:
         fileN = os.path.join(imgpath,fsort[0][N-1])
 

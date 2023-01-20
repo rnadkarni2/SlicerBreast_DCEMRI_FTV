@@ -83,8 +83,8 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
         img_wroi_sercolor = np.copy(img_wroi) #need to use np.copy so that input image is not SER colorized
 
         #Only doing colorization within ROI box
-        for r in range(row_s+1,row_f):
-            for c in range(col_s+1,col_f):
+        for r in range(row_s+1,row_f-1):
+            for c in range(col_s+1,col_f-1):
                 #Only add color to voxels that have been labeled as tumor
                 if tumor_mask_slc[r,c] == 1:
                     #If SER in range 0 to 0.9, make the voxel blue
@@ -169,17 +169,27 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     def adjustImgScaleWithWL(img,scale,window,level):
         #max value for window level settings is given by the equation below
         windowmax = float(level) + float(window/2)
+        windowmin = float(level) - float(window/2)
         print("windowmax to 8 bit")
         print(str(scale*windowmax))
+## Method 1
+        scale2 = 255/(scale*(windowmax - windowmin))
 
+        print("scale 2")
+        print(str(scale2))
+        print("original scale 2")
+        print(str(255/(scale*windowmax)))
+        img = scale2*img
+
+## Original
         #if windowmax scaled to 8 bit is less than 255, set values above this to 255
-        if(scale*windowmax < 255):
-            img = np.where(img < (scale*windowmax), img, 255)
+##        if(scale*windowmax < 255):
+##            img = np.where(img < (scale*windowmax), img, 255)
 
         #if windowmax scaled to 8 bit is greater than 255, rescale the image so that scale*windowmax is 255
-        if(scale*windowmax > 255):
-            scale2 = 255/(scale*windowmax)
-            img = scale2*img
+##        if(scale*windowmax > 255):
+##            scale2 = 255/(scale*windowmax)
+##            img = scale2*img
 
         return img
 
@@ -203,6 +213,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     img_ax_slc = adjustImgScaleWithWL(img_ax_slc,ax_slc_scale,window,level)
 
     img_ax_slc_wroi = create2DimgAllFunctions.createImgWithROIRect(img_ax_slc,xs,xf,ys,yf,omitCount,omitradii,omitcenters,'ax',z_maxA) #np.amax(img_ax_slc)) #draw ROI rectangle on axial slice
+    #img_ax_slc_wroi = create2DimgAllFunctions.createImgWithROIRect(img_ax_slc,ys,yf,xs,xf,omitCount,omitradii,omitcenters,'ax',z_maxA) #np.amax(img_ax_slc)) #draw ROI rectangle on axial slice
     print("Drew rectangle on axial slice")
     print(img_ax_slc_wroi.shape)
     print("Min/Max of Axial slice array")
@@ -220,17 +231,24 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     mip_axial = adjustImgScaleWithWL(mip_axial,ax_mip_scale,window,level)
 
     mip_axial_wroi = create2DimgAllFunctions.createImgWithROIRect(mip_axial,xs,xf,ys,yf,omitCount,omitradii,omitcenters,'ax',z_maxA) #draw ROI rectangle on axial mip
+    #mip_axial_wroi = create2DimgAllFunctions.createImgWithROIRect(mip_axial,ys,yf,xs,xf,omitCount,omitradii,omitcenters,'ax',z_maxA) #draw ROI rectangle on axial mip
     print("Made axial MIP with ROI and omit boxes")
     print(mip_axial_wroi.shape)
     print("Min/Max of Axial MIP array")
     print(np.amin(mip_axial_wroi))
     print(np.amax(mip_axial_wroi))
+    print("ys, yf, xs, xf, z_maxA")
+    print(ys, yf, xs, xf, z_maxA)
+    print(tumor_mask[:,:,z_maxA].shape)
+    print(img_ax_slc_wroi.shape)
 
     #image axial slice crop with SER colormap overlayed
     #first, add SER colorization to whole axial slice
     img_ax_clr = serColorize(img_ax_slc_wroi,tumor_mask[:,:,z_maxA],ser[:,:,z_maxA],ys,yf,xs,xf)
+    #img_ax_clr = serColorize(img_ax_slc_wroi,tumor_mask[:,:,z_maxA],ser[:,:,z_maxA],xs,xf,ys,yf)
     #then, crop colorized axial slice to small square region around ROI
     img_ax_clr_crop = sqCropROIimg(img_ax_clr,ys,yf,xs,xf,buf,1,'axial')
+    #img_ax_clr_crop = sqCropROIimg(img_ax_clr,xs,xf,ys,yf,buf,1,'axial')    
     print("Made axial SER colormap")
     print(img_ax_clr_crop.shape)
 
@@ -288,18 +306,25 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #aspect ratio for sagittal images
     #Edit 5/11/2020: Using aff_mat[2,2] instead of hdr.SpacingBetweenSlices to allow aspect ratio definition for Siemens scanner images
+    #if earlyslice1hdr.PixelSpacing[1] > 0.8 :
+    #    asp = float(abs(aff_mat[2,2]))/(float(earlyslice1hdr.PixelSpacing[1]))
+    #else:
+    #    asp = float(abs(aff_mat[2,2]))/(float(2*earlyslice1hdr.PixelSpacing[1]))
     asp = float(abs(aff_mat[2,2]))/(float(earlyslice1hdr.PixelSpacing[1]))
+    print("aff_mat: " + str(aff_mat[2,2]))
+    print ("SPixel Spacing:" + str(earlyslice1hdr.PixelSpacing))
     print("aspect ratio: " + str(asp))
 
     tumor_mask_sagittal = np.transpose(tumor_mask,(2,0,1)) #z,y,x
     ser_sagittal = np.transpose(ser,(2,0,1)) #z,y,x
-    x_maxA = create2DimgAllFunctions.chooseMaxTumorSlice(xs,xf,tumor_mask_sagittal) #find x-slice of sagittal tumor mask with max tumor area
+    y_maxA = create2DimgAllFunctions.chooseMaxTumorSlice(xs,xf,tumor_mask_sagittal) #find x-slice of sagittal tumor mask with max tumor area
+    #y_maxA = create2DimgAllFunctions.chooseMaxTumorSlice(ys,yf,tumor_mask_sagittal)
 
-    print("Found x slice to use, using slice #"+str(x_maxA))
+    print("Found x slice to use, using slice #"+str(y_maxA))
 
     diffimg3d_sagittal = np.transpose(diffimg3d,(2,0,1)) #z,y,x
     img3d_sagittal = np.transpose(img3d,(2,0,1)) #z,y,x
-    img_sag_slc = img3d_sagittal[:,:,x_maxA] #take x slice of ROI with max tumor area
+    img_sag_slc = img3d_sagittal[:,:,y_maxA] #take x slice of ROI with max tumor area
 
     #Edit 8/12/2020: Scale all images to max value of 255
     sag_slc_scale = 255/(np.amax(img_sag_slc))
@@ -307,8 +332,10 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #call function to adjust image values using window level settings
     img_sag_slc = adjustImgScaleWithWL(img_sag_slc,sag_slc_scale,window,level)
-
-    img_sag_slc_wroi = create2DimgAllFunctions.createImgWithROIRect(img_sag_slc,ys,yf,zs,zf,omitCount,omitradii,omitcenters,'sag',x_maxA)#np.amax(img_sag_slc)) #draw ROI rectangle on sagittal slice
+    
+    #img_sag_slc_wroi = create2DimgAllFunctions.createImgWithROIRect(img_sag_slc,xs,xf,zs,zf,omitCount,omitradii,omitcenters,'sag',y_maxA)#np.amax(img_sag_slc)) #draw ROI rectangle on sagittal slice
+    img_sag_slc_wroi = create2DimgAllFunctions.createImgWithROIRect(img_sag_slc,ys,yf,zs,zf,omitCount,omitradii,omitcenters,'sag',y_maxA)#np.amax(img_sag_slc)) #draw ROI rectangle on sagittal slice
+    #img_sag_slc_wroi = create2DimgAllFunctions.createImgWithROIRect(img_sag_slc,zs,zf,xs,xf,omitCount,omitradii,omitcenters,'sag',y_maxA)#np.amax(img_sag_slc)) #draw ROI rectangle on sagittal slice
     print("Drew rectangle on sagittal slice")
     print(img_sag_slc_wroi.shape)
     print("Min/Max of Sagittal slice array")
@@ -318,7 +345,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #Edit 6/12/2020: If x_maxA is less than halfway through x-range, use first half of x-range only for creating MIP
     #otherwise, use second half of x-range only for creating MIP
-    if (x_maxA < diffimg3d_sagittal.shape[2]/2):
+    if (y_maxA < diffimg3d_sagittal.shape[2]/2):
         diffimg3d_sagittal_formip = diffimg3d_sagittal[:,:,0:int(diffimg3d_sagittal.shape[2]/2)]
     else:
         diffimg3d_sagittal_formip = diffimg3d_sagittal[:,:,int(diffimg3d_sagittal.shape[2]/2):int(diffimg3d_sagittal.shape[2])]
@@ -331,8 +358,10 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #call function to adjust image values using window level settings
     mip_sagittal = adjustImgScaleWithWL(mip_sagittal,sag_mip_scale,window,level)
-
-    mip_sagittal_wroi = create2DimgAllFunctions.createImgWithROIRect(mip_sagittal,ys,yf,zs,zf,omitCount,omitradii,omitcenters,'sag',x_maxA) #draw ROI rectangle on sagittal mip
+    
+    #mip_sagittal_wroi = create2DimgAllFunctions.createImgWithROIRect(mip_sagittal,xs,xf,zs,zf,omitCount,omitradii,omitcenters,'sag',y_maxA) #draw ROI rectangle on sagittal mip
+    mip_sagittal_wroi = create2DimgAllFunctions.createImgWithROIRect(mip_sagittal,ys,yf,zs,zf,omitCount,omitradii,omitcenters,'sag',y_maxA) #draw ROI rectangle on sagittal mip
+    #mip_sagittal_wroi = create2DimgAllFunctions.createImgWithROIRect(mip_sagittal,zs,zf,xs,xf,omitCount,omitradii,omitcenters,'sag',y_maxA) #draw ROI rectangle on sagittal mip
     print("Made sagittal MIP with roi and omit boxes")
     print(mip_sagittal_wroi.shape)
     print("Min/Max of Sagittal MIP array")
@@ -341,9 +370,13 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #image sagittal slice crop with SER colormap overlayed
     #first, add SER colorization to whole sagittal slice
-    img_sag_clr = serColorize(img_sag_slc_wroi,tumor_mask_sagittal[:,:,x_maxA],ser_sagittal[:,:,x_maxA],zs,zf,ys,yf)
+    img_sag_clr = serColorize(img_sag_slc_wroi,tumor_mask_sagittal[:,:,y_maxA],ser_sagittal[:,:,y_maxA],zs,zf,ys,yf)
+    #img_sag_clr = serColorize(img_sag_slc_wroi,tumor_mask_sagittal[:,:,y_maxA],ser_sagittal[:,:,y_maxA],zs,zf,xs,xf)
+    #img_sag_clr = serColorize(img_sag_slc_wroi,tumor_mask_sagittal[:,:,y_maxA],ser_sagittal[:,:,y_maxA],xs,xf,zs,zf)
     #then, crop colorized sagittal slice to small square region around ROI
     img_sag_clr_crop = sqCropROIimg(img_sag_clr,zs,zf,ys,yf,buf,asp,'sagittal')
+    #img_sag_clr_crop = sqCropROIimg(img_sag_clr,zs,zf,xs,xf,buf,asp,'sagittal')
+    #img_sag_clr_crop = sqCropROIimg(img_sag_clr,xs,xf,zs,zf,buf,asp,'sagittal')
     #flip l/r to give desired orientation
     img_sag_clr_crop = np.fliplr(img_sag_clr_crop)
     print("Made sagittal SER colormap")
@@ -360,6 +393,9 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     savenamejpeg = savenamepdf[:-3] + "jpeg"
     savenamedcm = savenamepdf[:-3] + "dcm"
 
+    # Add txt file output name (Nov, 2022)
+    savenametxt = savenamepdf[:-3] + "txt"
+
     #Edit 5/13/2020: Always want the image orientations seen in the GE reports. So if other exams are not already like that,
     #apply fliplr or flipud so that you can keep the orientation label positions.
 
@@ -375,7 +411,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #for sagittal, A/P labels are reversed from what affine matrix implies because we have applied
     #a lr flip to the sagittal images
-    if (float(aff_mat[1,0])>0):
+    if (float(aff_mat[1,0])>0): 
         mip_axial_wroi = np.flipud(mip_axial_wroi)
         img_ax_slc_wroi = np.flipud(img_ax_slc_wroi)
         img_ax_clr_crop = np.flipud(img_ax_clr_crop)
@@ -390,8 +426,6 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     sagleftlbl = 'A'
     sagrightlbl = 'P'
-
-
 
     #Edit 6/26/2020: Using original orientation from:
     #loadables = plugin.examine([dicom_names])
@@ -462,15 +496,19 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
 
     #7/19/2021: Create string for manufacturer
     manufact_str = "Manufacturer: " + manufacturer
+    print ("Manufacturer = " + str(len(manufact_str)))
+    print (manufact_str)
 
     try:
         institution = "Institution: " + str(earlyslice1hdr.ClinicalTrialSiteName) #Using Clinical Trial Site Name
+        print (earlyslice1hdr.ClinicalTrialSiteName)
     except: #in some cases, have to use Institution Name field instead
         try:
             institution = "Institution: " + str(earlyslice1hdr[0x8,0x80].value)
         except:
             institution = 'Site Unknown'
-
+    print ("Institution = " + str(len(institution)))
+    print (institution)
     #preparing study string using early post-contrast image header
     studytime = str(earlyslice1hdr.StudyTime)
     studydate = str(earlyslice1hdr.StudyDate)
@@ -500,7 +538,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     voxsize_cm3 = voxsize_mm3/1000
     ftv_cm3 = ftv_voxels*voxsize_cm3
     tumor_volume = "Tumor Volume: {} cc".format(round(ftv_cm3,3))
-
+    
     #auto timing
     #Format:
     # MM:SS from content time of early (early #) / MM:SS from content time of late (late #)
@@ -557,7 +595,22 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     pathtofunc,funcname = os.path.split(os.path.realpath(__file__))
     logo_path = os.path.join(pathtofunc,'3DSlicerLogo.png')
     logo = cv2.imread(logo_path)
+#------------------------Writing txt file--------------------------------------#
+    txt_file = open(savenametxt, "w+")
 
+    txt_file.write( "I-SPY ID: " + idstr + "\r\n")
+    txt_file.write( "Date: " + studydate[4:6]+"/"+studydate[6:]+"/"+studydate[0:4]+" "+studytime[0:2]+":"+studytime[2:4]+":"+studytime[4:] + "\r\n")
+    txt_file.write( visit_id + "\r\n")
+    txt_file.write( institution + "\r\n")
+    txt_file.write( breast + "\r\n")
+    txt_file.write( "Tumor Volume: {}".format(round(ftv_cm3,3)) + "\r\n")
+    txt_file.write( "Early Post Timing: " + str(earlydiffmm) + ":" + earlydiffss_str + " (" + str(earlyPostContrastNum) + ")" + "\r\n")
+    txt_file.write( "Late Post Timing: " + str(latediffmm) + ":" + latediffss_str + " (" + str(latePostContrastNum) + ")" + "\r\n")
+    txt_file.write( "PE Threshold: {}%".format(pethresh) + "\r\n")
+    txt_file.write( "Scan Duration: " + str(round(float(tempres),1)) + "\r\n")
+    txt_file.write( "Gray Threshold: {}%".format(round(100*pct)) + "\r\n")
+    txt_file.write( "MOCO: " + "None" + "\r\n")
+    txt_file.write( "FOV: " + str(ax_fovx) + " x " + str(ax_fovy) + "\r\n")
 
 #------------------------Plotting starts here----------------------------------#
     fig = plt.figure(constrained_layout=True,figsize=(11,8.5))
@@ -572,7 +625,11 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     #top center
     a = fig.add_subplot(spec[0,1])
     txtplot = plt.text(0,0.7,visit_id,fontsize = 10)
-    txtplot = plt.text(0,0.4,institution,fontsize = 10)
+    if len(institution) < 35 :
+        txtplot = plt.text(0,0.4,institution,fontsize = 10)
+    else :
+        txtplot = plt.text(0,0.5,institution[:35],fontsize = 10)
+        txtplot = plt.text(0,0.3,institution[36:],fontsize = 10)
     txtplot = plt.text(0,0.1,manufact_str,fontsize = 10)
     plt.axis('off')
     #top right
@@ -646,7 +703,7 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     plt.axis('off')
     #Text region 2
     a = fig.add_subplot(spec[3,1])
-    txtplot = plt.text(0.1,1,'Settings',fontsize = 15)
+    txtplot = plt.text(0.1,1,'Settings',fontsize = 14)
     txtplot = plt.text(0.1,0.8,autotiming,fontsize=11)
     txtplot = plt.text(0.1,0.6,pe_mnc,fontsize=11)
     txtplot = plt.text(0.1,0.4,scanduration,fontsize=11)
@@ -664,11 +721,11 @@ def createPDFreport(gzipped,path,savenamepdf,tempres,fsort,manufacturer,dce_fold
     #footer info
     #bottom left
     a = fig.add_subplot(spec[4,0])
-    txtplot = plt.text(0.1,0.7,'NOT FOR DIAGNOSIS', fontsize = 15)
+    txtplot = plt.text(0.1,0.7,'NOT FOR DIAGNOSIS', fontsize = 14)
     plt.axis('off')
     #adding approval info to bottom center
     a = fig.add_subplot(spec[4,1])
-    txtplot = plt.text(0,1,'Approval',fontsize = 15)
+    txtplot = plt.text(0,1,'Approval',fontsize = 14)
     txtplot = plt.text(0.06,0.5,'Original Image Reviewed BI-RADS Readable',fontsize = 11)
     txtplot = plt.text(0.06,0.1,'Volume Verified and Acceptable',fontsize = 11)
     rect1 = mpatches.Rectangle((0,0.5),width=0.025,height=0.2,fill=False) #lower left at (0.1,0.5), width & height 0.15
