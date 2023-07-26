@@ -71,7 +71,7 @@ will be submitted to the journal <strong>Tomography</strong> before the end of 2
 <h2>Additional Resources</h2>
 
 For complete, step-by-step user instructions on how to use this extension, please read the document <br>
-**[UserInstructionsFor_Breast_DCEMRI_FTV.pdf]([https://raw.githubusercontent.com/rnadkarni2/SlicerBreast_DCEMRI_FTV/master/UserInstructionsFor_Breast_DCEMRI_FTV.pdf](https://github.com/rnadkarni2/SlicerBreast_DCEMRI_FTV/blob/master/StepByStepInstructionsForSlicerFTV_12_14_2022_FINAL_Rdcd.pdf))**, which has been included in this repository.
+**[UserInstructionsFor_Breast_DCEMRI_FTV.pdf](https://github.com/rnadkarni2/SlicerBreast_DCEMRI_FTV/blob/master/StepByStepInstructionsForSlicerFTV_12_14_2022_FINAL_Rdcd.pdf)**, which has been included in this repository.
 
 <p>If you have any questions, you can contact David Newitt of the UCSF Breast Imaging Research Group (david.newitt@ucsf.edu)</p>
 
